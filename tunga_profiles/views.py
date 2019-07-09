@@ -4,10 +4,10 @@ import json
 from actstream.models import Action
 from allauth.socialaccount.providers.github.provider import GitHubProvider
 from dateutil.relativedelta import relativedelta
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.query_utils import Q
 from django.shortcuts import get_object_or_404
-from django.conf import settings
 from django_countries.fields import CountryField
 from dry_rest_permissions.generics import DRYObjectPermissions, DRYPermissions
 from rest_framework import viewsets, generics, views, status
@@ -265,7 +265,8 @@ class NotificationView(views.APIView):
         ).distinct()[:4]
 
         raw_activities = Action.objects.filter(
-            ~Q(id__in=[int(item.notification_id) for item in NotificationReadLog.objects.filter(user=user, type=NOTIFICATION_TYPE_ACTIVITY)]) &
+            ~Q(id__in=[int(item.notification_id) for item in
+                       NotificationReadLog.objects.filter(user=user, type=NOTIFICATION_TYPE_ACTIVITY)]) &
             (
                 Q(projects__in=running_projects) | Q(progress_events__project__in=running_projects)
             ),
@@ -343,7 +344,8 @@ class NotificationView(views.APIView):
                         title=report.event.project.title
                     ),
                 ) for report in progress_reports],
-                'activities': ActivitySerializer(instance=cleaned_activities, many=True, context=dict(request=request)).data
+                'activities': ActivitySerializer(instance=cleaned_activities, many=True,
+                                                 context=dict(request=request)).data
             },
             status=status.HTTP_200_OK
         )
@@ -436,11 +438,14 @@ class WhitePaperVisitorsView(views.APIView):
     """
     serializer_class = WhitePaperVisitorsSerializer
     permission_classes = []
-    
+
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({'download_url': settings.RESEARCH_PAPER_DOWNLOAD_URL}, status=status.HTTP_201_CREATED)
+            if serializer.data['paper'] == 'scaling_your_team_with_remote_developers':
+                return Response({'download_url': settings.RESEARCH_PAPER_DOWNLOAD_URL}, status=status.HTTP_201_CREATED)
+            return Response({'download_url': settings.WHITE_PAPER_DOWNLOAD_URL}, status=status.HTTP_201_CREATED)
+
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
