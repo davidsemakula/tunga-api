@@ -8,29 +8,29 @@ body {
     font-family: 'Roboto', sans-serif !important;
 }
 
-#header {
-    background-color: #ee1f54;
+.swagger-ui .topbar {
+    background-color: #ee1f54 !important;
 }
 
-#header a#logo {
-    background: transparent none;
-    padding-left: 0;
+.swagger-ui .topbar .topbar-wrapper .link {
+    display: none;
 }
 
-#header .header-actions > * {
-    margin-right: 5px;
-    color: #fff;
+.swagger-ui .btn.authorize {
+    display: none;
+    color: #ee1f54;
+    border-color: #ee1f54;
 }
 
-#header .header-actions > a {
+.swagger-ui .btn.authorize svg {
+    fill: #ee1f54 !important;
+}
+
+.swagger-ui .topbar .download-url-wrapper .download-url-button {
     color: #ee1f54;
     background-color: #fff;
     text-decoration: none;
     padding: 8px 10px;
     margin-left: 10px;
     border-radius: 3px;
-}
-
-.pull-right {
-    float: right;
 }

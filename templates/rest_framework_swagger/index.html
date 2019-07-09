@@ -1,30 +1,12 @@
-{% extends 'rest_framework_swagger/base.html' %}
+{% extends 'rest_framework_swagger/index.html' %}
+
 {% load staticfiles %}
 {% load rest_framework %}
 
-{# Override this template in your own templates directory to customize #}
-{% block title %}Tunga API Documentation{% endblock %}
-
-{% block style %}
+{% block extra_styles %}
     <link rel='stylesheet' id='roboto-font-css'
           href='https://fonts.googleapis.com/css?family=Roboto%3A400%2C400italic%2C700%2C700italic%2C300%2C300italic&#038;ver=20160309.1'
           type='text/css' media='all'/>
     {{ block.super }}
     <link rel="stylesheet" type="text/css" href="{% static "tunga/css/swagger-theme.css" %}"/>
-{% endblock %}
-
-{% block branding %}
-    <a id="logo" href="#">Tunga API Documentation</a>
-{% endblock %}
-
-{% block django_rest_swagger %}{% endblock %}
-
-{% block api_selector %}
-    {% if user.is_authenticated %}
-        <div class="header-actions pull-right">
-            <span>{{ user.display_name }}</span>
-            <a href="/api/logout/?next=/">Log out</a>
-        </div>
-        <div style="clear: both;"></div>
-    {% endif %}
 {% endblock %}
