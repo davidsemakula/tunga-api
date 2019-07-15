@@ -23,7 +23,7 @@ from tunga_utils.constants import PROJECT_TYPE_CHOICES, PROJECT_TYPE_OTHER, CURR
     STATUS_ACCEPTED, PROJECT_DOCUMENT_CHOICES, DOC_OTHER, PROGRESS_EVENT_DEVELOPER, PROGRESS_EVENT_TYPE_CHOICES, \
     PROGRESS_REPORT_STATUS_CHOICES, PROGRESS_REPORT_STUCK_REASON_CHOICES, PROGRESS_EVENT_PM, PROGRESS_EVENT_MILESTONE, \
     PROGRESS_EVENT_CLIENT, PROGRESS_EVENT_INTERNAL, PROJECT_STAGE_ACTIVE, PROJECT_STAGE_CHOICES, STATUS_UNINTERESTED, \
-    STATUS_INTERESTED, INVOICE_TYPE_SALE, INVOICE_TYPE_PURCHASE
+    STATUS_INTERESTED, INVOICE_TYPE_SALE, INVOICE_TYPE_PURCHASE, UPDATE_DAYS
 from tunga_utils.models import Rating
 
 
@@ -135,6 +135,7 @@ class Participation(models.Model):
         default=STATUS_INITIAL
     )
     updates_enabled = models.BooleanField(default=True)
+    update_days = models.CharField(default=','.join(UPDATE_DAYS), max_length=40)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='project_participants_added')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

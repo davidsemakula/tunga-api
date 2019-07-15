@@ -342,3 +342,13 @@ PROJECT_STAGE_CHOICES = (
 )
 
 EVENT_SOURCE_HUBSPOT = 'hubspot'
+
+
+# Project Update Days
+UPDATE_DAYS = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday"
+]
