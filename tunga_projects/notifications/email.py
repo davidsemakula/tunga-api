@@ -72,7 +72,7 @@ def remind_progress_event_email(progress_event):
 
     if is_dev_event:
         subject = "Upcoming progress update"
-        day = datetime.datetime.now().strftime("%A")
+        day = datetime.datetime.now().strftime("%a")
         participants = progress_event.project.participation_set.filter(status=STATUS_ACCEPTED, updates_enabled=True, update_days__icontains=day)
         if participants:
             to = [participants[0].user.email]
