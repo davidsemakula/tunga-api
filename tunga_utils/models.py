@@ -222,3 +222,9 @@ class SearchEvent(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+    @property
+    def user_email(self):
+        if self.user:
+            return self.user.email
+        return self.email

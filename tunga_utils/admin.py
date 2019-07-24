@@ -70,5 +70,25 @@ class ExternalEventAdmin(ReadOnlyModelAdmin):
 
 @admin.register(SearchEvent)
 class SearchEventAdmin(ReadOnlyModelAdmin):
-    list_display = ('user', 'email', 'query', 'page', 'created_at', 'updated_at')
+    list_display = ('user_email', 'query', 'page', 'created_at', 'updated_at')
     search_fields = ('query', 'email', 'user__email')
+
+    def user_email(self, obj):
+        return obj.user_email
+
+    user_email.empty_value_display = ''
+    user_email.short_description = 'user email'
+
+    def get_queryset(self, request):
+        qs = super(SearchEventAdmin, self).get_queryset(request)
+        all_events = SearchEvent.objects.order_by('created_at').all()
+        print(all_events)
+        allowed_ids = []
+        seen_combos = []
+        if all_events:
+            for event in all_events:
+                combo_name = '{}_{}_{}'.format(event.user and 'user' or 'guest', event.user_email, event.query)
+                if combo_name not in seen_combos:
+                    seen_combos.append(combo_name)
+                    allowed_ids.append(event.id)
+        return qs.filter(id__in=allowed_ids)
