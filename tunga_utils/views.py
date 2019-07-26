@@ -64,15 +64,40 @@ def get_medium_posts(request):
     r = requests.get('https://medium.com/@tunga_io/latest?format=json')
     posts = []
     if r.status_code == 200:
+        def get_image(post):
+            base_url = 'https://miro.medium.com/max/1200/'
+
+            # preview image
+            if post['virtuals']['previewImage']:
+                return base_url + post['virtuals']['previewImage']['imageId']
+
+            # first image in preview content
+            for item in post['previewContent']['bodyModel']['paragraphs']:
+                if item['name'] == 'previewImage':
+                    return base_url + item['metadata']['id']
+
+            # first tag image
+            for item in post['virtuals']['tags']:
+                if item['metadata']['coverImage']['id']:
+                    return base_url + item['metadata']['coverImage']['id']
+            return ''
+
         try:
             response = json.loads(re.sub(r'^[^{]*\{', '{', r.text))
             posts = [
                 dict(
-                    title=post['title'],
-                    url='https://blog.tunga.io/{}-{}'.format(post['slug'], post['id']),
-                    slug=post['slug'], created_at=post['createdAt'],
                     id=post['id'],
-                    latestVersion=post['latestVersion']
+                    slug=post['slug'],
+                    url='https://blog.tunga.io/{}-{}'.format(post['slug'], post['id']),
+                    title=post['title'],
+                    subtitle=post['content']['subtitle'],
+                    image=get_image(post),
+                    created_at=post['createdAt'],
+                    readingTime=post['virtuals']['readingTime'],
+                    totalClapCount=post['virtuals']['totalClapCount'],
+                    wordCount=post['virtuals']['wordCount'],
+                    tags=[tag['name'] for tag in post['virtuals']['tags']],
+                    latestVersion=post['latestVersion'],
                 )
                 for key, post in six.iteritems(response['payload']['references']['Post'])
                 ]
