@@ -50,7 +50,7 @@ class Project(models.Model):
         max_digits=17, decimal_places=2, blank=True, null=True, default=None
     )
     currency = models.CharField(max_length=5, choices=CURRENCY_CHOICES_EUR_ONLY, default=CURRENCY_EUR)
-    type = models.CharField(max_length=20, choices=PROJECT_TYPE_CHOICES, default=PROJECT_TYPE_OTHER)
+    type = models.ManyToManyField(ProjectType, blank=True)
     expected_duration = models.CharField(max_length=20, choices=PROJECT_EXPECTED_DURATION_CHOICES, blank=True,
                                          null=True)
     stage = models.CharField(max_length=20, choices=PROJECT_STAGE_CHOICES, default=PROJECT_STAGE_ACTIVE)
