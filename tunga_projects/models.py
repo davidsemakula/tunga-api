@@ -27,6 +27,13 @@ from tunga_utils.constants import PROJECT_TYPE_CHOICES, PROJECT_TYPE_OTHER, CURR
 from tunga_utils.models import Rating
 
 
+class ProjectType(models.Model):
+    name = models.CharField(max_length=32)
+
+    def __str__(self):
+        return self.name
+
+
 @python_2_unicode_compatible
 class Project(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='projects_created', on_delete=models.DO_NOTHING)

@@ -3,7 +3,13 @@ from __future__ import unicode_literals
 
 from django.contrib import admin
 
-from tunga_projects.models import Project, ProjectMeta, ProgressEvent
+from tunga_projects.models import ProjectType, Project, ProjectMeta, ProgressEvent
+
+
+@admin.register(ProjectType)
+class ProjectType(admin.ModelAdmin):
+    list_display = ('id', 'name')
+    search_fields = ('name',)
 
 
 @admin.register(Project)
