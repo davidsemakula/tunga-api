@@ -34,7 +34,7 @@ from tunga_payments.views import InvoiceViewSet, PaymentViewSet
 from tunga_profiles.views import ProfileView, EducationViewSet, WorkViewSet, ConnectionViewSet, \
     NotificationView, CountryListView, DeveloperApplicationViewSet, RepoListView, IssueListView, SlackIntegrationView, \
     DeveloperInvitationViewSet, CompanyView, WhitePaperVisitorsView
-from tunga_projects.views import ProjectViewSet, DocumentViewSet, ParticipationViewSet, ProgressEventViewSet, \
+from tunga_projects.views import ProjectTypesList, ProjectViewSet, DocumentViewSet, ParticipationViewSet, ProgressEventViewSet, \
     ProgressReportViewSet, InterestPollViewSet
 from tunga_settings.views import UserSettingsView
 from tunga_support.views import SupportPageViewSet, SupportSectionViewSet
@@ -158,5 +158,6 @@ urlpatterns = [
     url(r'^api/weekly-report/(?P<subject>\w+)/$', weekly_report, name="weekly-report"),
     url(r'^$', router.get_api_root_view(), name='backend-root'),
     url(r'^api/sitemap\.xml$', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
-    url(r'^api/visitors/$', WhitePaperVisitorsView.as_view(), name="visiotrs_email")
+    url(r'^api/visitors/$', WhitePaperVisitorsView.as_view(), name="visiotrs_email"),
+    url(r'^api/project-types/$', ProjectTypesList.as_view(), name='project-types')
 ]

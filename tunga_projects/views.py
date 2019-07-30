@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from dry_rest_permissions.generics import DRYObjectPermissions
 from rest_framework.decorators import detail_route
-from rest_framework.generics import get_object_or_404
+from rest_framework.generics import get_object_or_404, ListAPIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -11,11 +11,19 @@ from rest_framework.viewsets import ModelViewSet
 from tunga_projects.filterbackends import ProjectFilterBackend
 from tunga_projects.filters import ProjectFilter, DocumentFilter, ParticipationFilter, ProgressEventFilter, \
     ProgressReportFilter, InterestPollFilter
-from tunga_projects.models import Project, Document, Participation, ProgressEvent, ProgressReport, InterestPoll
-from tunga_projects.serializers import ProjectSerializer, DocumentSerializer, ParticipationSerializer, \
+from tunga_projects.models import ProjectType, Project, Document, Participation, ProgressEvent, ProgressReport, InterestPoll
+from tunga_projects.serializers import ProjectTypeSerializer, ProjectSerializer, DocumentSerializer, ParticipationSerializer, \
     ProgressEventSerializer, ProgressReportSerializer, InterestPollSerializer
 from tunga_projects.tasks import manage_interest_polls
 from tunga_utils.filterbackends import DEFAULT_FILTER_BACKENDS
+
+
+class ProjectTypesList(ListAPIView):
+    """
+    Project Types List API View
+    """
+    queryset = ProjectType.objects.all()
+    serializer_class = ProjectTypeSerializer
 
 
 class ProjectViewSet(ModelViewSet):

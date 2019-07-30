@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from tunga_activity.models import FieldChangeLog
-from tunga_projects.models import Project, Participation, Document, ProgressEvent, ProjectMeta, ProgressReport, \
+from tunga_projects.models import ProjectType, Project, Participation, Document, ProgressEvent, ProjectMeta, ProgressReport, \
     InterestPoll
 from tunga_utils.constants import PROGRESS_REPORT_STATUS_CHOICES, PROGRESS_REPORT_STATUS_STUCK, \
     PROGRESS_REPORT_STUCK_REASON_CHOICES, PROGRESS_REPORT_STATUS_BEHIND_AND_STUCK
@@ -12,6 +12,12 @@ from tunga_utils.serializers import ContentTypeAnnotatedModelSerializer, CreateO
     SimpleSkillSerializer
 from tunga_utils.signals import post_field_update
 from tunga_utils.validators import validate_field_schema
+
+
+class ProjectTypeSerializer(SimpleModelSerializer):
+    class Meta:
+        model = ProjectType
+        fields = '__all__'
 
 
 class SimpleProjectSerializer(SimpleModelSerializer):
