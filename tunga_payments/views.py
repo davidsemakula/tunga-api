@@ -281,7 +281,7 @@ class InvoiceViewSet(ModelViewSet):
                 # generate and save invoice number
                 invoice_number = invoice.generate_invoice_number()
                 invoice.number = invoice_number
-                Invoice.objects.filter(id=invoice.id).update(number=invoice_number)
+                Invoice.objects.filter(id=invoice.id, user=invoice.project.owner or invoice.project.user).update(number=invoice_number)
                 notify_invoice.delay(invoice.id, updated=False)
             invoice_serializer = InvoiceSerializer(invoice, context={'request': request})
             return Response(invoice_serializer.data, status=status.HTTP_201_CREATED)
