@@ -30,7 +30,7 @@ slacker==0.9.*
 apscheduler==3.3.*
 mailchimp3==2.*
 raven==6.*
-stripe==1.56.0
+stripe==2.36.2
 mandrill==1.*
 exactonline==0.3.2
 honcho==1.*

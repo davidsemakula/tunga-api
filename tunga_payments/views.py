@@ -20,14 +20,16 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.viewsets import ModelViewSet
 from six.moves.urllib_parse import urlencode, quote_plus
-from stripe import InvalidRequestError
+# from stripe import InvalidRequestError
 
 from tunga_payments.filterbackends import InvoiceFilterBackend, PaymentFilterBackend
 from tunga_payments.filters import InvoiceFilter, PaymentFilter
 from tunga_payments.models import Invoice, Payment
 from tunga_payments.notifications.generic import notify_paid_invoice, notify_invoice
-from tunga_payments.serializers import InvoiceSerializer, PaymentSerializer, StripePaymentSerializer, \
-    BulkInvoiceSerializer
+from tunga_payments.serializers import InvoiceSerializer, PaymentSerializer, \
+    StripePaymentSerializer, \
+    BulkInvoiceSerializer, StripePaymentIntentSerializer, \
+    StripePaymentIntentCompleteSerializer
 from tunga_tasks.renderers import PDFRenderer
 from tunga_utils import stripe_utils
 from tunga_utils.constants import PAYMENT_METHOD_STRIPE, CURRENCY_EUR, STATUS_COMPLETED, INVOICE_TYPE_CREDIT_NOTA, \
@@ -182,12 +184,113 @@ class InvoiceViewSet(ModelViewSet):
 
                 invoice_serializer = InvoiceSerializer(invoice, context={'request': request})
                 return Response(invoice_serializer.data)
-            except InvalidRequestError:
+            except:
                 return Response(dict(message='We could not process your payment! Please contact hello@tunga.io'),
                                 status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             return Response(dict(message='We could not process your payment! Please contact hello@tunga.io'),
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @detail_route(
+        methods=['get', 'post'], url_path='pay-intent', url_name='pay-invoice-intent',
+        serializer_class=StripePaymentIntentSerializer,
+        permission_classes=[IsAuthenticated]
+    )
+    def pay_intent(self, request, pk=None):
+        """
+        Invoice Payment Endpoint
+        ---
+        omit_serializer: true
+        omit_parameters:
+            - query
+        """
+        invoice = self.get_object()
+        payload = request.data
+
+        # Pay with Stripe
+        paid_at = datetime.datetime.utcnow()
+
+        stripe = stripe_utils.get_client()
+
+        try:
+            # Create customer
+            customer = stripe.Customer.create(**dict(email=payload['email']))
+
+            # Create Payment Intent
+            payment_intent = stripe.PaymentIntent.create(
+                amount=payload['amount'],
+                currency=payload.get('currency', CURRENCY_EUR),
+                description=payload.get('description', invoice.title),
+                payment_method_types=['card'],
+                customer=customer.id,
+                metadata=dict(
+                    invoice_id=invoice.id,
+                    project_id=invoice.project.id
+                )
+            )
+
+            # invoice_serializer = InvoiceSerializer(invoice, context={'request': request})
+            return Response(payment_intent)
+        except:
+            return Response(dict(
+                message='We could not process your payment! Please contact hello@tunga.io'),
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @detail_route(
+        methods=['get', 'post'], url_path='pay-intent-complete', url_name='pay-invoice-intent-complete',
+        serializer_class=StripePaymentIntentCompleteSerializer,
+        permission_classes=[IsAuthenticated]
+    )
+    def pay_intent_complete(self, request, pk=None):
+        """
+        Invoice Payment Endpoint
+        ---
+        omit_serializer: true
+        omit_parameters:
+            - query
+        """
+        invoice = self.get_object()
+        payload = request.data
+
+        # Pay with Stripe
+        paid_at = datetime.datetime.utcnow()
+        stripe = stripe_utils.get_client()
+
+        try:
+            payment_intent = stripe.PaymentIntent.retrieve(payload['id'])
+
+            if payment_intent.status == 'succeeded':
+                # Save payment details
+                Payment.objects.create(
+                    invoice=invoice,
+                    payment_method=PAYMENT_METHOD_STRIPE,
+                    amount=Decimal(payment_intent.amount) * Decimal(0.01),
+                    currency=(payment_intent.currency or CURRENCY_EUR).upper(),
+                    status=STATUS_COMPLETED,
+                    ref=payment_intent.id,
+                    paid_at=paid_at,
+                    created_by=request.user,
+                    extra=json.dumps(dict(
+                        paid=True,
+                        itent_id=payment_intent.id,
+                        email=payload.get('email', None)
+                    ))
+                )
+
+                # Update invoice
+                invoice.paid = True
+                invoice.paid_at = paid_at
+                invoice.save()
+
+                notify_paid_invoice.delay(invoice)
+
+            invoice_serializer = InvoiceSerializer(invoice, context={
+                'request': request})
+            return Response(invoice_serializer.data)
+        except:
+            return Response(dict(
+                message='We could not process your payment! Please contact hello@tunga.io'),
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @detail_route(
         methods=['get'], url_path='download',

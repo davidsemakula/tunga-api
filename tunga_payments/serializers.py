@@ -79,3 +79,15 @@ class StripePaymentSerializer(serializers.Serializer):
     ))
     amount = serializers.DecimalField(required=True, max_digits=17, decimal_places=2)
     token = serializers.CharField(required=True)
+
+
+class StripePaymentIntentSerializer(serializers.Serializer):
+    payment_method = serializers.ChoiceField(required=True, choices=(
+        (PAYMENT_METHOD_STRIPE, 'Stripe')
+    ))
+    amount = serializers.DecimalField(required=True, max_digits=17, decimal_places=2)
+
+
+class StripePaymentIntentCompleteSerializer(serializers.Serializer):
+    id = serializers.CharField(required=True, max_length=100)
+    amount = serializers.DecimalField(required=True, max_digits=17, decimal_places=2)
