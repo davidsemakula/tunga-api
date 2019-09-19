@@ -3,7 +3,11 @@ import json
 import os
 import re
 from operator import itemgetter
+from urlparse import urlparse
 
+from django.template.defaultfilters import truncatewords
+from django.utils.html import strip_tags
+from lxml import etree, html
 import requests
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.storage import FileSystemStorage
@@ -61,48 +65,79 @@ class InviteRequestView(generics.CreateAPIView):
 @api_view(http_method_names=['GET'])
 @permission_classes([AllowAny])
 def get_medium_posts(request):
-    r = requests.get('https://medium.com/@tunga_io/latest?format=json')
+    r = requests.get('https://medium.com/feed/@tunga_io')
     posts = []
     if r.status_code == 200:
-        def get_image(post):
-            base_url = 'https://miro.medium.com/max/1200/'
-
-            # preview image
-            if post['virtuals']['previewImage']:
-                return base_url + post['virtuals']['previewImage']['imageId']
-
-            # first image in preview content
-            for item in post['previewContent']['bodyModel']['paragraphs']:
-                if item['name'] == 'previewImage':
-                    return base_url + item['metadata']['id']
-
-            # first tag image
-            for item in post['virtuals']['tags']:
-                if item['metadata']['coverImage']['id']:
-                    return base_url + item['metadata']['coverImage']['id']
-            return ''
-
         try:
-            response = json.loads(re.sub(r'^[^{]*\{', '{', r.text))
-            posts = [
-                dict(
-                    id=post['id'],
-                    slug=post['slug'],
-                    url='https://blog.tunga.io/{}-{}'.format(post['slug'], post['id']),
-                    title=post['title'],
-                    subtitle=post['content']['subtitle'],
-                    image=get_image(post),
-                    created_at=post['createdAt'],
-                    readingTime=post['virtuals']['readingTime'],
-                    totalClapCount=post['virtuals']['totalClapCount'],
-                    wordCount=post['virtuals']['wordCount'],
-                    tags=[tag['name'] for tag in post['virtuals']['tags']],
-                    latestVersion=post['latestVersion'],
-                )
-                for key, post in six.iteritems(response['payload']['references']['Post'])
-                ]
-            # Sort latest first
-            posts = sorted(posts, key=itemgetter('created_at'), reverse=True)
+            tree = etree.fromstring(
+                r.text.encode('utf-8')
+                    .replace('content:encoded', 'contentEncoded')
+                    .replace('dc:creator', 'dcCreator')
+                    .replace('atom:updated', 'atomUpdated')
+            )
+
+            for item in tree.xpath('/rss/channel/item'):
+                story = dict()
+                story['guid'] = item.xpath('./guid/text()')
+                story['url'] = item.xpath('./link/text()')
+                story['title'] = item.xpath('./title/text()')
+                story['tags'] = item.xpath('./category/text()')
+                story['content'] = item.xpath(
+                    './contentEncoded/text()')  # content:encoded
+                story['creator'] = item.xpath(
+                    './dcCreator/text()')  # dc:creator
+                story['published_at'] = item.xpath('./pubDate/text()')
+                story['updated_at'] = item.xpath(
+                    './atomUpdated/text()')  # atom:updated
+
+                for key in story:
+                    if story[key] and type(
+                        story[key]) == list and key != 'tags':
+                        story[key] = story[key][0]
+
+                story['created_at'] = story['published_at']
+                if story['content']:
+                    content_tree = html.fromstring(
+                        '<div>' + story['content'] + '</div>'
+                    )
+                    image = content_tree.xpath('.//figure/img/@src')
+
+                    if image and type(image) == list:
+                        story['image'] = image[0]
+                    else:
+                        story['image'] = image or ''
+                    story['images'] = image
+
+                    paragraphs = content_tree.xpath('.//p/text()')
+                    if paragraphs and type(image) == list:
+                        story['intro'] = paragraphs[0]
+                    else:
+                        story['intro'] = paragraphs or ''
+
+                    story['intro'] = strip_tags(story['intro']).strip()
+                    story['excerpt'] = truncatewords(story['intro'], 30)
+                    # For backwards compatibility
+                    story['subtitle'] = story['excerpt']
+                else:
+                    story['image'] = ''
+                    story['intro'] = ''
+                    story['subtitle'] = ''
+
+                story_id = ''
+                if story['guid']:
+                    story_id = story['guid'].replace('https://medium.com/p/',
+                                                     '')
+                story['id'] = story_id
+
+                slug = ''
+                if story['id'] and story['url']:
+                    path = urlparse(story['url']).path
+                    if path:
+                        slug = path.replace('/', '').replace(
+                            '-{}'.format(story['id']), '')
+                story['slug'] = slug
+
+                posts.append(story)
         except:
             pass
     return Response(posts)
