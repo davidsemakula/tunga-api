@@ -94,17 +94,16 @@ class AccountInfoView(generics.RetrieveUpdateAPIView):
 
     @detail_route(
         methods=['post'], url_path='deactivate',
-        renderer_classes=[PDFRenderer, StaticHTMLRenderer],
         permission_classes=[IsAuthenticated]
     )
     def deactivate(self, request):
         user = self.get_object()
         if not user:
             return Response(
-                {'status': 'Unauthorized', 'message': 'You are not an email visitor'},
+                {'status': 'Unauthorized', 'message': 'You are not authenticated'},
                 status=status.HTTP_401_UNAUTHORIZED
             )
-        user.is_active = True
+        user.is_active = False
         user.save()
         serializer = self.get_serializer(instance=user)
         return Response(serializer.data)
