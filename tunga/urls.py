@@ -52,6 +52,7 @@ router = DefaultRouter()
 router.register(r'users', UserViewSet)
 router.register(r'apply', DeveloperApplicationViewSet)
 router.register(r'invite', DeveloperInvitationViewSet)
+router.register(r'me/account', AccountInfoView)
 router.register(r'me/education', EducationViewSet)
 router.register(r'me/work', WorkViewSet)
 router.register(r'projects', ProjectViewSet)
@@ -125,7 +126,7 @@ urlpatterns = [
     url(r'^api/auth/jwt/refresh/', refresh_jwt_token),
     url(r'^api/auth/jwt/verify/', verify_jwt_token),
     url(r'^api/oauth/', include('oauth2_provider.urls', namespace='oauth2_provider')),
-    url(r'^api/me/account/', AccountInfoView.as_view(), name='account-info'),
+    #url(r'^api/me/account/', AccountInfoView.as_view(), name='account-info'),
     url(r'^api/me/user/', UserDetailsView.as_view(), name='user-info'),
     url(r'^api/me/profile/', ProfileView.as_view(), name='profile-info'),
     url(r'^api/me/company/', CompanyView.as_view(), name='company-info'),

@@ -8,7 +8,7 @@ from allauth.socialaccount.providers.facebook.provider import FacebookProvider
 from allauth.socialaccount.providers.github.provider import GitHubProvider
 from allauth.socialaccount.providers.google.provider import GoogleProvider
 from allauth.socialaccount.providers.slack.provider import SlackProvider
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, logout
 from django.contrib.sitemaps import Sitemap
 from django.core.urlresolvers import reverse
 from django.http.response import HttpResponse
@@ -17,7 +17,8 @@ from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
 from dry_rest_permissions.generics import DRYPermissions
 from rest_framework import views, status, generics, viewsets, mixins
-from rest_framework.decorators import detail_route, permission_classes, api_view
+from rest_framework.decorators import detail_route, permission_classes, \
+    api_view, list_route
 from rest_framework.exceptions import NotAuthenticated, PermissionDenied
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -76,7 +77,7 @@ class VerifyUserView(views.APIView):
         return Response(serializer.data)
 
 
-class AccountInfoView(generics.RetrieveUpdateAPIView):
+class AccountInfoView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
     """
     Account Info Resource
     Manage current user's account info
@@ -92,7 +93,7 @@ class AccountInfoView(generics.RetrieveUpdateAPIView):
         else:
             return None
 
-    @detail_route(
+    @list_route(
         methods=['post'], url_path='deactivate',
         permission_classes=[IsAuthenticated]
     )
@@ -103,8 +104,11 @@ class AccountInfoView(generics.RetrieveUpdateAPIView):
                 {'status': 'Unauthorized', 'message': 'You are not authenticated'},
                 status=status.HTTP_401_UNAUTHORIZED
             )
-        user.is_active = False
+        user.is_active = False  # deactivate user
         user.save()
+
+        logout(request)  # Log out the user
+
         serializer = self.get_serializer(instance=user)
         return Response(serializer.data)
 
