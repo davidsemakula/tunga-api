@@ -25,10 +25,10 @@
                                 {{ invoice.user.company.postal_code | default:'' }}{% if invoice.user.company.postal_code and invoice.user.company.city %}, {% endif %}{{ invoice.user.company.city | default:'' }}<br/>
                                 {{ invoice.user.company.country_name | default:'' }}
 
-                                {% if invoice.tax_invoice.tax_location == "europe" %}
+                                {% if invoice.tax_location == "europe" %}
                                     <br/>
                                     VAT no: {{ invoice.user.company.vat_number | default:'' }}
-                                {% elif invoice.tax_invoice.tax_location == "world" and invoice.user.company.vat_number %}
+                                {% elif invoice.tax_location == "world" and invoice.user.company.vat_number %}
                                     <br/>
                                     VAT no: {{ invoice.user.company.vat_number | default:'' }}
                                 {% endif %}
