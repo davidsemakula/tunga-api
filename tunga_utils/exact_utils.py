@@ -402,7 +402,7 @@ def upload_invoice_v3(invoice):
                     dict(
                         AmountFC=float(invoice.subtotal),
                         Description=invoice.number,
-                        GLAccount=EXACT_GL_ACCOUNT_DEVELOPER_FEE
+                        GLAccount=invoice.project.category and EXACT_GL_ACCOUNT_NEW_DEVELOPER_FEE or EXACT_GL_ACCOUNT_DEVELOPER_FEE
                     )
                 ]
             )
