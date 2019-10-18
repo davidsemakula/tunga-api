@@ -6,12 +6,17 @@ from exactonline.exceptions import ObjectDoesNotExist
 from exactonline.resource import POST, GET
 from exactonline.storage import ExactOnlineConfig
 
-from tunga.settings import EXACT_DOCUMENT_TYPE_PURCHASE_INVOICE, EXACT_DOCUMENT_TYPE_SALES_INVOICE, \
-    EXACT_JOURNAL_CLIENT_SALES, EXACT_JOURNAL_DEVELOPER_SALES, EXACT_JOURNAL_DEVELOPER_PURCHASE, \
-    EXACT_PAYMENT_CONDITION_CODE_14_DAYS, EXACT_VAT_CODE_NL, EXACT_VAT_CODE_WORLD, EXACT_GL_ACCOUNT_CLIENT_FEE, \
-    EXACT_GL_ACCOUNT_DEVELOPER_FEE, EXACT_GL_ACCOUNT_TUNGA_FEE, EXACT_VAT_CODE_EUROPE
-from tunga_utils.constants import CURRENCY_EUR, VAT_LOCATION_NL, VAT_LOCATION_EUROPE, INVOICE_TYPE_SALE, \
-    INVOICE_TYPE_PURCHASE
+from tunga.settings import EXACT_DOCUMENT_TYPE_PURCHASE_INVOICE, \
+    EXACT_DOCUMENT_TYPE_SALES_INVOICE, \
+    EXACT_JOURNAL_CLIENT_SALES, EXACT_JOURNAL_DEVELOPER_SALES, \
+    EXACT_JOURNAL_DEVELOPER_PURCHASE, \
+    EXACT_PAYMENT_CONDITION_CODE_14_DAYS, EXACT_VAT_CODE_NL, \
+    EXACT_VAT_CODE_WORLD, EXACT_GL_ACCOUNT_CLIENT_FEE, \
+    EXACT_GL_ACCOUNT_DEVELOPER_FEE, EXACT_GL_ACCOUNT_TUNGA_FEE, \
+    EXACT_VAT_CODE_EUROPE, EXACT_GL_ACCOUNT_NEW_DEVELOPER_FEE
+from tunga_utils.constants import CURRENCY_EUR, VAT_LOCATION_NL, \
+    VAT_LOCATION_EUROPE, INVOICE_TYPE_SALE, \
+    INVOICE_TYPE_PURCHASE, PROJECT_CATEGORY_PROJECT, PROJECT_CATEGORY_DEDICATED
 from tunga_utils.models import SiteMeta
 
 
@@ -331,6 +336,37 @@ def upload_invoice_v3(invoice):
         elif vat_location == VAT_LOCATION_EUROPE:
             vat_code = EXACT_VAT_CODE_EUROPE
 
+        sales_entry_lines = [
+            dict(
+                AmountFC=float(invoice.subtotal),
+                Description=invoice.number,
+                GLAccount=EXACT_GL_ACCOUNT_CLIENT_FEE,
+                VATCode=vat_code
+            )
+        ]
+
+        margin_amount = 0
+        if invoice.project.category == PROJECT_CATEGORY_PROJECT:
+            margin_amount = 0.4 * invoice.subtotal
+        elif invoice.project.category == PROJECT_CATEGORY_DEDICATED:
+            margin_amount = 0.5 * invoice.subtotal
+
+        if margin_amount > 0:
+            sales_entry_lines.append(
+                dict(
+                    AmountFC=float(margin_amount),
+                    Description=invoice.number,
+                    GLAccount=EXACT_GL_ACCOUNT_NEW_DEVELOPER_FEE
+                )
+            )
+            sales_entry_lines.append(
+                dict(
+                    AmountFC=float(margin_amount*-1),
+                    Description=invoice.number,
+                    GLAccount=EXACT_GL_ACCOUNT_DEVELOPER_FEE
+                )
+            )
+
         exact_api.restv1(POST(
             'salesentry/SalesEntries',
             dict(
@@ -344,16 +380,10 @@ def upload_invoice_v3(invoice):
                 ReportingYear=invoice.issued_at.year,
                 YourRef=invoice.number,
                 PaymentCondition=EXACT_PAYMENT_CONDITION_CODE_14_DAYS,
-                SalesEntryLines=[
-                    dict(
-                        AmountFC=float(invoice.subtotal),
-                        Description=invoice.number,
-                        GLAccount=EXACT_GL_ACCOUNT_CLIENT_FEE,
-                        VATCode=vat_code
-                    )
-                ]
+                SalesEntryLines=sales_entry_lines
             )
         ))
+
     elif invoice.type == INVOICE_TYPE_PURCHASE:
         exact_api.restv1(POST(
             'purchaseentry/PurchaseEntries',

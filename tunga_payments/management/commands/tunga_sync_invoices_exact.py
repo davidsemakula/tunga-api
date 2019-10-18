@@ -2,9 +2,11 @@ import datetime
 
 from dateutil.relativedelta import relativedelta
 from django.core.management.base import BaseCommand
+from django.db.models import Q
 
 from tunga_payments.models import Invoice
-from tunga_utils.constants import INVOICE_TYPE_SALE, INVOICE_TYPE_PURCHASE
+from tunga_utils.constants import INVOICE_TYPE_SALE, INVOICE_TYPE_PURCHASE, \
+    PROJECT_CATEGORY_DEDICATED, PROJECT_CATEGORY_PROJECT, PROJECT_CATEGORY_OTHER
 from tunga_utils.exact_utils import upload_invoice_v3
 
 
@@ -20,8 +22,21 @@ class Command(BaseCommand):
         past_by_48_hours = today_start - relativedelta(hours=48)
 
         invoices = Invoice.objects.filter(
-            type__in=[INVOICE_TYPE_SALE, INVOICE_TYPE_PURCHASE], paid=True, legacy_id__isnull=True,
-            paid_at__gte=past_by_48_hours
+            (
+                (
+                    Q(paid=True) & Q(paid_at__gte=past_by_48_hours) &
+                    Q(project__category__isnull=True) &
+                    Q(type__in=[INVOICE_TYPE_SALE, INVOICE_TYPE_PURCHASE])
+                ) | (
+                    Q(finalized=True) & Q(updated_at__gte=past_by_48_hours) &
+                    Q(project__category__in=[
+                        PROJECT_CATEGORY_PROJECT,
+                        PROJECT_CATEGORY_DEDICATED,
+                        PROJECT_CATEGORY_OTHER
+                    ]) & Q(type=INVOICE_TYPE_SALE)
+                )
+            ),
+            legacy_id__isnull=True
         )
         for invoice in invoices:
             upload_invoice_v3(invoice)
