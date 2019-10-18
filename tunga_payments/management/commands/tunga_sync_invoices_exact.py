@@ -38,5 +38,6 @@ class Command(BaseCommand):
             ),
             legacy_id__isnull=True
         )
+
         for invoice in invoices:
             upload_invoice_v3(invoice)
