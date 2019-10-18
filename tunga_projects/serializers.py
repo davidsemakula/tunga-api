@@ -20,7 +20,7 @@ class SimpleProjectSerializer(SimpleModelSerializer):
     class Meta:
         model = Project
         fields = (
-            'id', 'title', 'description', 'type',
+            'id', 'title', 'description', 'type', 'category', 'expected_durartion',
             'budget', 'currency', 'closed', 'start_date', 'deadline', 'archived', 'skills'
         )
 
@@ -111,6 +111,10 @@ class ProjectSerializer(
     change_log = serializers.JSONField(required=False, write_only=True)
     margin = serializers.ReadOnlyField()
     interest_polls = SimpleInterestPollSerializer(required=False, many=True, source='interestpoll_set')
+    expected_duration = serializers.CharField(required=True, read_only=False,
+                                     allow_null=False, allow_blank=False)
+    category = serializers.CharField(required=True, read_only=False,
+                                     allow_null=False, allow_blank=False)
 
     class Meta:
         model = Project
