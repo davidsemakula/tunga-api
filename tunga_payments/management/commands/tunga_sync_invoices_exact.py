@@ -5,6 +5,8 @@ from django.core.management.base import BaseCommand
 from django.db.models import Q
 
 from tunga_payments.models import Invoice
+from tunga_projects.models import Project
+from tunga_projects.tasks import complete_exact_sync
 from tunga_utils.constants import INVOICE_TYPE_SALE, INVOICE_TYPE_PURCHASE, \
     PROJECT_CATEGORY_DEDICATED, PROJECT_CATEGORY_PROJECT, PROJECT_CATEGORY_OTHER
 from tunga_utils.exact_utils import upload_invoice_v3
@@ -41,3 +43,16 @@ class Command(BaseCommand):
 
         for invoice in invoices:
             upload_invoice_v3(invoice)
+
+        projects = Project.objects.filter(
+            archived=True,
+            category__in=[
+                PROJECT_CATEGORY_PROJECT,
+                PROJECT_CATEGORY_DEDICATED,
+                PROJECT_CATEGORY_OTHER
+            ],
+            archived_at__gte=past_by_48_hours
+        )
+
+        for project in projects:
+            complete_exact_sync(project)

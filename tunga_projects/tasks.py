@@ -8,7 +8,8 @@ from tunga_projects.notifications.slack import notify_project_slack_dev
 from tunga_utils import exact_utils
 from tunga_utils.constants import PROJECT_STAGE_OPPORTUNITY, \
     USER_TYPE_DEVELOPER, STATUS_INTERESTED, STATUS_ACCEPTED, INVOICE_TYPE_SALE, \
-    INVOICE_TYPE_PURCHASE
+    INVOICE_TYPE_PURCHASE, PROJECT_CATEGORY_PROJECT, PROJECT_CATEGORY_DEDICATED, \
+    STATUS_APPROVED
 from tunga_utils.helpers import clean_instance
 from tunga_utils.hubspot_utils import create_or_update_project_hubspot_deal
 
@@ -62,11 +63,37 @@ def manage_interest_polls(project, remind=False):
 def complete_exact_sync(project, **kwargs):
     project = clean_instance(project, Project)
 
-    if project.category:
-        invoices = project.invoice_set.filter(
-            Q(finalized=True) | Q(paid=True),
-            type__in=[INVOICE_TYPE_SALE, INVOICE_TYPE_PURCHASE]
-        )
+    if project.archived and project.category:
+        margin_ratio = 0
+        if project.project.category == PROJECT_CATEGORY_PROJECT:
+            margin_ratio = 0.4
+        elif project.project.category == PROJECT_CATEGORY_DEDICATED:
+            margin_ratio = 0.5
 
+        total_margin = 0
+        total_dev = 0
+
+        # Upload all project invoices
+        invoices = project.invoice_set.filter(
+            (
+                Q(finalized=True) & Q(type=INVOICE_TYPE_SALE)
+            ) |
+            (
+                Q(status=STATUS_APPROVED) & Q(type=INVOICE_TYPE_PURCHASE)
+            ) |
+            (
+                Q(paid=True) &
+                Q(type__in=[INVOICE_TYPE_SALE, INVOICE_TYPE_PURCHASE])
+            )
+        )
         for invoice in invoices:
             exact_utils.upload_invoice_v3(invoice)
+
+            if margin_ratio:
+                if invoice.type == INVOICE_TYPE_SALE:
+                    total_margin += margin_ratio * invoice.subtotal
+                elif invoice.type == INVOICE_TYPE_PURCHASE:
+                    total_dev += invoice.subtotal
+
+        # Create project
+        exact_utils.create_project_entry_v3(project, total_dev - total_margin)

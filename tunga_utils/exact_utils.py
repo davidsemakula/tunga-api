@@ -407,3 +407,77 @@ def upload_invoice_v3(invoice):
                 ]
             )
         ))
+
+
+def get_project_entry_v3(entry_ref, exact_user_id, exact_api=None):
+    if not exact_api:
+        exact_api = get_api()
+
+    select_param = "EntryID,EntryNumber,EntryDate,Created,Modified,YourRef," \
+                   "AmountDC,VATAmountDC,DueDate,Description,Journal,ReportingYear"
+
+    existing_project_entry_refs = exact_api.restv1(GET(
+        "salesentry/SalesEntries?{}".format(urlencode({
+            '$filter': "YourRef eq '{}' and Customer eq guid'{}'".format(
+                entry_ref, exact_user_id),
+            '$select': '{},SalesEntryLines,Customer'.format(select_param)
+        }))
+    ))
+    return existing_project_entry_refs
+
+
+def create_project_entry_v3(project, balance):
+    """
+    :param project:
+    :param balance:
+    :return:
+    """
+    exact_api = get_api()
+
+    if balance != 0 or not project.archived:
+        # Nothing to add to Exact yet
+        return
+
+    if project.legacy_id or not project.category:
+        # Don't sync legacy projects
+        return
+
+    project_owner = project.owner or project.user
+    project_ref = 'P/{}'.format(project.id)
+
+    exact_user_id = get_account_guid_v3(project_owner, invoice_type=INVOICE_TYPE_SALE, exact_api=exact_api)
+
+    existing_project_entry_refs = get_project_entry_v3(project_ref, exact_user_id, exact_api=exact_api)
+
+    if existing_project_entry_refs:
+        # Stop if entries with invoice ref already exist
+        return
+
+    sales_entry_lines = [
+        dict(
+            AmountFC=float(balance),
+            Description=project_ref,
+            GLAccount=EXACT_GL_ACCOUNT_NEW_DEVELOPER_FEE
+        ),
+        dict(
+            AmountFC=float(balance * -1),
+            Description=project_ref,
+            GLAccount=EXACT_GL_ACCOUNT_DEVELOPER_FEE
+        )
+    ]
+
+    exact_api.restv1(POST(
+        'salesentry/SalesEntries',
+        dict(
+            Currency=CURRENCY_EUR,
+            Customer=exact_user_id,
+            Description=project.title,
+            EntryDate=project.created_at.isoformat(),
+            Journal=EXACT_JOURNAL_CLIENT_SALES,
+            ReportingPeriod=project.created_at.month,
+            ReportingYear=project.created_at.year,
+            YourRef=project_ref,
+            PaymentCondition=EXACT_PAYMENT_CONDITION_CODE_14_DAYS,
+            SalesEntryLines=sales_entry_lines
+        )
+    ))
