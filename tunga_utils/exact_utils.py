@@ -1,4 +1,6 @@
 import base64
+from decimal import Decimal
+
 from six.moves.urllib_parse import urlencode
 
 from exactonline.api import ExactApi
@@ -345,13 +347,13 @@ def upload_invoice_v3(invoice):
             )
         ]
 
-        margin_amount = 0
+        margin_amount = Decimal(0)
         if invoice.project.category == PROJECT_CATEGORY_PROJECT:
-            margin_amount = 0.4 * invoice.subtotal
+            margin_amount = Decimal(0.4) * invoice.subtotal
         elif invoice.project.category == PROJECT_CATEGORY_DEDICATED:
-            margin_amount = 0.5 * invoice.subtotal
+            margin_amount = Decimal(0.5) * invoice.subtotal
 
-        if margin_amount > 0:
+        if margin_amount > Decimal(0):
             sales_entry_lines.append(
                 dict(
                     AmountFC=float(margin_amount),
@@ -361,7 +363,7 @@ def upload_invoice_v3(invoice):
             )
             sales_entry_lines.append(
                 dict(
-                    AmountFC=float(margin_amount*-1),
+                    AmountFC=float(margin_amount*Decimal(-1)),
                     Description=invoice.number,
                     GLAccount=EXACT_GL_ACCOUNT_DEVELOPER_FEE
                 )
@@ -434,7 +436,7 @@ def create_project_entry_v3(project, balance):
     """
     exact_api = get_api()
 
-    if balance != 0 or not project.archived:
+    if balance == Decimal(0) or not project.archived:
         # Nothing to add to Exact yet
         return
 
@@ -460,7 +462,7 @@ def create_project_entry_v3(project, balance):
             GLAccount=EXACT_GL_ACCOUNT_NEW_DEVELOPER_FEE
         ),
         dict(
-            AmountFC=float(balance * -1),
+            AmountFC=float(balance * Decimal(-1)),
             Description=project_ref,
             GLAccount=EXACT_GL_ACCOUNT_DEVELOPER_FEE
         )

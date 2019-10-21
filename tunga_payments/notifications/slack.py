@@ -21,10 +21,10 @@ def notify_invoice_slack_admin(invoice, updated=False):
     person_url = '{}/network/{}/'.format(TUNGA_URL, invoice.user.username)
     invoice_url = '{}/api/invoices/{}/download/?format=pdf'.format(TUNGA_URL, invoice.id)
 
-    slack_msg = '{} {} a {} invoice'.format(
+    slack_msg = '{} {} a {}'.format(
         (updated and invoice.updated_by or invoice.created_by).display_name.encode('utf-8'),
         updated and 'updated' or 'created',
-        invoice.type == INVOICE_TYPE_SALE and 'client' or 'developer'
+        invoice.type == INVOICE_TYPE_SALE and 'client payment' or 'developer payout'
     )
 
     invoice_summary = '{}: <{}|{}>\nProject: <{}|{}>\nTitle: {}\nFee: EUR {}\n<{}|Download invoice>'.format(

@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django_rq.decorators import job
@@ -64,14 +66,14 @@ def complete_exact_sync(project, **kwargs):
     project = clean_instance(project, Project)
 
     if project.archived and project.category:
-        margin_ratio = 0
+        margin_ratio = Decimal(0)
         if project.project.category == PROJECT_CATEGORY_PROJECT:
-            margin_ratio = 0.4
+            margin_ratio = Decimal(0.4)
         elif project.project.category == PROJECT_CATEGORY_DEDICATED:
-            margin_ratio = 0.5
+            margin_ratio = Decimal(0.5)
 
-        total_margin = 0
-        total_dev = 0
+        total_margin = Decimal(0)
+        total_dev = Decimal(0)
 
         # Upload all project invoices
         invoices = project.invoice_set.filter(
