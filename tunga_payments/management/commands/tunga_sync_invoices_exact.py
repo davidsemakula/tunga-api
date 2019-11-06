@@ -27,7 +27,7 @@ class Command(BaseCommand):
             (
                 (
                     Q(paid=True) & Q(paid_at__gte=past_by_48_hours) &
-                    Q(project__category__isnull=True) &
+                    # Q(project__category__isnull=True) &
                     Q(type__in=[INVOICE_TYPE_SALE, INVOICE_TYPE_PURCHASE])
                 ) | (
                     Q(finalized=True) & Q(updated_at__gte=past_by_48_hours) &
@@ -45,13 +45,16 @@ class Command(BaseCommand):
             upload_invoice_v3(invoice)
 
         projects = Project.objects.filter(
+            (
+                Q(archived_at__gte=past_by_48_hours) |
+                Q(updated_at__gte=past_by_48_hours)
+            ),
             archived=True,
             category__in=[
                 PROJECT_CATEGORY_PROJECT,
                 PROJECT_CATEGORY_DEDICATED,
                 PROJECT_CATEGORY_OTHER
-            ],
-            archived_at__gte=past_by_48_hours
+            ]
         )
 
         for project in projects:

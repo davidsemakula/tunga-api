@@ -67,10 +67,10 @@ def complete_exact_sync(project, **kwargs):
 
     if project.archived and project.category:
         margin_ratio = Decimal(0)
-        if project.project.category == PROJECT_CATEGORY_PROJECT:
-            margin_ratio = Decimal(0.4)
-        elif project.project.category == PROJECT_CATEGORY_DEDICATED:
-            margin_ratio = Decimal(0.5)
+        if project.category == PROJECT_CATEGORY_PROJECT:
+            margin_ratio = Decimal('0.4')
+        elif project.category == PROJECT_CATEGORY_DEDICATED:
+            margin_ratio = Decimal('0.5')
 
         total_margin = Decimal(0)
         total_dev = Decimal(0)
@@ -93,7 +93,7 @@ def complete_exact_sync(project, **kwargs):
 
             if margin_ratio:
                 if invoice.type == INVOICE_TYPE_SALE:
-                    total_margin += margin_ratio * invoice.subtotal
+                    total_margin += Decimal(margin_ratio * invoice.subtotal)
                 elif invoice.type == INVOICE_TYPE_PURCHASE:
                     total_dev += invoice.subtotal
 

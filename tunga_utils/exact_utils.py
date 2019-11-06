@@ -349,9 +349,9 @@ def upload_invoice_v3(invoice):
 
         margin_amount = Decimal(0)
         if invoice.project.category == PROJECT_CATEGORY_PROJECT:
-            margin_amount = Decimal(0.4) * invoice.subtotal
+            margin_amount = Decimal('0.4') * invoice.subtotal
         elif invoice.project.category == PROJECT_CATEGORY_DEDICATED:
-            margin_amount = Decimal(0.5) * invoice.subtotal
+            margin_amount = Decimal('0.5') * invoice.subtotal
 
         if margin_amount > Decimal(0):
             sales_entry_lines.append(
