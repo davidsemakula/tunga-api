@@ -21,7 +21,7 @@ class SimpleProjectSerializer(SimpleModelSerializer):
     class Meta:
         model = Project
         fields = (
-            'id', 'title', 'description', 'type', 'category', 'expected_durartion',
+            'id', 'title', 'description', 'type', 'category', 'expected_duration',
             'budget', 'currency', 'closed', 'start_date', 'deadline', 'archived', 'skills'
         )
 
