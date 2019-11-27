@@ -38,6 +38,16 @@ class TungaUserAdmin(UserAdmin):
 
     inlines = (CompanyInline, UserProfileInline)
 
+    def get_actions(self, request):
+        # Disable delete
+        actions = super(TungaUserAdmin, self).get_actions(request)
+        del actions['delete_selected']
+        return actions
+
+    def has_delete_permission(self, request, obj=None):
+        # Disable delete
+        return False
+
     def make_pending(self, request, queryset):
         rows_updated = queryset.update(pending=True)
         self.message_user(

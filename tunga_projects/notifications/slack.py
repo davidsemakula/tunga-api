@@ -51,6 +51,8 @@ def create_project_slack_message(project, to_developer=False, reminder=False):
         extra_details += '*Type*: {}\n'.format(project.get_type_display())
     if project.expected_duration:
         extra_details += '*Expected duration*: {}\n'.format(project.get_expected_duration_display())
+    if project.category:
+        extra_details += '*Category*: {}\n'.format(project.get_category_display())
     if project.skills:
         extra_details += '*Skills*: {}\n'.format(str(project.skills))
     if not is_opportunity and not to_developer:

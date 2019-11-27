@@ -1,4 +1,6 @@
 import base64
+from decimal import Decimal
+
 from six.moves.urllib_parse import urlencode
 
 from exactonline.api import ExactApi
@@ -6,12 +8,17 @@ from exactonline.exceptions import ObjectDoesNotExist
 from exactonline.resource import POST, GET
 from exactonline.storage import ExactOnlineConfig
 
-from tunga.settings import EXACT_DOCUMENT_TYPE_PURCHASE_INVOICE, EXACT_DOCUMENT_TYPE_SALES_INVOICE, \
-    EXACT_JOURNAL_CLIENT_SALES, EXACT_JOURNAL_DEVELOPER_SALES, EXACT_JOURNAL_DEVELOPER_PURCHASE, \
-    EXACT_PAYMENT_CONDITION_CODE_14_DAYS, EXACT_VAT_CODE_NL, EXACT_VAT_CODE_WORLD, EXACT_GL_ACCOUNT_CLIENT_FEE, \
-    EXACT_GL_ACCOUNT_DEVELOPER_FEE, EXACT_GL_ACCOUNT_TUNGA_FEE, EXACT_VAT_CODE_EUROPE
-from tunga_utils.constants import CURRENCY_EUR, VAT_LOCATION_NL, VAT_LOCATION_EUROPE, INVOICE_TYPE_SALE, \
-    INVOICE_TYPE_PURCHASE
+from tunga.settings import EXACT_DOCUMENT_TYPE_PURCHASE_INVOICE, \
+    EXACT_DOCUMENT_TYPE_SALES_INVOICE, \
+    EXACT_JOURNAL_CLIENT_SALES, EXACT_JOURNAL_DEVELOPER_SALES, \
+    EXACT_JOURNAL_DEVELOPER_PURCHASE, \
+    EXACT_PAYMENT_CONDITION_CODE_14_DAYS, EXACT_VAT_CODE_NL, \
+    EXACT_VAT_CODE_WORLD, EXACT_GL_ACCOUNT_CLIENT_FEE, \
+    EXACT_GL_ACCOUNT_DEVELOPER_FEE, EXACT_GL_ACCOUNT_TUNGA_FEE, \
+    EXACT_VAT_CODE_EUROPE, EXACT_GL_ACCOUNT_NEW_DEVELOPER_FEE
+from tunga_utils.constants import CURRENCY_EUR, VAT_LOCATION_NL, \
+    VAT_LOCATION_EUROPE, INVOICE_TYPE_SALE, \
+    INVOICE_TYPE_PURCHASE, PROJECT_CATEGORY_PROJECT, PROJECT_CATEGORY_DEDICATED
 from tunga_utils.models import SiteMeta
 
 
@@ -331,6 +338,37 @@ def upload_invoice_v3(invoice):
         elif vat_location == VAT_LOCATION_EUROPE:
             vat_code = EXACT_VAT_CODE_EUROPE
 
+        sales_entry_lines = [
+            dict(
+                AmountFC=float(invoice.subtotal),
+                Description=invoice.number,
+                GLAccount=EXACT_GL_ACCOUNT_CLIENT_FEE,
+                VATCode=vat_code
+            )
+        ]
+
+        margin_amount = Decimal(0)
+        if invoice.project.category == PROJECT_CATEGORY_PROJECT:
+            margin_amount = Decimal('0.4') * invoice.subtotal
+        elif invoice.project.category == PROJECT_CATEGORY_DEDICATED:
+            margin_amount = Decimal('0.5') * invoice.subtotal
+
+        if margin_amount > Decimal(0):
+            sales_entry_lines.append(
+                dict(
+                    AmountFC=float(margin_amount),
+                    Description=invoice.number,
+                    GLAccount=EXACT_GL_ACCOUNT_NEW_DEVELOPER_FEE
+                )
+            )
+            sales_entry_lines.append(
+                dict(
+                    AmountFC=float(margin_amount*Decimal(-1)),
+                    Description=invoice.number,
+                    GLAccount=EXACT_GL_ACCOUNT_DEVELOPER_FEE
+                )
+            )
+
         exact_api.restv1(POST(
             'salesentry/SalesEntries',
             dict(
@@ -344,16 +382,10 @@ def upload_invoice_v3(invoice):
                 ReportingYear=invoice.issued_at.year,
                 YourRef=invoice.number,
                 PaymentCondition=EXACT_PAYMENT_CONDITION_CODE_14_DAYS,
-                SalesEntryLines=[
-                    dict(
-                        AmountFC=float(invoice.subtotal),
-                        Description=invoice.number,
-                        GLAccount=EXACT_GL_ACCOUNT_CLIENT_FEE,
-                        VATCode=vat_code
-                    )
-                ]
+                SalesEntryLines=sales_entry_lines
             )
         ))
+
     elif invoice.type == INVOICE_TYPE_PURCHASE:
         exact_api.restv1(POST(
             'purchaseentry/PurchaseEntries',
@@ -372,8 +404,82 @@ def upload_invoice_v3(invoice):
                     dict(
                         AmountFC=float(invoice.subtotal),
                         Description=invoice.number,
-                        GLAccount=EXACT_GL_ACCOUNT_DEVELOPER_FEE
+                        GLAccount=invoice.project.category and EXACT_GL_ACCOUNT_NEW_DEVELOPER_FEE or EXACT_GL_ACCOUNT_DEVELOPER_FEE
                     )
                 ]
             )
         ))
+
+
+def get_project_entry_v3(entry_ref, exact_user_id, exact_api=None):
+    if not exact_api:
+        exact_api = get_api()
+
+    select_param = "EntryID,EntryNumber,EntryDate,Created,Modified,YourRef," \
+                   "AmountDC,VATAmountDC,DueDate,Description,Journal,ReportingYear"
+
+    existing_project_entry_refs = exact_api.restv1(GET(
+        "salesentry/SalesEntries?{}".format(urlencode({
+            '$filter': "YourRef eq '{}' and Customer eq guid'{}'".format(
+                entry_ref, exact_user_id),
+            '$select': '{},SalesEntryLines,Customer'.format(select_param)
+        }))
+    ))
+    return existing_project_entry_refs
+
+
+def create_project_entry_v3(project, balance):
+    """
+    :param project:
+    :param balance:
+    :return:
+    """
+    exact_api = get_api()
+
+    if balance == Decimal(0) or not project.archived:
+        # Nothing to add to Exact yet
+        return
+
+    if project.legacy_id or not project.category:
+        # Don't sync legacy projects
+        return
+
+    project_owner = project.owner or project.user
+    project_ref = 'P/{}'.format(project.id)
+
+    exact_user_id = get_account_guid_v3(project_owner, invoice_type=INVOICE_TYPE_SALE, exact_api=exact_api)
+
+    existing_project_entry_refs = get_project_entry_v3(project_ref, exact_user_id, exact_api=exact_api)
+
+    if existing_project_entry_refs:
+        # Stop if entries with invoice ref already exist
+        return
+
+    sales_entry_lines = [
+        dict(
+            AmountFC=float(balance),
+            Description=project_ref,
+            GLAccount=EXACT_GL_ACCOUNT_NEW_DEVELOPER_FEE
+        ),
+        dict(
+            AmountFC=float(balance * Decimal(-1)),
+            Description=project_ref,
+            GLAccount=EXACT_GL_ACCOUNT_DEVELOPER_FEE
+        )
+    ]
+
+    exact_api.restv1(POST(
+        'salesentry/SalesEntries',
+        dict(
+            Currency=CURRENCY_EUR,
+            Customer=exact_user_id,
+            Description=project.title,
+            EntryDate=project.created_at.isoformat(),
+            Journal=EXACT_JOURNAL_CLIENT_SALES,
+            ReportingPeriod=project.created_at.month,
+            ReportingYear=project.created_at.year,
+            YourRef=project_ref,
+            PaymentCondition=EXACT_PAYMENT_CONDITION_CODE_14_DAYS,
+            SalesEntryLines=sales_entry_lines
+        )
+    ))
