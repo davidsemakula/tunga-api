@@ -1,5 +1,5 @@
 repo: https://github.com/tunga-io/tunga-api.git
-branch: master
+branch: production
 server_root: /srv/tunga/api/
 web_process: tunga
 worker_process: tunga_rqworker

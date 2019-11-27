@@ -4,6 +4,7 @@ from rest_framework.exceptions import ValidationError
 from tunga_activity.models import FieldChangeLog
 from tunga_projects.models import Project, Participation, Document, ProgressEvent, ProjectMeta, ProgressReport, \
     InterestPoll
+from tunga_projects.tasks import complete_exact_sync
 from tunga_utils.constants import PROGRESS_REPORT_STATUS_CHOICES, PROGRESS_REPORT_STATUS_STUCK, \
     PROGRESS_REPORT_STUCK_REASON_CHOICES, PROGRESS_REPORT_STATUS_BEHIND_AND_STUCK
 from tunga_utils.mixins import GetCurrentUserAnnotatedSerializerMixin
@@ -20,7 +21,7 @@ class SimpleProjectSerializer(SimpleModelSerializer):
     class Meta:
         model = Project
         fields = (
-            'id', 'title', 'description', 'type',
+            'id', 'title', 'description', 'type', 'category', 'expected_durartion',
             'budget', 'currency', 'closed', 'start_date', 'deadline', 'archived', 'skills'
         )
 
@@ -111,6 +112,10 @@ class ProjectSerializer(
     change_log = serializers.JSONField(required=False, write_only=True)
     margin = serializers.ReadOnlyField()
     interest_polls = SimpleInterestPollSerializer(required=False, many=True, source='interestpoll_set')
+    expected_duration = serializers.CharField(required=True, read_only=False,
+                                     allow_null=False, allow_blank=False)
+    category = serializers.CharField(required=True, read_only=False,
+                                     allow_null=False, allow_blank=False)
 
     class Meta:
         model = Project
@@ -119,14 +124,21 @@ class ProjectSerializer(
 
     def nested_save_override(self, validated_data, instance=None):
         initial_stage = None
+        initial_archived = None
 
         if instance:
             initial_stage = instance.stage
+            initial_archived = instance.archived
 
         instance = super(ProjectSerializer, self).nested_save_override(validated_data, instance=instance)
 
-        if instance and initial_stage != instance.stage:
-            post_field_update.send(sender=Project, instance=instance, field='stage')
+        if instance:
+            if initial_stage != instance.stage:
+                post_field_update.send(sender=Project, instance=instance, field='stage')
+
+            if type(initial_archived) == bool and instance.archived and not initial_archived:
+                complete_exact_sync.delay(instance.id)
+
         return instance
 
     def save_nested_skills(self, data, instance, created=False):
