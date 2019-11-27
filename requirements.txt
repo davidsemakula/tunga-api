@@ -38,7 +38,7 @@ django-rq==0.9.5
 django-tagulous==0.12.0
 django==1.11.23
 djangorestframework-jwt==1.8.0
-djangorestframework==3.6.2
+djangorestframework==3.9.1
 docopt==0.4.0             # via mandrill
 dry-rest-permissions==0.1.6
 enum34==1.1.6             # via argon2-cffi, cryptography, flake8
@@ -67,7 +67,7 @@ oauthlib==2.0.1
 openapi-codec==1.3.1      # via django-rest-swagger
 passlib==1.6.5            # via django-hashers-passlib
 pdfrw==0.4                # via weasyprint
-pillow==6.0.0
+pillow==6.2.1
 premailer==3.0.1
 pyasn1-modules==0.2.5     # via oauth2client
 pyasn1==0.4.5             # via oauth2client, pyasn1-modules, rsa
