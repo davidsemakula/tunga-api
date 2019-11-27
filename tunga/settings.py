@@ -272,7 +272,8 @@ ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = '/'
 ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = '/'
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 ACCOUNT_LOGIN_ON_PASSWORD_RESET = True
-ACCOUNT_USERNAME_BLACKLIST = ['tunga', 'tunga.io', 'admin', 'administrator', 'moderator', 'user']
+ACCOUNT_USERNAME_BLACKLIST = ['tunga', 'tunga.io', 'admin', 'administrator',
+                              'moderator', 'user']
 ACCOUNT_ADAPTER = "tunga_auth.adapter.TungaAccountAdapter"
 SOCIALACCOUNT_ADAPTER = "tunga_auth.adapter.TungaSocialAccountAdapter"
 
@@ -284,14 +285,16 @@ SOCIALACCOUNT_PROVIDERS = {
         'SCOPE': ['user:email']
     },
     'slack': {
-        'SCOPE': ['identity.basic', 'identity.email', 'identity.avatar', 'identity.team']
+        'SCOPE': ['identity.basic', 'identity.email', 'identity.avatar',
+                  'identity.team']
     }
 }
 SOCIALACCOUNT_AUTO_SIGNUP = True
 
 OAUTH2_PROVIDER = {
     # this is the list of available scopes
-    'SCOPES': {'read': 'Read scope', 'write': 'Write scope', 'groups': 'Access to your groups'},
+    'SCOPES': {'read': 'Read scope', 'write': 'Write scope',
+               'groups': 'Access to your groups'},
     'OAUTH2_BACKEND_CLASS': 'oauth2_provider.oauth2_backends.JSONOAuthLibCore',
     'ACCESS_TOKEN_EXPIRE_SECONDS': 120 * 24 * 60 * 60  # 120 days
 }
@@ -310,7 +313,8 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'tunga_utils.pagination.DefaultPagination',
     'URL_FIELD_NAME': 'api_url',
     'DEFAULT_FILTER_BACKENDS': (
-        'django_filters.rest_framework.DjangoFilterBackend', 'rest_framework.filters.SearchFilter'
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter'
     ),
     'TEST_REQUEST_DEFAULT_FORMAT': 'json'
 }
@@ -517,3 +521,12 @@ if 'test' in sys.argv[1:]:
     TEMPLATE_DEBUG = False
     TESTS_IN_PROGRESS = True
     MIGRATION_MODULES = DisableMigrations()
+
+# add sentry code to server
+# import sentry_sdk
+# from sentry_sdk.integrations.django import DjangoIntegration
+#
+# sentry_sdk.init(
+#     dsn="https://16d0dbd199654df0a76e6dd257a45d7d@sentry.io/1806591",
+#     integrations=[DjangoIntegration()]
+# )

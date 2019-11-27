@@ -10,18 +10,19 @@ argon2-cffi==16.2.0
 beautifulsoup4==4.6.0
 cairocffi==0.7.2          # via cairosvg, weasyprint
 cairosvg==1.0.22          # via weasyprint
-certifi==2018.10.15       # via requests
-cffi==1.7.0               # via argon2-cffi, cairocffi, weasyprint
+certifi==2018.10.15       # via requests, sentry-sdk
+cffi==1.13.2              # via argon2-cffi, cairocffi, cryptography, weasyprint
 chardet==3.0.4            # via requests
 click==6.6                # via rq
 coinbase==2.1.0
+configparser==4.0.2       # via flake8
 contextlib2==0.5.5        # via raven
 coreapi==2.3.0            # via django-rest-swagger, openapi-codec
 coreschema==0.0.4         # via coreapi
+cryptography==2.8         # via pyopenssl, requests
 cssselect2==0.2.1         # via weasyprint
 cssselect==0.9.2          # via premailer
 cssutils==1.0.1           # via premailer
-defusedxml==0.6.0         # via python3-openid
 django-activity-stream==0.6.2
 django-allauth==0.31.0
 django-braces==1.11.0     # via django-oauth-toolkit
@@ -40,14 +41,18 @@ djangorestframework-jwt==1.8.0
 djangorestframework==3.6.2
 docopt==0.4.0             # via mandrill
 dry-rest-permissions==0.1.6
+enum34==1.1.6             # via argon2-cffi, cryptography, flake8
 exactonline==0.3.2
 flake8==3.5.0
+funcsigs==1.0.2           # via apscheduler
+futures==3.3.0            # via apscheduler, isort
 gspread==3.1.0
 gunicorn==19.6.0
 honcho==1.0.1
 html5lib==0.999999999     # via weasyprint
 httplib2==0.12.3          # via oauth2client
 idna==2.7                 # via requests
+ipaddress==1.0.23         # via cryptography
 isort==4.3.4
 itypes==1.1.0             # via coreapi
 jinja2==2.10.1            # via coreschema
@@ -71,17 +76,19 @@ pycparser==2.14           # via cffi
 pycryptodome==3.7.0
 pyflakes==1.6.0           # via flake8
 pyjwt==1.4.0              # via djangorestframework-jwt
+pyopenssl==19.1.0         # via requests
 pyphen==0.9.4             # via weasyprint
 python-dateutil==2.5.3
-python3-openid==3.1.0     # via django-allauth
+python-openid==2.2.5      # via django-allauth
 pytz==2016.10             # via apscheduler, django, tzlocal
 raven==6.0.0
 redis==2.10.5             # via django-redis, rq
 requests-oauthlib==0.8.0  # via django-allauth
-requests==2.22.0
+requests[security]==2.22.0
 rest-framework-generic-relations==1.1.0
 rq==0.6.0                 # via django-rq
 rsa==4.0                  # via oauth2client
+sentry-sdk==0.13.4
 simplejson==3.10.0        # via django-rest-swagger
 six==1.10.0
 slackdown==0.0.3
@@ -90,7 +97,10 @@ stripe==2.36.2
 tinycss2==0.6.1           # via cssselect2, weasyprint
 tzlocal==1.3              # via apscheduler
 uritemplate==3.0.0        # via coreapi
-urllib3==1.25.2           # via requests
+urllib3==1.25.2           # via requests, sentry-sdk
 weasyprint==0.42.3
 webencodings==0.5         # via html5lib, tinycss2
 xlsxwriter==1.0.4
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools
