@@ -9,11 +9,15 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from tunga_projects.filterbackends import ProjectFilterBackend
-from tunga_projects.filters import ProjectFilter, DocumentFilter, ParticipationFilter, ProgressEventFilter, \
-    ProgressReportFilter, InterestPollFilter
-from tunga_projects.models import Project, Document, Participation, ProgressEvent, ProgressReport, InterestPoll
-from tunga_projects.serializers import ProjectSerializer, DocumentSerializer, ParticipationSerializer, \
-    ProgressEventSerializer, ProgressReportSerializer, InterestPollSerializer
+from tunga_projects.filters import ProjectFilter, DocumentFilter, \
+    ParticipationFilter, ProgressEventFilter, \
+    ProgressReportFilter, InterestPollFilter, DeveloperRatingFilter
+from tunga_projects.models import Project, Document, Participation, \
+    ProgressEvent, ProgressReport, InterestPoll, DeveloperRating
+from tunga_projects.serializers import ProjectSerializer, DocumentSerializer, \
+    ParticipationSerializer, \
+    ProgressEventSerializer, ProgressReportSerializer, InterestPollSerializer, \
+    DeveloperRatingSerializer
 from tunga_projects.tasks import manage_interest_polls
 from tunga_utils.filterbackends import DEFAULT_FILTER_BACKENDS
 
@@ -98,4 +102,15 @@ class ProgressReportViewSet(ModelViewSet):
     serializer_class = ProgressReportSerializer
     permission_classes = [IsAuthenticated, DRYObjectPermissions]
     filter_class = ProgressReportFilter
+    filter_backends = DEFAULT_FILTER_BACKENDS
+
+
+class DeveloperRatingViewSet(ModelViewSet):
+    """
+    Developer Rating Resource
+    """
+    queryset = DeveloperRating.objects.all()
+    serializer_class = DeveloperRatingSerializer
+    permission_classes = [IsAuthenticated, DRYObjectPermissions]
+    filter_class = DeveloperRatingFilter
     filter_backends = DEFAULT_FILTER_BACKENDS
