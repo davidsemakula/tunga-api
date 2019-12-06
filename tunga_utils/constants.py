@@ -356,3 +356,13 @@ PROJECT_STAGE_CHOICES = (
 )
 
 EVENT_SOURCE_HUBSPOT = 'hubspot'
+
+# Project Update Days
+# This is from the python weekday numbers
+MONDAY = 0
+TUESDAY = 1
+WEDNESDAY = 2
+THURSDAY = 3
+FRIDAY = 4
+
+UPDATE_DAYS = '%s,%s,%s,%s,%s' % (MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY)
