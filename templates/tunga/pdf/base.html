@@ -1,3 +1,4 @@
+{% load staticfiles %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,13 +6,28 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
     <link href="https://fonts.googleapis.com/css?family=Fira+Sans:100,100i,300,300i,400,400i,500,500i,700,700i" rel="stylesheet">
-    <link
-      rel="stylesheet"
-      media="screen"
-      href="https://fontlibrary.org/face/hk-grotesk"
-      type="text/css"
-    />
+    <link href="https://fonts.googleapis.com/css?family=Noto+Sans+HK&display=swap" rel="stylesheet">
     <style>
+      @font-face {
+        font-family: 'HK Grotesk';
+        font-style: normal;
+        src: url('https://tunga.io/static/tunga/fonts/hk-grotesk/HKGrotesk-Regular.otf');
+      }
+      @font-face {
+        font-family: 'HK Grotesk';
+        font-weight: 300;
+        src: url('https://tunga.io/static/tunga/fonts/hk-grotesk/HKGrotesk-Light.otf');
+      }
+      @font-face {
+      font-family: 'HK Grotesk';
+      font-weight: bold;
+      src: url('https://tunga.io/static/tunga/fonts/hk-grotesk/HKGrotesk-Bold.otf');
+      }
+      @font-face {
+        font-family: 'HK Grotesk';
+        font-style: italic;
+        src: url('https://tunga.io/static/tunga/fonts/hk-grotesk/HKGrotesk-Italic.otf');
+      }
         * {
         margin: 0;
         padding: 0;
@@ -19,7 +35,7 @@
 
       body {
         font-size: 14px;
-        font-family: "HKGroteskRegular", sans-serif;
+        font-family: 'HK Grotesk', sans-serif;
       }
 
       table {
@@ -94,10 +110,6 @@
       .invoice-table-container {
         margin-top: 40px;
       }
-      .invoice-details-container table{
-        width: 50%;
-      }
-
       table th,
       table td {
         padding: 5px 0;
@@ -114,6 +126,14 @@
         width: 100%;
         font-size: 12px;
       }
+
+      .invoice-details-container table{
+        width: 35%;
+      }
+
+      .invoice-details-container table td{
+        padding: 0;
+      }
       .half-width {
         width: 50%;
       }
@@ -129,6 +149,10 @@
       }
       .invoice-table-container table th {
         border-bottom: 1px solid #061663;
+        padding-left: 10px;
+      }
+      .invoice-table-container table td {
+        padding-left: 10px;
       }
       .invoice-top-section table {
         width: 100%;
@@ -149,8 +173,8 @@
       .right-div {
         float: right;
       }
-      .credit-note-p{
-        font-size: 13px;
+      .space{
+        width: 250px;
       }
     </style>
 </head>
