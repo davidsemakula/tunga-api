@@ -6,8 +6,8 @@ from django.db.models.query_utils import Q
 from tunga_projects.models import Project, ProgressEvent
 from tunga_projects.notifications.generic import remind_progress_event
 from tunga_utils.constants import STATUS_ACCEPTED, PROGRESS_EVENT_DEVELOPER, \
-    PROGRESS_EVENT_PM, PROGRESS_EVENT_CLIENT, \
-    PROGRESS_EVENT_MILESTONE, PROGRESS_EVENT_INTERNAL
+    PROGRESS_EVENT_PM, PROGRESS_EVENT_MILESTONE, PROGRESS_EVENT_INTERNAL, \
+    PROGRESS_EVENT_DEVELOPER_RATING
 
 
 class Command(BaseCommand):
@@ -105,7 +105,7 @@ class Command(BaseCommand):
                     # Client surveys on Monday (0)
                     client_defaults = dict(title='Client Survey')
                     client_event, created = ProgressEvent.objects.update_or_create(
-                        project=project, type=PROGRESS_EVENT_CLIENT,
+                        project=project, type=PROGRESS_EVENT_DEVELOPER_RATING,
                         due_at=today_noon, defaults=client_defaults
                     )
                     if not client_event.last_reminder_at:
