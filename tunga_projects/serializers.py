@@ -104,6 +104,18 @@ class SimpleProgressReportSerializer(SimpleModelSerializer):
         exclude = ('event',)
 
 
+class SimpleDeveloperRatingSerializer(SimpleModelSerializer):
+    user = SimplestUserSerializer(required=False, read_only=True,
+                                  default=CreateOnlyCurrentUserDefault())
+    created_by = SimplestUserSerializer(required=False, read_only=True,
+                                  default=CreateOnlyCurrentUserDefault())
+
+
+    class Meta:
+        model = DeveloperRating
+        exclude = ('event',)
+
+
 class SimpleProjectMetaSerializer(SimpleModelSerializer):
     created_by = SimplestUserSerializer(required=False, read_only=True,
                                         default=CreateOnlyCurrentUserDefault())
@@ -248,6 +260,9 @@ class ProgressEventSerializer(NestedModelSerializer,
     project = SimpleProjectSerializer()
     progress_reports = SimpleProgressReportSerializer(
         required=False, read_only=True, many=True, source='progressreport_set'
+    )
+    developer_ratings = SimpleDeveloperRatingSerializer(
+        required=False, read_only=True, many=True, source='developerrating_set'
     )
     change_log = serializers.JSONField(required=False, write_only=True)
 

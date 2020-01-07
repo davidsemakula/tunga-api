@@ -29,7 +29,7 @@ from tunga_utils.constants import PROJECT_TYPE_CHOICES, PROJECT_TYPE_OTHER, \
     PROGRESS_EVENT_CLIENT, PROGRESS_EVENT_INTERNAL, PROJECT_STAGE_ACTIVE, \
     PROJECT_STAGE_CHOICES, STATUS_UNINTERESTED, \
     STATUS_INTERESTED, INVOICE_TYPE_SALE, INVOICE_TYPE_PURCHASE, \
-    PROJECT_CATEGORY_CHOICES, UPDATE_DAYS
+    PROJECT_CATEGORY_CHOICES, UPDATE_DAYS, PROGRESS_EVENT_DEVELOPER_RATING
 from tunga_utils.models import Rating
 
 
@@ -399,7 +399,8 @@ class ProgressEvent(models.Model):
     @property
     def participants(self):
         participants = []
-        if self.type in [PROGRESS_EVENT_CLIENT, PROGRESS_EVENT_MILESTONE]:
+        if self.type in [PROGRESS_EVENT_CLIENT, PROGRESS_EVENT_DEVELOPER_RATING,
+                         PROGRESS_EVENT_MILESTONE]:
             if self.project.owner:
                 participants.append(self.project.owner)
             else:
@@ -544,6 +545,8 @@ class DeveloperRating(models.Model):
     event = models.ForeignKey(ProgressEvent, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.DO_NOTHING)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.DO_NOTHING, related_name='created_by')
 
     rating = models.PositiveIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(5)], blank=True,

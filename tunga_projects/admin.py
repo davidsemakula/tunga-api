@@ -30,6 +30,6 @@ class ProgressEventAdmin(admin.ModelAdmin):
 
 @admin.register(DeveloperRating)
 class DevelopRatingAdmin(admin.ModelAdmin):
-    list_display = ('user', 'event', 'rating')
+    list_display = ('user', 'event', 'rating', 'created_by')
     list_filter = ('event',)
     search_fields = ('user',)
