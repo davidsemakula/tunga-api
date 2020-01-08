@@ -172,6 +172,8 @@ class InviteRequest(models.Model):
     cv = models.FileField(upload_to='cv/%Y/%m/%d', validators=[validate_file_size])
     created_at = models.DateTimeField(auto_now_add=True)
 
+    email_sent_at = models.DateTimeField(blank=True, null=True)
+
     def __str__(self):
         return '{} {}'.format(self.name, self.email)
 
