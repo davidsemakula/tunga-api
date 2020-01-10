@@ -357,15 +357,6 @@ class ProgressReportSerializer(NestedModelSerializer,
                 ]
             elif current_user.is_project_owner:
                 required_fields = [
-                    (
-                        'last_deadline_met', BOOLEANS,
-                        [
-                            (False, 'deadline_miss_communicated', BOOLEANS)
-                        ]
-                    ),
-                    ('deliverable_satisfaction', BOOLEANS),
-                    rate_deliverables_schema,
-                    ('pm_communication', BOOLEANS)
                 ]
 
             errors.update(validate_field_schema(required_fields, attrs,
