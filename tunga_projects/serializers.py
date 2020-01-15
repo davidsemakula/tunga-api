@@ -105,11 +105,9 @@ class SimpleProgressReportSerializer(SimpleModelSerializer):
 
 
 class SimpleDeveloperRatingSerializer(SimpleModelSerializer):
-    user = SimplestUserSerializer(required=False, read_only=True,
-                                  default=CreateOnlyCurrentUserDefault())
+    user = SimplestUserSerializer(required=False, read_only=True)
     created_by = SimplestUserSerializer(required=False, read_only=True,
-                                  default=CreateOnlyCurrentUserDefault())
-
+                                        default=CreateOnlyCurrentUserDefault())
 
     class Meta:
         model = DeveloperRating
@@ -370,8 +368,9 @@ class ProgressReportSerializer(NestedModelSerializer,
 class DeveloperRatingSerializer(NestedModelSerializer,
                                 ContentTypeAnnotatedModelSerializer,
                                 GetCurrentUserAnnotatedSerializerMixin):
-    user = SimplestUserSerializer(required=False, read_only=True,
-                                  default=CreateOnlyCurrentUserDefault())
+    created_by = SimplestUserSerializer(required=False, read_only=True,
+                                        default=CreateOnlyCurrentUserDefault())
+
     event = NestedProgressEventSerializer()
 
     class Meta:
