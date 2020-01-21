@@ -1,7 +1,8 @@
 import django_filters
 from django.db.models import Q
 
-from tunga_projects.models import Project, Document, Participation, ProgressEvent, ProgressReport, InterestPoll
+from tunga_projects.models import Project, Document, Participation, \
+    ProgressEvent, ProgressReport, InterestPoll, DeveloperRating
 from tunga_utils.filters import GenericDateFilterSet
 
 
@@ -63,6 +64,17 @@ class ProgressReportFilter(GenericDateFilterSet):
 
     class Meta:
         model = ProgressReport
+        fields = (
+            'event', 'user', 'project', 'type'
+        )
+
+
+class DeveloperRatingFilter(GenericDateFilterSet):
+    project = django_filters.NumberFilter(name='event__project')
+    type = django_filters.NumberFilter(name='event__type')
+
+    class Meta:
+        model = DeveloperRating
         fields = (
             'event', 'user', 'project', 'type'
         )

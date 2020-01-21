@@ -283,6 +283,7 @@ PAYMENT_TYPE_SALE = 'sale'
 PAYMENT_TYPE_PURCHASE = 'purchase'
 
 PROGRESS_EVENT_DEVELOPER = 'developer'
+PROGRESS_EVENT_DEVELOPER_RATING = 'developer_rating'
 PROGRESS_EVENT_PM = 'pm'
 PROGRESS_EVENT_CLIENT = 'client'
 PROGRESS_EVENT_MILESTONE = 'milestone'
@@ -290,6 +291,7 @@ PROGRESS_EVENT_INTERNAL = 'internal'
 
 PROGRESS_EVENT_TYPE_CHOICES = (
     (PROGRESS_EVENT_DEVELOPER, 'Developer Update'),
+    (PROGRESS_EVENT_DEVELOPER_RATING, 'Developer Rating'),
     (PROGRESS_EVENT_PM, 'PM Report'),
     (PROGRESS_EVENT_CLIENT, 'Client Survey'),
     (PROGRESS_EVENT_MILESTONE, 'Milestone'),
@@ -354,3 +356,13 @@ PROJECT_STAGE_CHOICES = (
 )
 
 EVENT_SOURCE_HUBSPOT = 'hubspot'
+
+# Project Update Days
+# This is from the python weekday numbers
+MONDAY = 0
+TUESDAY = 1
+WEDNESDAY = 2
+THURSDAY = 3
+FRIDAY = 4
+
+UPDATE_DAYS = '%s,%s,%s,%s,%s' % (MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY)

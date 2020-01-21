@@ -1,8 +1,9 @@
 from functools import wraps
 
-from rest_framework.filters import DjangoFilterBackend, SearchFilter
+from rest_framework.filters import SearchFilter
+from django_filters import rest_framework as filters
 
-DEFAULT_FILTER_BACKENDS = (DjangoFilterBackend, SearchFilter)
+DEFAULT_FILTER_BACKENDS = (filters.DjangoFilterBackend, SearchFilter)
 
 
 def dont_filter_staff_or_superuser(func):
