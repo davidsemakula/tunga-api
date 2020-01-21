@@ -26,7 +26,8 @@ def sync_hubspot_deal(project, **kwargs):
 def activate_project(project):
     project = clean_instance(project, Project)
 
-    approved_polls = project.interestpoll_set.filter(status=STATUS_INTERESTED, approval_status=STATUS_ACCEPTED)
+    approved_polls = project.interestpoll_set.filter(status=STATUS_INTERESTED,
+                                                     approval_status=STATUS_ACCEPTED)
     for poll in approved_polls:
         Participation.objects.update_or_create(
             project=project, user=poll.user,
@@ -49,7 +50,9 @@ def manage_interest_polls(project, remind=False):
     if remind:
         notify_project_slack_dev.delay(project.id, reminder=True)
 
-    developers = get_user_model().objects.filter(type=USER_TYPE_DEVELOPER, userprofile__skills__in=project.skills.all())
+    developers = get_user_model().objects.filter(is_active=True,
+                                                 type=USER_TYPE_DEVELOPER,
+                                                 userprofile__skills__in=project.skills.all())
 
     for developer in developers:
         interest_poll, created = InterestPoll.objects.update_or_create(
@@ -58,7 +61,8 @@ def manage_interest_polls(project, remind=False):
         )
 
         if created or remind:
-            notify_interest_poll_email.delay(interest_poll.id, reminder=not created)
+            notify_interest_poll_email.delay(interest_poll.id,
+                                             reminder=not created)
 
 
 @job
