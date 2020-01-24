@@ -571,8 +571,9 @@ class DeveloperRating(models.Model):
     @staticmethod
     @allow_staff_or_superuser
     def has_write_permission(request):
-        return request.user.is_developer or request.user.is_project_manager or request.user.is_project_owner
+        return request.user.is_project_manager or request.user.is_project_owner
 
     @allow_staff_or_superuser
     def has_object_write_permission(self, request):
-        return request.user == self.user
+        status = request.user == self.created_by or request.user.is_project_manager or request.user.is_project_owner
+        return status
