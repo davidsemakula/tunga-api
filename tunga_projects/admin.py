@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.contrib import admin
 
 from tunga_projects.models import Project, ProjectMeta, ProgressEvent, \
-    DeveloperRating
+    DeveloperRating, ProgressReport
 
 
 @admin.register(Project)
@@ -31,5 +31,12 @@ class ProgressEventAdmin(admin.ModelAdmin):
 @admin.register(DeveloperRating)
 class DevelopRatingAdmin(admin.ModelAdmin):
     list_display = ('user', 'event', 'rating', 'created_by')
+    list_filter = ('event',)
+    search_fields = ('user',)
+
+
+@admin.register(ProgressReport)
+class ProgressReportAdmin(admin.ModelAdmin):
+    list_display = ('user', 'event', 'status',)
     list_filter = ('event',)
     search_fields = ('user',)

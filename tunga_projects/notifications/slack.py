@@ -13,8 +13,10 @@ from tunga.settings import TUNGA_URL, SLACK_STAFF_INCOMING_WEBHOOK, SLACK_STAFF_
 from tunga_projects.models import Project, ProgressReport, ProgressEvent, InterestPoll
 from tunga_projects.utils import weekly_project_report, weekly_payment_report
 from tunga_utils import slack_utils
-from tunga_utils.constants import PROGRESS_EVENT_PM, PROGRESS_EVENT_INTERNAL, PROGRESS_EVENT_CLIENT, \
-    PROGRESS_EVENT_MILESTONE, PROJECT_STAGE_OPPORTUNITY, STATUS_INTERESTED
+from tunga_utils.constants import PROGRESS_EVENT_PM, PROGRESS_EVENT_INTERNAL, \
+    PROGRESS_EVENT_CLIENT, \
+    PROGRESS_EVENT_MILESTONE, PROJECT_STAGE_OPPORTUNITY, STATUS_INTERESTED, \
+    PROGRESS_EVENT_DEVELOPER_RATING
 from tunga_utils.helpers import clean_instance, convert_to_text
 
 
@@ -113,9 +115,9 @@ def notify_project_slack_dev(project, reminder=False):
 
 
 def create_progress_report_slack_message(progress_report, updated=False, to_client=False):
-    is_pm_report = progress_report.event.type in [PROGRESS_EVENT_PM, PROGRESS_EVENT_INTERNAL] or \
+    is_pm_report = progress_report.event.type in [PROGRESS_EVENT_PM, PROGRESS_EVENT_INTERNAL,PROGRESS_EVENT_DEVELOPER_RATING] or \
                    (progress_report.event.type == PROGRESS_EVENT_MILESTONE and progress_report.user.is_project_manager)
-    is_client_report = progress_report.event.type == PROGRESS_EVENT_CLIENT or \
+    is_client_report = progress_report.event.type in [PROGRESS_EVENT_CLIENT, PROGRESS_EVENT_DEVELOPER_RATING] or \
                        (
                            progress_report.event.type == PROGRESS_EVENT_MILESTONE and progress_report.user.is_project_owner)
     is_pm_or_client_report = is_pm_report or is_client_report
@@ -144,6 +146,7 @@ def create_progress_report_slack_message(progress_report, updated=False, to_clie
         if progress_report.next_deadline:
             slack_text_suffix += '\n*Next deadline:* {}'.format(progress_report.next_deadline.strftime("%d %b, %Y"))
     if is_client_report:
+        # edit - Remo
         if progress_report.deliverable_satisfaction is not None:
             slack_text_suffix += '\n*Are you satisfied with the deliverables?:* {}'.format(
                 progress_report.deliverable_satisfaction and 'Yes' or 'No'
@@ -182,14 +185,16 @@ def create_progress_report_slack_message(progress_report, updated=False, to_clie
         })
 
     if is_client_report:
+        #edit - Remo
         if progress_report.rate_deliverables:
             attachments.append({
-                slack_utils.KEY_TITLE: 'How would you rate the deliverables on a scale from 1 to 5?',
+                slack_utils.KEY_TITLE: 'Project Performace',
                 slack_utils.KEY_TEXT: '{}/5'.format(progress_report.rate_deliverables),
                 slack_utils.KEY_MRKDWN_IN: [slack_utils.KEY_TEXT],
                 slack_utils.KEY_COLOR: SLACK_ATTACHMENT_COLOR_BLUE
             })
         if progress_report.pm_communication:
+            #edit - Remo
             attachments.append({
                 slack_utils.KEY_TITLE: 'Is the communication between you and the project manager/developer(s) going well?',
                 slack_utils.KEY_TEXT: '{}'.format(progress_report.pm_communication and 'Yes' or 'No'),
