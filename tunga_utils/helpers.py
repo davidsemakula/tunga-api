@@ -24,7 +24,8 @@ def get_tunga_model(model):
     try:
         return django_apps.get_model(model)
     except ValueError:
-        raise ImproperlyConfigured("Model must be of the form 'app_label.model_name'")
+        raise ImproperlyConfigured(
+            "Model must be of the form 'app_label.model_name'")
     except LookupError:
         raise ImproperlyConfigured("Model has not been installed")
 
@@ -47,13 +48,15 @@ def pdf_base64encode(pdf_filename):
 
 
 def swagger_permission_denied_handler(request):
-    return HttpResponseRedirect('%s://%s/api/login/?next=/api/docs/' % (request.scheme, request.get_host()))
+    return HttpResponseRedirect('%s://%s/api/login/?next=/api/docs/' % (
+    request.scheme, request.get_host()))
 
 
 class Echo(object):
     """An object that implements just the write method of the file-like
     interface.
     """
+
     def write(self, value):
         """Write the value by returning it, instead of storing in a buffer."""
         return value
@@ -67,7 +70,9 @@ class GenericObject:
 
 def get_social_token(user, provider):
     try:
-        return SocialToken.objects.filter(account__user=user, account__provider=provider).latest('expires_at')
+        return SocialToken.objects.filter(account__user=user,
+                                          account__provider=provider).latest(
+            'expires_at')
     except SocialToken.DoesNotExist:
         return None
 
@@ -87,14 +92,21 @@ def convert_to_text(body):
     """
     if not body:
         return body
-    txt_body = re.sub(r'(<br\s*/\s*>|<\s*/\s*(?:div|p)>)', '\\1\n', body, flags=re.IGNORECASE)
+    txt_body = re.sub(r'(<br\s*/\s*>|<\s*/\s*(?:div|p)>)', '\\1\n', body,
+                      flags=re.IGNORECASE)
     txt_body = striptags(txt_body)  # Striptags
-    txt_body = re.sub(r'&nbsp;', ' ', txt_body, flags=re.IGNORECASE)  # Replace &nbsp; with space
-    txt_body = re.sub(r' {2,}', ' ', txt_body, flags=re.IGNORECASE)  # Squash all multi spaces
-    txt_body = re.sub(r'\r\n', '\n', txt_body, flags=re.IGNORECASE)  # single new line format
-    txt_body = re.sub(r'\t', '\n', txt_body, flags=re.IGNORECASE)  # Remove indents
-    txt_body = re.sub(r'\n( )+', '\n', txt_body, flags=re.IGNORECASE)  # Remove indents
-    txt_body = re.sub(r'\n{3,}', '\n\n', txt_body, flags=re.IGNORECASE)  # Limit consecutive new lines to a max of 2
+    txt_body = re.sub(r'&nbsp;', ' ', txt_body,
+                      flags=re.IGNORECASE)  # Replace &nbsp; with space
+    txt_body = re.sub(r' {2,}', ' ', txt_body,
+                      flags=re.IGNORECASE)  # Squash all multi spaces
+    txt_body = re.sub(r'\r\n', '\n', txt_body,
+                      flags=re.IGNORECASE)  # single new line format
+    txt_body = re.sub(r'\t', '\n', txt_body,
+                      flags=re.IGNORECASE)  # Remove indents
+    txt_body = re.sub(r'\n( )+', '\n', txt_body,
+                      flags=re.IGNORECASE)  # Remove indents
+    txt_body = re.sub(r'\n{3,}', '\n\n', txt_body,
+                      flags=re.IGNORECASE)  # Limit consecutive new lines to a max of 2
     return txt_body
 
 
@@ -108,7 +120,9 @@ def convert_to_html(body):
             re.sub(
                 r'<a([^>]+)(?<!target=)>',
                 '<a target="_blank"\\1>',
-                urlizetrunc(re.sub(r'(<br\s*/>)?\n', '<br/>', body, flags=re.IGNORECASE), limit=50, autoescape=False),
+                urlizetrunc(re.sub(r'(<br\s*/>)?\n', '<br/>', body,
+                                   flags=re.IGNORECASE), limit=50,
+                            autoescape=False),
                 flags=re.IGNORECASE
             ),
             re.IGNORECASE
@@ -136,7 +150,8 @@ def convert_to_base_alphabet(number):
     base_alphabet_string = last_letter
 
     if divider_letters > 0:
-        base_alphabet_string = '{}{}'.format(convert_to_base_alphabet(divider_letters-1), base_alphabet_string)
+        base_alphabet_string = '{}{}'.format(
+            convert_to_base_alphabet(divider_letters - 1), base_alphabet_string)
     return base_alphabet_string
 
 
@@ -149,6 +164,17 @@ def clean_meta_value(meta_value):
         except:
             pass
     return str(meta_value)
+
+
+def convert_to_emoji(value):
+    value_emoji_dict = {
+        1: ":angry:",
+        2: ":confused:",
+        3: ":neutral_face:",
+        4: ":slightly_smiling_face:",
+        5: ":grinning:",
+    }
+    return value_emoji_dict[value]
 
 
 def get_edit_token_header(request):
@@ -169,7 +195,8 @@ def save_to_google_sheet(sheet_id, data, index=1):
     ]
 
     credentials = ServiceAccountCredentials.from_json_keyfile_name(
-        os.path.join(settings.BASE_DIR, 'tunga', 'env', 'credentials.json'), scope
+        os.path.join(settings.BASE_DIR, 'tunga', 'env', 'credentials.json'),
+        scope
     )
     client = gspread.authorize(credentials)
 

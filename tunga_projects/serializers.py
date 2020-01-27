@@ -370,7 +370,6 @@ class DeveloperRatingSerializer(NestedModelSerializer,
                                 GetCurrentUserAnnotatedSerializerMixin):
     created_by = SimplestUserSerializer(required=False, read_only=True,
                                         default=CreateOnlyCurrentUserDefault())
-
     event = NestedProgressEventSerializer()
 
     class Meta:
