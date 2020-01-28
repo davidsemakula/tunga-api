@@ -3,10 +3,13 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver, Signal
 
 from tunga_activity import verbs
-from tunga_projects.models import Project, Participation, Document, ProgressEvent, ProgressReport, InterestPoll
-from tunga_projects.notifications.generic import notify_new_project, notify_new_participant, notify_new_progress_report, \
-    notify_interest_poll_status
-from tunga_projects.notifications.slack import notify_new_progress_report_slack
+from tunga_projects.models import Project, Participation, Document, \
+    ProgressEvent, ProgressReport, InterestPoll, DeveloperRating
+from tunga_projects.notifications.generic import notify_new_project, \
+    notify_new_participant, notify_new_progress_report, \
+    notify_interest_poll_status, notify_new_developer_rating
+from tunga_projects.notifications.slack import notify_new_progress_report_slack, \
+    notify_new_developer_rating_slack
 from tunga_projects.tasks import sync_hubspot_deal, manage_interest_polls, activate_project
 from tunga_utils.constants import PROJECT_STAGE_OPPORTUNITY, STATUS_INTERESTED, STATUS_INITIAL, PROJECT_STAGE_ACTIVE
 from tunga_utils.signals import post_nested_save, post_field_update
@@ -69,6 +72,15 @@ def activity_handler_new_progress_report(sender, instance, created, **kwargs):
         notify_new_progress_report.delay(instance.id)
     elif not instance.legacy_id:
         notify_new_progress_report_slack.delay(instance.id, updated=True)
+
+
+@receiver(post_save, sender=DeveloperRating)
+def activity_handler_new_developer_rating(sender, instance, created, **kwargs):
+    if created:
+        # action.send(instance.user, verb=verbs.CREATE, action_object=instance, target=instance.event)
+        notify_new_developer_rating.delay(instance.id)
+    else:
+        notify_new_developer_rating_slack.delay(instance.id, updated=True)
 
 
 @receiver(post_field_update, sender=InterestPoll)
