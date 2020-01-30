@@ -320,7 +320,6 @@ class ProgressReportSerializer(NestedModelSerializer,
             if current_user.is_developer:
                 required_fields = [
                     status_schema,
-                    'started_at',
                     ('percentage', list(range(0, 101))),  # 0...100
                     'accomplished',
                     rate_deliverables_schema,

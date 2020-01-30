@@ -466,6 +466,7 @@ class ProgressReport(models.Model):
         validators=[MinValueValidator(1), MaxValueValidator(5)], blank=True,
         null=True
     )
+    rate_deliverables_improvements = models.TextField(blank=True, null=True)
 
     # Deadline Info
     started_at = models.DateTimeField(blank=True, null=True)
