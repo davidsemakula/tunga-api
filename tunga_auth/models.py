@@ -10,9 +10,12 @@ from django.utils.http import urlsafe_base64_encode
 from dry_rest_permissions.generics import allow_staff_or_superuser
 
 from tunga_utils import bitcoin_utils, coinbase_utils
-from tunga_utils.constants import PAYMENT_METHOD_BTC_ADDRESS, PAYMENT_METHOD_BTC_WALLET, BTC_WALLET_PROVIDER_COINBASE, \
-    USER_TYPE_DEVELOPER, USER_TYPE_PROJECT_OWNER, USER_TYPE_PROJECT_MANAGER, USER_SOURCE_DEFAULT, \
-    USER_SOURCE_TASK_WIZARD, STATUS_INITIAL, STATUS_APPROVED, STATUS_DECLINED, STATUS_PENDING, USER_SOURCE_MANUAL, \
+from tunga_utils.constants import PAYMENT_METHOD_BTC_ADDRESS, \
+    PAYMENT_METHOD_BTC_WALLET, BTC_WALLET_PROVIDER_COINBASE, \
+    USER_TYPE_DEVELOPER, USER_TYPE_PROJECT_OWNER, USER_TYPE_PROJECT_MANAGER, \
+    USER_SOURCE_DEFAULT, \
+    USER_SOURCE_TASK_WIZARD, STATUS_INITIAL, STATUS_APPROVED, STATUS_DECLINED, \
+    STATUS_PENDING, USER_SOURCE_MANUAL, \
     STATUS_INITIATED, USER_CATEGORY_DEVELOPER, USER_CATEGORY_DESIGNER
 from tunga_utils.validators import validate_file_size
 
@@ -44,12 +47,15 @@ PAYONEER_STATUS_CHOICES = (
 
 class TungaUser(AbstractUser):
     type = models.IntegerField(choices=USER_TYPE_CHOICES, blank=True, null=True)
-    category = models.CharField(max_length=20, choices=USER_CATEGORY_CHOICES, blank=True, null=True)
+    category = models.CharField(max_length=20, choices=USER_CATEGORY_CHOICES,
+                                blank=True, null=True)
     is_internal = models.BooleanField(default=False)
-    image = models.ImageField(upload_to='photos/%Y/%m/%d', blank=True, null=True, validators=[validate_file_size])
+    image = models.ImageField(upload_to='photos/%Y/%m/%d', blank=True,
+                              null=True, validators=[validate_file_size])
     verified = models.BooleanField(default=False)
     pending = models.BooleanField(default=True)
-    source = models.IntegerField(choices=USER_SOURCE_CHOICES, default=USER_SOURCE_DEFAULT)
+    source = models.IntegerField(choices=USER_SOURCE_CHOICES,
+                                 default=USER_SOURCE_DEFAULT)
     last_activity_at = models.DateTimeField(blank=True, null=True)
     last_set_password_email_at = models.DateTimeField(blank=True, null=True)
     agree_version = models.FloatField(blank=True, null=True, default=0)
@@ -59,7 +65,8 @@ class TungaUser(AbstractUser):
     payoneer_signup_url = models.URLField(blank=True, null=False)
     payoneer_status = models.CharField(
         max_length=20, choices=PAYONEER_STATUS_CHOICES,
-        help_text=', '.join(['{} - {}'.format(item[0], item[1]) for item in PAYONEER_STATUS_CHOICES]),
+        help_text=', '.join(['{} - {}'.format(item[0], item[1]) for item in
+                             PAYONEER_STATUS_CHOICES]),
         default=STATUS_INITIAL
     )
     invoice_email = models.EmailField(blank=True, null=True)
@@ -121,6 +128,8 @@ class TungaUser(AbstractUser):
     def display_category(self):
         if self.type == USER_TYPE_DEVELOPER and not self.category:
             return 'Developer'
+        elif self.category == USER_CATEGORY_DESIGNER:
+            return 'Designer'
         return self.get_category_display()
 
     @property
@@ -205,7 +214,9 @@ class TungaUser(AbstractUser):
         elif self.profile.payment_method == PAYMENT_METHOD_BTC_WALLET:
             wallet = self.profile.btc_wallet
             if wallet.provider == BTC_WALLET_PROVIDER_COINBASE:
-                client = coinbase_utils.get_oauth_client(wallet.token, wallet.token_secret, self)
+                client = coinbase_utils.get_oauth_client(wallet.token,
+                                                         wallet.token_secret,
+                                                         self)
                 return coinbase_utils.get_new_address(client)
         return None
 
@@ -241,10 +252,12 @@ class TungaUser(AbstractUser):
             return 'NL'
         elif client_country in [
             # EU members
-            'BE', 'BG', 'CZ', 'DK', 'DE', 'EE', 'IE', 'EL', 'ES', 'FR', 'HR', 'IT', 'CY', 'LV', 'LT', 'LU',
+            'BE', 'BG', 'CZ', 'DK', 'DE', 'EE', 'IE', 'EL', 'ES', 'FR', 'HR',
+            'IT', 'CY', 'LV', 'LT', 'LU',
             'HU', 'MT', 'AT', 'PL', 'PT', 'RO', 'SI', 'SK', 'FI', 'SE', 'UK'
             # European Free Trade Association (EFTA)
-            'IS', 'LI', 'NO', 'CH'
+                                                                        'IS',
+            'LI', 'NO', 'CH'
         ]:
             return 'europe'
         else:
@@ -253,12 +266,17 @@ class TungaUser(AbstractUser):
     @property
     def profile_rank(self):
         total_score = 0
-        total_score += sum([item.status == STATUS_APPROVED and 0.3 or 0.15 for item in
-                            self.project_participation.filter(status__in=[STATUS_INITIAL, STATUS_APPROVED])])
-        total_score += sum([getattr(self, k, None) and 0.1 or 0 for k in ['first_name', 'last_name', 'email']])
+        total_score += sum(
+            [item.status == STATUS_APPROVED and 0.3 or 0.15 for item in
+             self.project_participation.filter(
+                 status__in=[STATUS_INITIAL, STATUS_APPROVED])])
+        total_score += sum([getattr(self, k, None) and 0.1 or 0 for k in
+                            ['first_name', 'last_name', 'email']])
         if self.profile:
-            total_score += sum([(getattr(self.profile, k, None)) and 0.1 or 0 for k in
-                                ['country', 'city', 'street', 'plot_number', 'postal_code', 'id_document']])
+            total_score += sum(
+                [(getattr(self.profile, k, None)) and 0.1 or 0 for k in
+                 ['country', 'city', 'street', 'plot_number', 'postal_code',
+                  'id_document']])
         work_count = self.work_set.all().count()
         if work_count > 3:
             total_score += (3 * 0.2) + ((work_count - 3) * 0.02)
