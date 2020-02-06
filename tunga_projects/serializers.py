@@ -343,13 +343,6 @@ class ProgressReportSerializer(NestedModelSerializer,
                         ]
                     ),
                     'percentage', 'accomplished', 'todo',
-                    'next_deadline',
-                    (
-                        'next_deadline_meet', BOOLEANS,
-                        [
-                            (False, 'next_deadline_fail_reason')
-                        ]
-                    ),
                     'team_appraisal'
                 ]
             elif current_user.is_project_owner:
