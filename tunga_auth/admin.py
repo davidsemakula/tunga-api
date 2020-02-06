@@ -21,7 +21,7 @@ class TungaUserAdmin(UserAdmin):
     search_fields = ('first_name', 'last_name', 'email', 'invoice_email')
 
     fieldsets = UserAdmin.fieldsets + (
-        (_('Profile'), {'fields': ('type', 'image', 'is_internal', 'can_pay', 'verified', 'pending', 'invoice_email')}),
+        (_('Profile'), {'fields': ('type', 'category', 'image', 'is_internal', 'can_pay', 'verified', 'pending', 'invoice_email')}),
     )
 
     add_fieldsets = UserAdmin.add_fieldsets + (
