@@ -310,6 +310,8 @@ class Education(AbstractExperience):
 class Work(AbstractExperience):
     company = models.CharField(max_length=200)
     position = models.CharField(max_length=200)
+    project_link = models.CharField(max_length=255, null=True, blank=True)
+    repository_link = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
         return '%s - %s' % (self.user.get_short_name, self.company)
