@@ -343,7 +343,6 @@ class ProgressReportSerializer(NestedModelSerializer,
                         ]
                     ),
                     'percentage', 'accomplished', 'todo',
-                    'team_appraisal'
                 ]
             elif current_user.is_project_owner:
                 required_fields = [
