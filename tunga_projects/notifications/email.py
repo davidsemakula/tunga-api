@@ -8,8 +8,9 @@ from tunga_settings.slugs import NEW_TASK_PROGRESS_REPORT_EMAIL, TASK_SURVEY_REM
 from tunga_settings.utils import check_switch_setting
 from tunga_utils import mandrill_utils
 from tunga_utils.constants import PROGRESS_EVENT_MILESTONE, \
-    PROGRESS_EVENT_DEVELOPER, PROGRESS_EVENT_PM, PROGRESS_EVENT_INTERNAL, PROGRESS_EVENT_CLIENT, \
-    STATUS_ACCEPTED
+    PROGRESS_EVENT_DEVELOPER, PROGRESS_EVENT_PM, PROGRESS_EVENT_INTERNAL, \
+    PROGRESS_EVENT_CLIENT, \
+    STATUS_ACCEPTED, PROGRESS_EVENT_DEVELOPER_RATING
 from tunga_utils.emails import send_mail
 from tunga_utils.helpers import clean_instance
 
@@ -39,7 +40,7 @@ def remind_progress_event_email(progress_event):
         # No double notifications
         return
 
-    is_client_event = progress_event.type in [PROGRESS_EVENT_CLIENT, PROGRESS_EVENT_MILESTONE]
+    is_client_event = progress_event.type in [PROGRESS_EVENT_CLIENT, PROGRESS_EVENT_MILESTONE, PROGRESS_EVENT_DEVELOPER_RATING]
     is_pm_event = progress_event.type in [PROGRESS_EVENT_PM, PROGRESS_EVENT_INTERNAL, PROGRESS_EVENT_MILESTONE]
     is_dev_event = progress_event.type in [PROGRESS_EVENT_DEVELOPER, PROGRESS_EVENT_MILESTONE]
 

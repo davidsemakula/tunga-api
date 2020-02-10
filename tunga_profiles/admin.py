@@ -1,10 +1,13 @@
 from django.contrib import admin
 
 from tunga_profiles.models import Education, Work, Connection, \
-    DeveloperApplication, BTCWallet, UserProfile, AppIntegration, Inquirer, DeveloperInvitation, Skill, Company, \
+    DeveloperApplication, BTCWallet, UserProfile, AppIntegration, Inquirer, \
+    DeveloperInvitation, Skill, Company, \
     WhitePaperUser
 from tunga_profiles.notifications import send_developer_accepted_email
-from tunga_utils.constants import REQUEST_STATUS_ACCEPTED, REQUEST_STATUS_REJECTED
+from tunga_settings.models import SwitchSetting
+from tunga_utils.constants import REQUEST_STATUS_ACCEPTED, \
+    REQUEST_STATUS_REJECTED
 
 
 class UserProfileInline(admin.StackedInline):
@@ -54,7 +57,9 @@ class ConnectionAdmin(admin.ModelAdmin):
 
 @admin.register(DeveloperApplication)
 class DeveloperApplicationAdmin(admin.ModelAdmin):
-    list_display = ('first_name', 'last_name', 'email', 'phone_number', 'country_name', 'city', 'status', 'used')
+    list_display = (
+    'first_name', 'last_name', 'email', 'phone_number', 'country_name', 'city',
+    'status', 'used')
     list_filter = ('status', 'used', 'created_at')
     readonly_fields = (
         'first_name', 'last_name',
@@ -72,7 +77,8 @@ class DeveloperApplicationAdmin(admin.ModelAdmin):
         rows_updated = queryset.update(status=REQUEST_STATUS_ACCEPTED)
         self.message_user(
             request,
-            "%s developer%s successfully marked as accepted." % (rows_updated, (rows_updated > 1 and 's' or '')))
+            "%s developer%s successfully marked as accepted." % (
+            rows_updated, (rows_updated > 1 and 's' or '')))
 
         # Send developer accepted emails manually, queryset updates do not invoke the 'post_save' signal
         for developer in queryset:
@@ -84,14 +90,17 @@ class DeveloperApplicationAdmin(admin.ModelAdmin):
         rows_updated = queryset.update(status=REQUEST_STATUS_REJECTED)
         self.message_user(
             request,
-            "%s developer%s successfully marked as rejected." % (rows_updated, (rows_updated > 1 and 's' or '')))
+            "%s developer%s successfully marked as rejected." % (
+            rows_updated, (rows_updated > 1 and 's' or '')))
 
     reject_users.short_description = "Reject selected developers"
 
 
 @admin.register(DeveloperInvitation)
 class DeveloperInvitationAdmin(admin.ModelAdmin):
-    list_display = ('first_name', 'last_name', 'email', 'type', 'used', 'created_at', 'created_by')
+    list_display = (
+    'first_name', 'last_name', 'email', 'type', 'used', 'created_at',
+    'created_by')
     list_filter = ('used', 'created_at')
     readonly_fields = (
         'first_name', 'last_name', 'email', 'type',
