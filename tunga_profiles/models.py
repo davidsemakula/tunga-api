@@ -12,13 +12,18 @@ from dry_rest_permissions.generics import allow_staff_or_superuser
 
 from tunga import settings
 from tunga_profiles.validators import validate_email
-from tunga_utils.constants import REQUEST_STATUS_INITIAL, REQUEST_STATUS_ACCEPTED, REQUEST_STATUS_REJECTED, \
-    BTC_WALLET_PROVIDER_COINBASE, PAYMENT_METHOD_BTC_WALLET, PAYMENT_METHOD_BTC_ADDRESS, PAYMENT_METHOD_MOBILE_MONEY, \
-    COUNTRY_CODE_UGANDA, COUNTRY_CODE_TANZANIA, COUNTRY_CODE_NIGERIA, APP_INTEGRATION_PROVIDER_SLACK, \
-    APP_INTEGRATION_PROVIDER_HARVEST, USER_TYPE_PROJECT_MANAGER, USER_TYPE_DEVELOPER, USER_TYPE_PROJECT_OWNER, \
-    STATUS_INITIAL, STATUS_ACCEPTED, STATUS_REJECTED, SKILL_TYPE_LANGUAGE, SKILL_TYPE_FRAMEWORK, \
+from tunga_utils.constants import REQUEST_STATUS_INITIAL, \
+    REQUEST_STATUS_ACCEPTED, REQUEST_STATUS_REJECTED, \
+    BTC_WALLET_PROVIDER_COINBASE, PAYMENT_METHOD_BTC_WALLET, \
+    PAYMENT_METHOD_BTC_ADDRESS, PAYMENT_METHOD_MOBILE_MONEY, \
+    COUNTRY_CODE_UGANDA, COUNTRY_CODE_TANZANIA, COUNTRY_CODE_NIGERIA, \
+    APP_INTEGRATION_PROVIDER_SLACK, \
+    APP_INTEGRATION_PROVIDER_HARVEST, USER_TYPE_PROJECT_MANAGER, \
+    USER_TYPE_DEVELOPER, USER_TYPE_PROJECT_OWNER, \
+    STATUS_INITIAL, STATUS_ACCEPTED, STATUS_REJECTED, SKILL_TYPE_LANGUAGE, \
+    SKILL_TYPE_FRAMEWORK, \
     SKILL_TYPE_PLATFORM, SKILL_TYPE_LIBRARY, SKILL_TYPE_STORAGE, SKILL_TYPE_API, \
-    SKILL_TYPE_OTHER
+    SKILL_TYPE_OTHER, USER_CATEGORY_DEVELOPER, USER_CATEGORY_DESIGNER
 from tunga_utils.helpers import get_serialized_id
 from tunga_utils.models import AbstractExperience
 from tunga_utils.validators import validate_btc_address
@@ -37,7 +42,8 @@ SKILL_TYPE_CHOICES = (
 class Skill(tagulous.models.TagModel):
     type = models.CharField(
         max_length=30, choices=SKILL_TYPE_CHOICES, default=SKILL_TYPE_OTHER,
-        help_text=','.join(['%s - %s' % (item[0], item[1]) for item in SKILL_TYPE_CHOICES])
+        help_text=','.join(
+            ['%s - %s' % (item[0], item[1]) for item in SKILL_TYPE_CHOICES])
     )
 
     class TagMeta:
@@ -70,14 +76,17 @@ class BTCWallet(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     provider = models.CharField(
         max_length=30, choices=BTC_WALLET_PROVIDER_CHOICES,
-        help_text=','.join(['%s - %s' % (item[0], item[1]) for item in BTC_WALLET_PROVIDER_CHOICES])
+        help_text=','.join(['%s - %s' % (item[0], item[1]) for item in
+                            BTC_WALLET_PROVIDER_CHOICES])
     )
-    token = models.TextField(verbose_name='token', help_text='"oauth_token" (OAuth1) or access token (OAuth2)')
+    token = models.TextField(verbose_name='token',
+                             help_text='"oauth_token" (OAuth1) or access token (OAuth2)')
     token_secret = models.TextField(
         blank=True, verbose_name='token secret',
         help_text='"oauth_token_secret" (OAuth1) or refresh token (OAuth2)'
     )
-    expires_at = models.DateTimeField(blank=True, null=True, verbose_name='expires at')
+    expires_at = models.DateTimeField(blank=True, null=True,
+                                      verbose_name='expires at')
     updated_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -85,7 +94,8 @@ class BTCWallet(models.Model):
         verbose_name = 'bitcoin wallet'
 
     def __str__(self):
-        return '%s - %s' % (self.user.get_short_name(), self.get_provider_display())
+        return '%s - %s' % (
+        self.user.get_short_name(), self.get_provider_display())
 
 
 APP_INTEGRATION_PROVIDER_CHOICES = (
@@ -99,15 +109,19 @@ class AppIntegration(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     provider = models.CharField(
         max_length=30, choices=APP_INTEGRATION_PROVIDER_CHOICES,
-        help_text=','.join(['%s - %s' % (item[0], item[1]) for item in APP_INTEGRATION_PROVIDER_CHOICES])
+        help_text=','.join(['%s - %s' % (item[0], item[1]) for item in
+                            APP_INTEGRATION_PROVIDER_CHOICES])
     )
-    token = models.TextField(verbose_name='token', help_text='"oauth_token" (OAuth1) or access token (OAuth2)')
+    token = models.TextField(verbose_name='token',
+                             help_text='"oauth_token" (OAuth1) or access token (OAuth2)')
     token_secret = models.TextField(
         blank=True, verbose_name='token secret',
         help_text='"oauth_token_secret" (OAuth1) or refresh token (OAuth2)'
     )
-    extra = models.TextField(blank=True, null=True)  # JSON formatted extra details
-    expires_at = models.DateTimeField(blank=True, null=True, verbose_name='expires at')
+    extra = models.TextField(blank=True,
+                             null=True)  # JSON formatted extra details
+    expires_at = models.DateTimeField(blank=True, null=True,
+                                      verbose_name='expires at')
     updated_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -116,7 +130,8 @@ class AppIntegration(models.Model):
         verbose_name_plural = 'app integrations'
 
     def __str__(self):
-        return '%s - %s' % (self.user.get_short_name(), self.get_provider_display())
+        return '%s - %s' % (
+        self.user.get_short_name(), self.get_provider_display())
 
 
 PAYMENT_METHOD_CHOICES = (
@@ -134,7 +149,8 @@ MOBILE_MONEY_CC_CHOICES = (
 
 @python_2_unicode_compatible
 class UserProfile(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL,
+                                on_delete=models.CASCADE)
 
     # Personal Info
     bio = models.TextField(blank=True, null=True)
@@ -152,7 +168,8 @@ class UserProfile(models.Model):
     skills = tagulous.models.TagField(to=Skill, blank=True)
 
     # KYC
-    id_document = models.ImageField(upload_to='ids/%Y/%m/%d', blank=True, null=True)
+    id_document = models.ImageField(upload_to='ids/%Y/%m/%d', blank=True,
+                                    null=True)
     company = models.CharField(max_length=200, blank=True, null=True)
     website = models.URLField(blank=True, null=True)
     company_profile = models.TextField(blank=True, null=True)
@@ -165,14 +182,18 @@ class UserProfile(models.Model):
     # Payment Information
     payment_method = models.CharField(
         max_length=30, choices=PAYMENT_METHOD_CHOICES,
-        help_text=','.join(['%s - %s' % (item[0], item[1]) for item in PAYMENT_METHOD_CHOICES]),
+        help_text=','.join(['%s - %s' % (item[0], item[1]) for item in
+                            PAYMENT_METHOD_CHOICES]),
         blank=True, null=True
     )
-    btc_wallet = models.ForeignKey(BTCWallet, blank=True, null=True, on_delete=models.SET_NULL)
-    btc_address = models.CharField(max_length=40, blank=True, null=True, validators=[validate_btc_address])
+    btc_wallet = models.ForeignKey(BTCWallet, blank=True, null=True,
+                                   on_delete=models.SET_NULL)
+    btc_address = models.CharField(max_length=40, blank=True, null=True,
+                                   validators=[validate_btc_address])
     mobile_money_cc = models.CharField(
         max_length=5, choices=MOBILE_MONEY_CC_CHOICES,
-        help_text=','.join(['%s - %s' % (item[0], item[1]) for item in MOBILE_MONEY_CC_CHOICES]),
+        help_text=','.join(['%s - %s' % (item[0], item[1]) for item in
+                            MOBILE_MONEY_CC_CHOICES]),
         blank=True, null=True)
     mobile_money_number = models.CharField(max_length=15, blank=True, null=True)
 
@@ -195,7 +216,8 @@ class UserProfile(models.Model):
     def location(self):
         location = self.city
         if self.country_name:
-            location = '{}{}{}'.format(location, location and ', ' or '', self.country.name)
+            location = '{}{}{}'.format(location, location and ', ' or '',
+                                       self.country.name)
         return location or ''
 
     @allow_staff_or_superuser
@@ -224,7 +246,9 @@ class UserProfile(models.Model):
 
 @python_2_unicode_compatible
 class Company(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_company')
+    user = models.OneToOneField(settings.AUTH_USER_MODEL,
+                                on_delete=models.CASCADE,
+                                related_name='user_company')
 
     # Description
     name = models.CharField(max_length=100, blank=True, null=True)
@@ -267,7 +291,8 @@ class Company(models.Model):
     def location(self):
         location = self.city
         if self.country_name:
-            location = '{}{}{}'.format(location, location and ', ' or '', self.country.name)
+            location = '{}{}{}'.format(location, location and ', ' or '',
+                                       self.country.name)
         return location or ''
 
     @allow_staff_or_superuser
@@ -330,18 +355,24 @@ CONNECTION_STATUS_CHOICES = (
 @python_2_unicode_compatible
 class Connection(models.Model):
     from_user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='connections_initiated')
-    to_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='connection_requests')
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+        related_name='connections_initiated')
+    to_user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                on_delete=models.CASCADE,
+                                related_name='connection_requests')
     accepted = models.BooleanField(default=False)
     responded = models.BooleanField(default=False)
     status = models.CharField(
-        max_length=30, choices=CONNECTION_STATUS_CHOICES, default=STATUS_INITIAL,
-        help_text=', '.join(['%s - %s' % (item[0], item[1]) for item in CONNECTION_STATUS_CHOICES])
+        max_length=30, choices=CONNECTION_STATUS_CHOICES,
+        default=STATUS_INITIAL,
+        help_text=', '.join(['%s - %s' % (item[0], item[1]) for item in
+                             CONNECTION_STATUS_CHOICES])
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return '%s -> %s' % (self.from_user.get_short_name, self.to_user.get_short_name)
+        return '%s -> %s' % (
+        self.from_user.get_short_name, self.to_user.get_short_name)
 
     class Meta:
         ordering = ['-created_at']
@@ -375,12 +406,15 @@ class DeveloperApplication(models.Model):
     discovery_story = models.TextField()
     status = models.PositiveSmallIntegerField(
         choices=APPLICATION_STATUS_CHOICES,
-        help_text=','.join(['%s - %s' % (item[0], item[1]) for item in APPLICATION_STATUS_CHOICES]),
+        help_text=','.join(['%s - %s' % (item[0], item[1]) for item in
+                            APPLICATION_STATUS_CHOICES]),
         default=REQUEST_STATUS_INITIAL
     )
     created_at = models.DateTimeField(auto_now_add=True)
-    confirmation_key = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    confirmation_sent_at = models.DateTimeField(blank=True, null=True, editable=False)
+    confirmation_key = models.UUIDField(default=uuid.uuid4, editable=False,
+                                        unique=True)
+    confirmation_sent_at = models.DateTimeField(blank=True, null=True,
+                                                editable=False)
     used = models.BooleanField(default=False)
     used_at = models.DateTimeField(blank=True, null=True, editable=False)
 
@@ -404,20 +438,32 @@ USER_TYPE_CHOICES = (
     (USER_TYPE_PROJECT_MANAGER, 'Project Manager')
 )
 
+USER_CATEGORY_CHOICES = (
+    (USER_CATEGORY_DEVELOPER, 'Developer'),
+    (USER_CATEGORY_DESIGNER, 'Designer')
+)
+
 
 @python_2_unicode_compatible
 class DeveloperInvitation(models.Model):
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
     email = models.EmailField(unique=True, validators=[validate_email])
-    type = models.IntegerField(choices=USER_TYPE_CHOICES, default=USER_TYPE_DEVELOPER)
-    invitation_key = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    invitation_sent_at = models.DateTimeField(blank=True, null=True, editable=False)
+    type = models.IntegerField(choices=USER_TYPE_CHOICES,
+                               default=USER_TYPE_DEVELOPER)
+    category = models.CharField(max_length=20, choices=USER_CATEGORY_CHOICES,
+                                blank=True, null=True)
+
+    invitation_key = models.UUIDField(default=uuid.uuid4, editable=False,
+                                      unique=True)
+    invitation_sent_at = models.DateTimeField(blank=True, null=True,
+                                              editable=False)
     used = models.BooleanField(default=False)
     used_at = models.DateTimeField(blank=True, null=True, editable=False)
     resent = models.BooleanField(default=False)
     resent_at = models.DateTimeField(blank=True, null=True, editable=False)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                   on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -430,13 +476,21 @@ class DeveloperInvitation(models.Model):
     def display_name(self):
         return '%s %s' % (self.first_name, self.last_name)
 
+    @property
+    def display_type(self):
+        if self.type == USER_TYPE_DEVELOPER and self.category == USER_CATEGORY_DESIGNER:
+            return USER_CATEGORY_DESIGNER.title()
+        else:
+            return self.get_type_display()
+
 
 @python_2_unicode_compatible
 class UserNumber(models.Model):
     """
     Helper table for generating user numbers in a sequence
     """
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL,
+                                on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -479,20 +533,26 @@ class Inquirer(models.Model):
 
 @python_2_unicode_compatible
 class UserRequest(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING, related_name='user_requests')
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING,
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.DO_NOTHING,
+                             related_name='user_requests')
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                   on_delete=models.DO_NOTHING,
                                    related_name='users_requested')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return '{} requested {}'.format(self.created_by.short_name(), self.user.short_name())
+        return '{} requested {}'.format(self.created_by.short_name(),
+                                        self.user.short_name())
 
 
 @python_2_unicode_compatible
 class WhitePaperUser(models.Model):
     white_paper_choices = (
-        ('best_african_countries_for_outsourcing', 'best_african_countries_for_outsourcing'),
-        ('scaling_your_team_with_remote_developers', 'scaling_your_team_with_remote_developers')
+        ('best_african_countries_for_outsourcing',
+         'best_african_countries_for_outsourcing'),
+        ('scaling_your_team_with_remote_developers',
+         'scaling_your_team_with_remote_developers')
     )
     paper = models.CharField(max_length=255, choices=white_paper_choices)
     first_name = models.CharField(max_length=100)

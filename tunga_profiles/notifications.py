@@ -70,7 +70,7 @@ def send_new_skill_email(instance):
 def send_developer_invited_email(instance, resend=False):
     instance = clean_instance(instance, DeveloperInvitation)
     subject = "You have been invited to become a Tunga {}".format(
-        instance.get_type_display().lower()
+        instance.display_type.lower()
     )
     to = [instance.email]
     ctx = {
@@ -95,7 +95,7 @@ def send_developer_invitation_accepted_email(instance):
     instance = clean_instance(instance, DeveloperInvitation)
     subject = "{} has accepted your invitation to become a Tunga {}".format(
         instance.first_name,
-        instance.get_type_display().lower()
+        instance.display_type.lower()
     )
     to = [instance.created_by.email]
     ctx = {
@@ -176,7 +176,7 @@ def notify_user_has_been_invited_to_developer_slack(instance):
     instance = clean_instance(instance, DeveloperInvitation)
     slack_msg = "{} has been invited to become a Tunga {}".format(
         instance.first_name,
-        instance.get_type_display().lower()
+        instance.display_type.lower()
     )
 
     slack_utils.send_incoming_webhook(

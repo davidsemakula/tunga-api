@@ -6,7 +6,7 @@
 {% block email_content %}
     <p>Hi {{ invite.first_name }},</p>
 
-    <p>You have been invited to become a Tunga {{ invite.get_type_display | lower }}.</p>
+    <p>You have been invited to become a Tunga {{ invite.display_type | lower }}.</p>
 
     <p>
         Click the link below to accept your invitation:<br/>

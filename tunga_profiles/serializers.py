@@ -136,6 +136,7 @@ class DeveloperInvitationSerializer(serializers.ModelSerializer):
     created_by = serializers.PrimaryKeyRelatedField(required=False, read_only=True,
                                                     default=CreateOnlyCurrentUserDefault())
     display_name = serializers.CharField(required=False, read_only=True)
+    display_type = serializers.CharField(required=False, read_only=True)
 
     # resend = serializers.BooleanField(required=False, write_only=True, default=False)
 
