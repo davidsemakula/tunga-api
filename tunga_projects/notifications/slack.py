@@ -437,7 +437,7 @@ def notify_missed_progress_event_slack(progress_event):
     slack_msg = "`Alert (!):` {} {} for \"{}\" | <{}|View on Tunga>".format(
         target_user and '{} missed a'.format(
             target_user.short_name) or 'Missed',
-        (progress_event.type == PROGRESS_EVENT_CLIENT and 'progress survey') or
+        ((progress_event.type == PROGRESS_EVENT_CLIENT or progress_event.type == PROGRESS_EVENT_DEVELOPER_RATING ) and 'progress survey') or
         (
             progress_event.type == PROGRESS_EVENT_MILESTONE and 'milestone report') or
         'progress report',
