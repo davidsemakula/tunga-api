@@ -58,8 +58,9 @@ class ConnectionAdmin(admin.ModelAdmin):
 @admin.register(DeveloperApplication)
 class DeveloperApplicationAdmin(admin.ModelAdmin):
     list_display = (
-    'first_name', 'last_name', 'email', 'phone_number', 'country_name', 'city',
-    'status', 'used')
+        'first_name', 'last_name', 'email', 'phone_number', 'country_name',
+        'city',
+        'status', 'used')
     list_filter = ('status', 'used', 'created_at')
     readonly_fields = (
         'first_name', 'last_name',
@@ -78,7 +79,7 @@ class DeveloperApplicationAdmin(admin.ModelAdmin):
         self.message_user(
             request,
             "%s developer%s successfully marked as accepted." % (
-            rows_updated, (rows_updated > 1 and 's' or '')))
+                rows_updated, (rows_updated > 1 and 's' or '')))
 
         # Send developer accepted emails manually, queryset updates do not invoke the 'post_save' signal
         for developer in queryset:
@@ -91,7 +92,7 @@ class DeveloperApplicationAdmin(admin.ModelAdmin):
         self.message_user(
             request,
             "%s developer%s successfully marked as rejected." % (
-            rows_updated, (rows_updated > 1 and 's' or '')))
+                rows_updated, (rows_updated > 1 and 's' or '')))
 
     reject_users.short_description = "Reject selected developers"
 
@@ -99,9 +100,9 @@ class DeveloperApplicationAdmin(admin.ModelAdmin):
 @admin.register(DeveloperInvitation)
 class DeveloperInvitationAdmin(admin.ModelAdmin):
     list_display = (
-    'first_name', 'last_name', 'email', 'type', 'used', 'created_at',
-    'created_by')
-    list_filter = ('used', 'created_at')
+        'first_name', 'last_name', 'email', 'type', 'used', 'created_at',
+        'created_by', 'category', 'display_type')
+    list_filter = ('used', 'created_at', )
     readonly_fields = (
         'first_name', 'last_name', 'email', 'type',
         'invitation_sent_at', 'used', 'used_at',

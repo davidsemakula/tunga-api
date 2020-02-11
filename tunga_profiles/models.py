@@ -95,7 +95,7 @@ class BTCWallet(models.Model):
 
     def __str__(self):
         return '%s - %s' % (
-        self.user.get_short_name(), self.get_provider_display())
+            self.user.get_short_name(), self.get_provider_display())
 
 
 APP_INTEGRATION_PROVIDER_CHOICES = (
@@ -131,7 +131,7 @@ class AppIntegration(models.Model):
 
     def __str__(self):
         return '%s - %s' % (
-        self.user.get_short_name(), self.get_provider_display())
+            self.user.get_short_name(), self.get_provider_display())
 
 
 PAYMENT_METHOD_CHOICES = (
@@ -372,7 +372,7 @@ class Connection(models.Model):
 
     def __str__(self):
         return '%s -> %s' % (
-        self.from_user.get_short_name, self.to_user.get_short_name)
+            self.from_user.get_short_name, self.to_user.get_short_name)
 
     class Meta:
         ordering = ['-created_at']
@@ -478,8 +478,11 @@ class DeveloperInvitation(models.Model):
 
     @property
     def display_type(self):
-        if self.type == USER_TYPE_DEVELOPER and self.category == USER_CATEGORY_DESIGNER:
-            return USER_CATEGORY_DESIGNER.title()
+        if self.type == USER_TYPE_DEVELOPER:
+            if self.category and self.category == USER_CATEGORY_DESIGNER:
+                return USER_CATEGORY_DESIGNER.title()
+            else:
+                return self.get_type_display()
         else:
             return self.get_type_display()
 
