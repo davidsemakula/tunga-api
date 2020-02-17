@@ -151,7 +151,7 @@ def notify_interest_poll_email(interest_poll, reminder=False):
     ]
 
     mandrill_response = mandrill_utils.send_email(
-        reminder and '90-availability-for-project-reminder' or '89-availability-for-project',
+        reminder and '103b-new-project-opportunity-reminder' or '103-new-project-opportunity',
         to, merge_vars=merge_vars
     )
     if mandrill_response:

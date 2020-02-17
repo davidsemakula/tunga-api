@@ -64,7 +64,7 @@ def notify_new_invoice_email_client(invoice):
             )
         ]
 
-        mandrill_response = mandrill_utils.send_email('83-invoice-email', to, merge_vars=merge_vars, attachments=attachments)
+        mandrill_response = mandrill_utils.send_email('105-client-invoice-is-ready', to, merge_vars=merge_vars, attachments=attachments)
         if mandrill_response:
             invoice.last_sent_at = datetime.datetime.utcnow()
             invoice.save()
@@ -112,7 +112,7 @@ def notify_updated_invoice_email_client(invoice):
             )
         ]
 
-        mandrill_response = mandrill_utils.send_email('88-invoice-update', to, merge_vars=merge_vars, attachments=attachments)
+        mandrill_response = mandrill_utils.send_email('109-client-credit-note', to, merge_vars=merge_vars, attachments=attachments)
         if mandrill_response:
             invoice.last_sent_at = datetime.datetime.utcnow()
             invoice.save()
@@ -136,7 +136,7 @@ def notify_new_invoice_email_dev(invoice):
         mandrill_utils.create_merge_var('payout_date', DateFormat(invoice.issued_at).format('l, jS F, Y')),
     ]
 
-    mandrill_utils.send_email('86-payout-update', to, merge_vars=merge_vars)
+    mandrill_utils.send_email('107-payout-update', to, merge_vars=merge_vars)
 
 
 @job
@@ -171,4 +171,4 @@ def notify_paid_invoice_email_dev(invoice):
         )
     ]
 
-    mandrill_utils.send_email('87-payout-made', to, merge_vars=merge_vars, attachments=attachments)
+    mandrill_utils.send_email('108-payout', to, merge_vars=merge_vars, attachments=attachments)
