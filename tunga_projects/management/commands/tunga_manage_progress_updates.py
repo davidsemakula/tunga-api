@@ -27,10 +27,7 @@ class Command(BaseCommand):
                                                        second=59,
                                                        microsecond=999999)
 
-        projects = Project.objects.filter(
-            Q(deadline__isnull=True) | Q(deadline__gte=today_start),
-            archived=False
-        )
+        projects = Project.objects.filter(archived=False)
         for project in projects:
 
             all_milestones = ProgressEvent.objects.filter(
@@ -72,13 +69,13 @@ class Command(BaseCommand):
                     if not dev_event.last_reminder_at:
                         remind_progress_event.delay(dev_event.id)
 
-                # participants with update on specific days
-                participants_ = project.participation_set.filter(
+                # now get participants with update on specific days
+                select_update_participants = project.participation_set.filter(
                     status=STATUS_ACCEPTED, updates_enabled=True,
                     day_selection_for_updates=True)
-                if participants:
+                if select_update_participants:
                     # Only developer updates specific days
-                    for participant in participants:
+                    for participant in select_update_participants:
                         if str(weekday) in participant.update_days.split(','):
                             dev_defaults = dict(title='Developer Update')
                             dev_event, created = ProgressEvent.objects.update_or_create(
@@ -101,7 +98,7 @@ class Command(BaseCommand):
                         remind_progress_event.delay(pm_event.id)
 
                 owner = project.owner or project.user
-                if weekday == 0 and participants and owner and owner.is_active:
+                if weekday == 0 and (participants or select_update_participants) and owner and owner.is_active:
                     # Client surveys on Monday (0)
                     client_defaults = dict(title='Client Survey')
                     client_event, created = ProgressEvent.objects.update_or_create(
