@@ -27,7 +27,10 @@ class Command(BaseCommand):
                                                        second=59,
                                                        microsecond=999999)
 
-        projects = Project.objects.filter(archived=False)
+        projects = Project.objects.filter(
+            Q(deadline__isnull=True) | Q(deadline__gte=today_start),
+            archived=False
+            )
         for project in projects:
 
             all_milestones = ProgressEvent.objects.filter(
@@ -98,7 +101,8 @@ class Command(BaseCommand):
                         remind_progress_event.delay(pm_event.id)
 
                 owner = project.owner or project.user
-                if weekday == 0 and (participants or select_update_participants) and owner and owner.is_active:
+                if weekday == 0 and (
+                    participants or select_update_participants) and owner and owner.is_active:
                     # Client surveys on Monday (0)
                     client_defaults = dict(title='Client Survey')
                     client_event, created = ProgressEvent.objects.update_or_create(
