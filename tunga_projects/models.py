@@ -419,7 +419,7 @@ class ProgressEvent(models.Model):
 
     @property
     def status(self):
-        if self.progressreport_set.count() > 0:
+        if self.progressreport_set.count() > 0 or self.developerrating_set.count > 0:
             return 'completed'
         past_by_24_hours = datetime.datetime.utcnow() - relativedelta(hours=24)
         if self.due_at > past_by_24_hours:
