@@ -1,7 +1,7 @@
 {% extends "tunga/email/content.html" %}
 {% load i18n %}
 {% block email_header %}
-    New progress report for your {% if event.task.is_task %}task{% else %}project{% endif %}.
+    New progress report for your {% if event.task.is_task %}task{% else %}project{% endif %}
 {% endblock %}
 {% block email_content %}
     <p>Hi {{ owner.first_name }},</p>
