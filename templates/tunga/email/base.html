@@ -6,9 +6,28 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport"
               content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
-        <link href='https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i'
-              rel='stylesheet' type='text/css'>
+        
         <style>
+            @font-face {
+                font-family: 'HK Grotesk';
+                font-style: normal;
+                src: url('https://tunga.io/static/tunga/fonts/hk-grotesk/HKGrotesk-Regular.otf');
+            }
+            @font-face {
+                font-family: 'HK Grotesk';
+                font-weight: 300;
+                src: url('https://tunga.io/static/tunga/fonts/hk-grotesk/HKGrotesk-Light.otf');
+            }
+            @font-face {
+            font-family: 'HK Grotesk';
+            font-weight: bold;
+            src: url('https://tunga.io/static/tunga/fonts/hk-grotesk/HKGrotesk-Bold.otf');
+            }
+            @font-face {
+                font-family: 'HK Grotesk';
+                font-style: italic;
+                src: url('https://tunga.io/static/tunga/fonts/hk-grotesk/HKGrotesk-Italic.otf');
+            }
             body {
                 font-family: 'Roboto', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
                 padding: 0;
@@ -80,10 +99,20 @@
                 border: 2px #ee1f54 solid;
                 border-radius: 5px;
             }
+            .email-body {
+                background-color: white;
+            }
+
+            .email-body-content{
+                color: black;
+                font-weight: 300;
+                font-style: normal;
+                font-family: 'HK Grotesk', sans-serif;
+            }
         </style>
     </head>
     {% with img="vertical-align: middle;" img_small="30px;" %}
-        <body>
+        <body class="email-body">
         <div>
             {{ email_content | safe }}
         </div>
