@@ -110,6 +110,10 @@
                 font-weight: 300;
                 font-style: normal;
             }
+
+            .text-white {
+                color: white;
+            }
         </style>
     </head>
     {% with img="vertical-align: middle;" img_small="30px;" %}
@@ -148,8 +152,7 @@
 
             <div class="container">
                 <p>© 2016-{% now "Y" %} Tunga BV — All rights reserved</p>
-                <p>Tunga BV, Wibautstraat 131D, 1091GL Amsterdam, The Netherlands, hello@tunga.io</p>
-
+                <p>Tunga BV, Wibautstraat 131D, 1091GL Amsterdam, The Netherlands, <span class="text-white">hello@tunga.io</span></p>
             </div>
         </div>
         </body>
