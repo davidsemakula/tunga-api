@@ -87,8 +87,7 @@
                         </tr>
 
                         <tr>
-                            <td class="t-border-bottom">{% if invoice.type == "developer" %}Tunga fee for {% endif %}{{ invoice.full_title }}</td>
-                            <td class="t-border-bottom"></td>
+                            <td class="t-border-bottom" colspan="2">{% if invoice.type == "developer" %}Tunga fee for {% endif %}{{ invoice.full_title }}</td>
                             <td class="t-border-bottom"></td>
                             <td class="t-border-bottom">
                                 &euro;{{ invoice.amount | floatformat:2 }}
@@ -97,8 +96,7 @@
 
                         {% if invoice.processing_fee %}
                         <tr>
-                            <td class="t-border-bottom">Payment costs</td>
-                            <td class="t-border-bottom"></td>
+                            <td class="t-border-bottom" colspan="2">Payment costs</td>
                             <td class="t-border-bottom"></td>
                             <td class="t-border-bottom">
                                 &euro;{{ invoice.processing_fee | floatformat:2 }}
@@ -107,8 +105,7 @@
                         {% endif %}
 
                         <tr>
-                            <td></td>
-                            <td></td>
+                            <td colspan="2"></td>
                             <td>Subtotal</td>
                             <td>
                                 &euro;{{ invoice.subtotal | floatformat:2 }}
@@ -116,9 +113,8 @@
                         </tr>
 
                         <tr>
-                            <td></td>
-                            <td></td>
-                            <td class="t-border-bottom">VAT {% if invoice.type in sales_types.split %}
+                            <td colspan="2"></td>
+                            <td class="t-border-bottom min-column-width">VAT {% if invoice.type in sales_types.split %}
                                 {{ invoice.tax_rate | floatformat:-2 }}{% else %}
                                 0{% endif %}%
                             </td>
@@ -128,8 +124,7 @@
                         </tr>
 
                         <tr>
-                            <td></td>
-                            <td></td>
+                            <td colspan="2"></td>
                             <td class="bold">Total</td>
                             <td class="bold">
                                 &euro;{{ invoice.total_amount | floatformat:2 }}
