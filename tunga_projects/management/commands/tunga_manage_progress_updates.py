@@ -5,6 +5,7 @@ from django.db.models.query_utils import Q
 
 from tunga_projects.models import Project, ProgressEvent
 from tunga_projects.notifications.generic import remind_progress_event
+from tunga_projects.utils import get_every_other_monday
 from tunga_utils.constants import STATUS_ACCEPTED, PROGRESS_EVENT_DEVELOPER, \
     PROGRESS_EVENT_PM, PROGRESS_EVENT_MILESTONE, PROGRESS_EVENT_INTERNAL, \
     PROGRESS_EVENT_DEVELOPER_RATING
@@ -30,7 +31,7 @@ class Command(BaseCommand):
         projects = Project.objects.filter(
             Q(deadline__isnull=True) | Q(deadline__gte=today_start),
             archived=False
-            )
+        )
         for project in projects:
 
             all_milestones = ProgressEvent.objects.filter(
@@ -101,9 +102,9 @@ class Command(BaseCommand):
                         remind_progress_event.delay(pm_event.id)
 
                 owner = project.owner or project.user
-                if weekday == 0 and (
+                if (today_start in get_every_other_monday(today_start)) and (
                     participants or select_update_participants) and owner and owner.is_active:
-                    # Client surveys on Monday (0)
+                    # Client surveys sent on every other monday
                     client_defaults = dict(title='Client Survey')
                     client_event, created = ProgressEvent.objects.update_or_create(
                         project=project, type=PROGRESS_EVENT_DEVELOPER_RATING,

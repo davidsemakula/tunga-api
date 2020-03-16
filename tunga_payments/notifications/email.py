@@ -171,4 +171,4 @@ def notify_paid_invoice_email_dev(invoice):
         )
     ]
 
-    mandrill_utils.send_email('108-payout', to, merge_vars=merge_vars, attachments=attachments)
+    mandrill_utils.send_email('108-payout-made', to, merge_vars=merge_vars, attachments=attachments)
