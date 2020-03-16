@@ -104,7 +104,7 @@ class Command(BaseCommand):
                 owner = project.owner or project.user
                 if (today_start in get_every_other_monday(today_start)) and (
                     participants or select_update_participants) and owner and owner.is_active:
-                    # Client surveys on Monday (0)
+                    # Client surveys sent on every other monday
                     client_defaults = dict(title='Client Survey')
                     client_event, created = ProgressEvent.objects.update_or_create(
                         project=project, type=PROGRESS_EVENT_DEVELOPER_RATING,

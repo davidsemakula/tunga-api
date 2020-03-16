@@ -168,6 +168,7 @@ def weekly_payment_report(render_format='pdf', weeks_ago=0):
 def get_every_other_monday(date):
     start_of_the_month = date.replace(day=1)
     first_monday = start_of_the_month + relativedelta(weekday=MO(+1))
-    list_of_mondays = list(rrule(freq=WEEKLY, count=5, dtstart=first_monday,
+    recurrence_count = 5  # This is 5 because no month has more than 5 mondays
+    list_of_mondays = list(rrule(freq=WEEKLY, count=recurrence_count, dtstart=first_monday,
                                  bymonth=start_of_the_month.month))
     return list_of_mondays[0::2]
