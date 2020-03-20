@@ -11,6 +11,7 @@ from django.http import HttpResponseRedirect
 from django.template.defaultfilters import urlizetrunc, safe, striptags
 from django.utils import six
 import gspread
+from googleapiclient.discovery import build
 from oauth2client.service_account import ServiceAccountCredentials
 
 from tunga import settings
@@ -49,7 +50,7 @@ def pdf_base64encode(pdf_filename):
 
 def swagger_permission_denied_handler(request):
     return HttpResponseRedirect('%s://%s/api/login/?next=/api/docs/' % (
-    request.scheme, request.get_host()))
+        request.scheme, request.get_host()))
 
 
 class Echo(object):
@@ -204,3 +205,49 @@ def save_to_google_sheet(sheet_id, data, index=1):
     sheet = client.open_by_key(sheet_id).sheet1
     sheet.insert_row(data, index)
     return sheet
+
+
+def create_to_google_sheet_in_platform_updates(spreadsheet_name):
+    """
+    This saves to google sheet
+    url: str -> url of the google sheet file
+    index: number -> position where the data should be saved
+    data: array -> post data
+    """
+    # use creds to create a client to interact with the Google Drive API
+    scope = [
+        'https://spreadsheets.google.com/feeds',
+        'https://www.googleapis.com/auth/drive'
+    ]
+
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(
+        os.path.join(settings.BASE_DIR, 'tunga', 'env', 'credentials.json'),
+        scope
+    )
+
+    folder_id = '1pIaZziG_Pyxy6Xwav-py9H878qq-eF4M'
+
+    spreadsheet = {
+        'properties': {
+            'title': spreadsheet_name,
+        }
+    }
+
+    spreadsheet_service = build('sheets', 'v4', credentials=credentials)
+    drive_service = build('drive', 'v3', credentials=credentials)
+
+    # create new spreadsheet
+    spreadsheet = spreadsheet_service.spreadsheets().create(body=spreadsheet,
+                                                            fields='spreadsheetId').execute()
+
+    file_id = spreadsheet.get('spreadsheetId')
+    # Retrieve the existing parents folder of created spreadsheet
+    file = drive_service.files().get(fileId=file_id,
+                                     fields='parents').execute()
+    previous_parents = ",".join(file.get('parents'))
+    # Move the file to the Platform updates folder
+    file = drive_service.files().update(fileId=file_id,
+                                        addParents=folder_id,
+                                        removeParents=previous_parents,
+                                        fields='id, parents').execute()
+    return file_id
