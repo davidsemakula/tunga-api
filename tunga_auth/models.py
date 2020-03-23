@@ -9,6 +9,7 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.tokens import default_token_generator
 from django.db import models
 from django.db.models import Sum
+from django.db.models.functions import Coalesce
 from django.utils.encoding import force_bytes, python_2_unicode_compatible
 from django.utils.http import urlsafe_base64_encode
 from dry_rest_permissions.generics import allow_staff_or_superuser
@@ -301,8 +302,9 @@ class TungaUser(AbstractUser):
         rating = DeveloperRating.objects.filter(
             created_at__range=(month_ago, now),
             user=self
-        ).aggregate(Sum('rating'))
-        return rating['rating__sum'] / float(rating_count)
+        ).aggregate(rating=Coalesce(Sum('rating'), 0))
+        rating_ = rating['rating'] / float(rating_count)
+        return "%.2f" % rating_
 
 
 @python_2_unicode_compatible
