@@ -36,12 +36,9 @@ class Command(BaseCommand):
         file_id = create_to_google_sheet_in_platform_updates(title)
 
         for developer in active_developers:
-            # print(rating)
-
             sheet_data = [str(developer.display_name),
                           str(developer.average_rating)]
-            print(sheet_data)
             save_to_google_sheet(file_id, sheet_data, )
-        sheet_data = ['Developer ', 'Rating']
-        save_to_google_sheet(file_id, sheet_data)
+        heading_sheet_data = ['Developer', 'Rating']
+        save_to_google_sheet(file_id, heading_sheet_data)
 
