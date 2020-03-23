@@ -547,7 +547,8 @@ class DeveloperRating(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.DO_NOTHING)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL,
-                             on_delete=models.DO_NOTHING, related_name='created_by')
+                                   on_delete=models.DO_NOTHING,
+                                   related_name='created_by')
 
     rating = models.PositiveIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(5)], blank=True,
