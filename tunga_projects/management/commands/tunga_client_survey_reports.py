@@ -71,17 +71,17 @@ class Command(BaseCommand):
         # command to run: python manage.py tunga_client_survey_reports
 
         today = datetime.datetime.utcnow()
-        week_ago = today - relativedelta(day=14)
+        week_ago = today - relativedelta(days=7)
         project_client_surveys = ProgressEvent.objects.filter(
             type=PROGRESS_EVENT_DEVELOPER_RATING,
             project__category=PROJECT_CATEGORY_PROJECT,
-            created_at__range=(week_ago, today)
+            created_at__range=[week_ago, today]
         )
 
         dedicated_client_surveys = ProgressEvent.objects.filter(
             type=PROGRESS_EVENT_DEVELOPER_RATING,
             project__category=PROJECT_CATEGORY_DEDICATED,
-            created_at__range=(week_ago, today)
+            created_at__range=[week_ago, today]
         )
 
         title = "Client Survey Report - %s" % (today.strftime("%B %Y"))
