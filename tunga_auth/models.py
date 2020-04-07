@@ -303,8 +303,11 @@ class TungaUser(AbstractUser):
             created_at__range=(month_ago, now),
             user=self
         ).aggregate(rating=Coalesce(Sum('rating'), 0))
-        rating_ = rating['rating'] / float(rating_count)
-        return "%.2f" % rating_
+        if rating_count == 0:
+            return "%.2f" % 0.00
+        else:
+            rating_ = float(rating['rating']) / float(rating_count)
+            return "%.2f" % rating_
 
 
 @python_2_unicode_compatible
