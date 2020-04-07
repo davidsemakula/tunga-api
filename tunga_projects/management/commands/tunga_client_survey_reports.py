@@ -71,18 +71,20 @@ class Command(BaseCommand):
         # command to run: python manage.py tunga_client_survey_reports
 
         today = datetime.datetime.utcnow()
-        week_ago = today - relativedelta(days=7)
+        week_ago = today - relativedelta(days=13)
         project_client_surveys = ProgressEvent.objects.filter(
             type=PROGRESS_EVENT_DEVELOPER_RATING,
             project__category=PROJECT_CATEGORY_PROJECT,
             created_at__range=[week_ago, today]
         )
+        print("Number of project surveys: %s" % project_client_surveys.count())
 
         dedicated_client_surveys = ProgressEvent.objects.filter(
             type=PROGRESS_EVENT_DEVELOPER_RATING,
             project__category=PROJECT_CATEGORY_DEDICATED,
             created_at__range=[week_ago, today]
         )
+        print("Number of dedicated surveys: %s" % dedicated_client_surveys.count())
 
         title = "Client Survey Report - %s" % (today.strftime("%B %Y"))
         file_id = '1_-SxkrrPk8uqwbz_Xe2sZurff9tYCN0sqTkVGJZDNS4'
@@ -91,5 +93,6 @@ class Command(BaseCommand):
             project_client_surveys)
         dedicated_reports = get_dedicated_surveys(dedicated_client_surveys)
         project_reports.extend(dedicated_reports)
+        print("Number of total reports: %s" % len(project_reports))
         for project_report in project_reports:
             save_to_google_sheet(file_id, project_report, index=2)
