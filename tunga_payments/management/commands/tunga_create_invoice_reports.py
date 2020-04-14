@@ -31,7 +31,8 @@ class Command(BaseCommand):
             sheet_data = [str(invoice.created_at), str(invoice.number),
                           int(invoice.amount), str(invoice.full_title),
                           str(invoice.project.title),
-                          str(invoice.project.owner.display_name)]
+                          str(invoice.project.owner.display_name.encode(
+                              'utf-8').strip())]
             save_to_google_sheet(file_id, sheet_data)
 
         sheet_data = ['Date Created', 'Invoice Number',

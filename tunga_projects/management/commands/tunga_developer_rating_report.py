@@ -1,14 +1,9 @@
 import datetime
 
-from dateutil.relativedelta import relativedelta
 from django.core.management.base import BaseCommand
 
 from tunga_auth.models import TungaUser
-from tunga_payments.models import Invoice
-from tunga_projects.models import ProgressEvent, Project, Participation, \
-    DeveloperRating
-from tunga_utils.constants import INVOICE_TYPE_SALE, \
-    PROGRESS_EVENT_DEVELOPER_RATING
+from tunga_projects.models import Project, Participation
 from tunga_utils.helpers import create_to_google_sheet_in_platform_updates, \
     save_to_google_sheet
 

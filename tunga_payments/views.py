@@ -22,18 +22,21 @@ from rest_framework.viewsets import ModelViewSet
 from six.moves.urllib_parse import urlencode, quote_plus
 # from stripe import InvalidRequestError
 
-from tunga_payments.filterbackends import InvoiceFilterBackend, PaymentFilterBackend
+from tunga_payments.filterbackends import InvoiceFilterBackend, \
+    PaymentFilterBackend
 from tunga_payments.filters import InvoiceFilter, PaymentFilter
 from tunga_payments.models import Invoice, Payment
-from tunga_payments.notifications.generic import notify_paid_invoice, notify_invoice
+from tunga_payments.notifications.generic import notify_paid_invoice, \
+    notify_invoice
 from tunga_payments.serializers import InvoiceSerializer, PaymentSerializer, \
     StripePaymentSerializer, \
     BulkInvoiceSerializer, StripePaymentIntentSerializer, \
     StripePaymentIntentCompleteSerializer
 from tunga_tasks.renderers import PDFRenderer
 from tunga_utils import stripe_utils
-from tunga_utils.constants import PAYMENT_METHOD_STRIPE, CURRENCY_EUR, STATUS_COMPLETED, INVOICE_TYPE_CREDIT_NOTA, \
-    INVOICE_TYPE_PURCHASE
+from tunga_utils.constants import PAYMENT_METHOD_STRIPE, CURRENCY_EUR, \
+    STATUS_COMPLETED, INVOICE_TYPE_CREDIT_NOTA, \
+    INVOICE_TYPE_PURCHASE, INVOICE_TYPE_SALE
 from tunga_utils.filterbackends import DEFAULT_FILTER_BACKENDS
 from tunga_utils.pagination import LargeResultsSetPagination
 
@@ -50,12 +53,14 @@ class InvoiceViewSet(ModelViewSet):
     def update(self, request, *args, **kwargs):
         return super(InvoiceViewSet, self).update(request, *args, **kwargs)
 
-    @list_route(methods=['post'], permission_classes=[IsAuthenticated, DRYPermissions],
+    @list_route(methods=['post'],
+                permission_classes=[IsAuthenticated, DRYPermissions],
                 url_path='bulk', url_name='bulk-create-invoices')
     def create_bulk_invoices(self, request):
         group_batch_ref = uuid.uuid4()
         for list_invoices in request.data:
-            serializer = InvoiceSerializer(data=list_invoices, context={'request': request})
+            serializer = InvoiceSerializer(data=list_invoices,
+                                           context={'request': request})
             if serializer.is_valid():
                 invoice = serializer.save(batch_ref=group_batch_ref)
                 if invoice.type == INVOICE_TYPE_PURCHASE:
@@ -66,9 +71,11 @@ class InvoiceViewSet(ModelViewSet):
         data = output_serializer.data[:]
         return Response(data, status=status.HTTP_201_CREATED)
 
-    @list_route(methods=['put'], permission_classes=[IsAuthenticated, DRYPermissions],
+    @list_route(methods=['put'],
+                permission_classes=[IsAuthenticated, DRYPermissions],
                 serializer_class=BulkInvoiceSerializer,
-                url_path='bulk/(?P<batch_ref>[0-9a-f-]+)', url_name='bulk-put-invoices')
+                url_path='bulk/(?P<batch_ref>[0-9a-f-]+)',
+                url_name='bulk-put-invoices')
     def create_put_invoices(self, request, batch_ref=None):
         ids_updated = []
         invoices = Invoice.objects.filter(batch_ref=batch_ref)
@@ -80,19 +87,23 @@ class InvoiceViewSet(ModelViewSet):
             batch_title = invoices.first().title
             batch_milestone = invoices.first().milestone.id
             batch_project = invoices.first().project.id
-            if (batch_title == request_title) and (batch_milestone == request_milestone.get('id', None)) \
+            if (batch_title == request_title) and (
+                batch_milestone == request_milestone.get('id', None)) \
                 and (batch_project == request_project.get('id', None)):
                 for invoice in request_invoices:
                     if 'id' in invoice:
                         id_ = invoice.pop('id', None)
                         ids_updated.append(id_)
-                        created = Invoice.objects.get(id=id_, batch_ref=batch_ref)  # .update(**invoice)
-                        serializer = InvoiceSerializer(created, data=invoice, partial=True)
+                        created = Invoice.objects.get(id=id_,
+                                                      batch_ref=batch_ref)  # .update(**invoice)
+                        serializer = InvoiceSerializer(created, data=invoice,
+                                                       partial=True)
                         if serializer.is_valid():
                             serializer.save()
 
                     else:
-                        serializer = InvoiceSerializer(data=invoice, context={'request': request})
+                        serializer = InvoiceSerializer(data=invoice, context={
+                            'request': request})
                         if serializer.is_valid():
                             serializer.save(batch_ref=batch_ref)
                 invoices_ids = list(invoices.values_list('id', flat=True))
@@ -103,14 +114,18 @@ class InvoiceViewSet(ModelViewSet):
                 data = output_serializer.data[:]
                 return Response(data, status=status.HTTP_200_OK)
             else:
-                return Response(dict(message='Invoice data in batch does not match'),
-                                status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    dict(message='Invoice data in batch does not match'),
+                    status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response(dict(message='No Invoices with that batch ref exist'),
-                            status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                dict(message='No Invoices with that batch ref exist'),
+                status=status.HTTP_404_NOT_FOUND)
 
-    @list_route(methods=['delete'], permission_classes=[IsAuthenticated, DRYPermissions],
-                url_path='bulk/(?P<batch_ref>[0-9a-f-]+)', url_name='bulk-delete-invoices')
+    @list_route(methods=['delete'],
+                permission_classes=[IsAuthenticated, DRYPermissions],
+                url_path='bulk/(?P<batch_ref>[0-9a-f-]+)',
+                url_name='bulk-delete-invoices')
     def delete_bulk_invoices(self, request, batch_ref=None):
         Invoice.objects.filter(batch_ref=batch_ref).delete()
         return Response({}, status=status.HTTP_200_OK)
@@ -139,7 +154,8 @@ class InvoiceViewSet(ModelViewSet):
 
             try:
                 # Create customer
-                customer = stripe.Customer.create(**dict(source=payload['token'], email=payload['email']))
+                customer = stripe.Customer.create(
+                    **dict(source=payload['token'], email=payload['email']))
 
                 # Create Charge
                 charge = stripe.Charge.create(
@@ -182,17 +198,21 @@ class InvoiceViewSet(ModelViewSet):
 
                     notify_paid_invoice.delay(invoice)
 
-                invoice_serializer = InvoiceSerializer(invoice, context={'request': request})
+                invoice_serializer = InvoiceSerializer(invoice, context={
+                    'request': request})
                 return Response(invoice_serializer.data)
             except:
-                return Response(dict(message='We could not process your payment! Please contact hello@tunga.io'),
+                return Response(dict(
+                    message='We could not process your payment! Please contact hello@tunga.io'),
                                 status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
-            return Response(dict(message='We could not process your payment! Please contact hello@tunga.io'),
+            return Response(dict(
+                message='We could not process your payment! Please contact hello@tunga.io'),
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @detail_route(
-        methods=['get', 'post'], url_path='pay-intent', url_name='pay-invoice-intent',
+        methods=['get', 'post'], url_path='pay-intent',
+        url_name='pay-invoice-intent',
         serializer_class=StripePaymentIntentSerializer,
         permission_classes=[IsAuthenticated]
     )
@@ -237,7 +257,8 @@ class InvoiceViewSet(ModelViewSet):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @detail_route(
-        methods=['get', 'post'], url_path='pay-intent-complete', url_name='pay-invoice-intent-complete',
+        methods=['get', 'post'], url_path='pay-intent-complete',
+        url_name='pay-invoice-intent-complete',
         serializer_class=StripePaymentIntentCompleteSerializer,
         permission_classes=[IsAuthenticated]
     )
@@ -320,11 +341,17 @@ class InvoiceViewSet(ModelViewSet):
             except NotAuthenticated:
                 return redirect(login_url)
             except PermissionDenied:
-                return HttpResponse("You do not have permission to access this invoice")
+                return HttpResponse(
+                    "You do not have permission to access this invoice")
 
+            is_project_manager_on_project = request.user is invoice.project.pm or invoice.project.user
+            is_developer_on_project = request.user in invoice.project.participants.all() and invoice.type == INVOICE_TYPE_SALE
+            is_client_on_project = request.user is invoice.project.owner and (
+                    invoice.type == INVOICE_TYPE_PURCHASE or invoice.type == INVOICE_TYPE_CREDIT_NOTA)
             if not (
-                invoice.is_due or request.user.is_admin or request.user.is_project_manager or request.user.is_developer):
-                return HttpResponse("You do not have permission to access this invoice")
+                request.user.is_admin or is_client_on_project or is_project_manager_on_project or is_developer_on_project):
+                return HttpResponse(
+                    "You do not have permission to access this invoice")
 
         if request.accepted_renderer.format == 'html':
             if invoice.type == INVOICE_TYPE_CREDIT_NOTA:
@@ -332,23 +359,28 @@ class InvoiceViewSet(ModelViewSet):
             return HttpResponse(invoice.html)
         else:
             if invoice.type == INVOICE_TYPE_CREDIT_NOTA:
-                http_response = HttpResponse(invoice.credit_note_pdf, content_type='application/pdf')
-                http_response['Content-Disposition'] = 'filename="Invoice_{}_{}_{}.pdf"'.format(
+                http_response = HttpResponse(invoice.credit_note_pdf,
+                                             content_type='application/pdf')
+                http_response[
+                    'Content-Disposition'] = 'filename="Invoice_{}_{}_{}.pdf"'.format(
                     invoice and invoice.number or pk,
                     invoice and invoice.project and invoice.project.title or pk,
                     invoice and invoice.title or pk
                 )
                 return http_response
             else:
-                http_response = HttpResponse(invoice.pdf, content_type='application/pdf')
-                http_response['Content-Disposition'] = 'filename="Invoice_{}_{}_{}.pdf"'.format(
+                http_response = HttpResponse(invoice.pdf,
+                                             content_type='application/pdf')
+                http_response[
+                    'Content-Disposition'] = 'filename="Invoice_{}_{}_{}.pdf"'.format(
                     invoice and invoice.number or pk,
                     invoice and invoice.project and invoice.project.title or pk,
                     invoice and invoice.title or pk
                 )
                 return http_response
 
-    @detail_route(methods=['post'], permission_classes=[IsAuthenticated, DRYPermissions],
+    @detail_route(methods=['post'],
+                  permission_classes=[IsAuthenticated, DRYPermissions],
                   url_path='archive', url_name='archive-unpaid-invoices')
     def archive_invoice(self, request, pk=None):
         """
@@ -362,11 +394,14 @@ class InvoiceViewSet(ModelViewSet):
         if not invoice.paid:
             invoice.archived = True
             invoice.save()
-            return Response(dict(message='Invoice has been archived'), status=status.HTTP_201_CREATED)
+            return Response(dict(message='Invoice has been archived'),
+                            status=status.HTTP_201_CREATED)
         else:
-            return Response(dict(message='Invoice has been already paid'), status=status.HTTP_200_OK)
+            return Response(dict(message='Invoice has been already paid'),
+                            status=status.HTTP_200_OK)
 
-    @detail_route(methods=['post'], permission_classes=[IsAuthenticated, DRYPermissions],
+    @detail_route(methods=['post'],
+                  permission_classes=[IsAuthenticated, DRYPermissions],
                   url_path='generate', url_name='generate-invoice')
     def generate_invoice(self, request, pk=None):
         """
@@ -384,12 +419,17 @@ class InvoiceViewSet(ModelViewSet):
                 # generate and save invoice number
                 invoice_number = invoice.generate_invoice_number()
                 invoice.number = invoice_number
-                Invoice.objects.filter(id=invoice.id).update(number=invoice_number, user=invoice.project.owner or invoice.project.user)
+                Invoice.objects.filter(id=invoice.id).update(
+                    number=invoice_number,
+                    user=invoice.project.owner or invoice.project.user)
                 notify_invoice.delay(invoice.id, updated=False)
-            invoice_serializer = InvoiceSerializer(invoice, context={'request': request})
-            return Response(invoice_serializer.data, status=status.HTTP_201_CREATED)
+            invoice_serializer = InvoiceSerializer(invoice,
+                                                   context={'request': request})
+            return Response(invoice_serializer.data,
+                            status=status.HTTP_201_CREATED)
         else:
-            invoice_serializer = InvoiceSerializer(invoice, context={'request': request})
+            invoice_serializer = InvoiceSerializer(invoice,
+                                                   context={'request': request})
             return Response(invoice_serializer.data, status=status.HTTP_200_OK)
 
 
