@@ -204,11 +204,11 @@ class InvoiceViewSet(ModelViewSet):
             except:
                 return Response(dict(
                     message='We could not process your payment! Please contact hello@tunga.io'),
-                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             return Response(dict(
                 message='We could not process your payment! Please contact hello@tunga.io'),
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @detail_route(
         methods=['get', 'post'], url_path='pay-intent',
@@ -344,10 +344,12 @@ class InvoiceViewSet(ModelViewSet):
                 return HttpResponse(
                     "You do not have permission to access this invoice")
 
-            is_project_manager_on_project = request.user is invoice.project.pm or invoice.project.user
-            is_developer_on_project = request.user in invoice.project.participants.all() and invoice.type == INVOICE_TYPE_SALE
-            is_client_on_project = request.user is invoice.project.owner and (
-                    invoice.type == INVOICE_TYPE_PURCHASE or invoice.type == INVOICE_TYPE_CREDIT_NOTA)
+            is_project_manager_on_project = request.user == invoice.project.pm
+            is_developer_on_project = request.user in invoice.project.participants.all() and invoice.type == INVOICE_TYPE_PURCHASE
+            is_client_on_project = request.user == invoice.project.owner and (
+                invoice.type in [INVOICE_TYPE_SALE,
+                                 INVOICE_TYPE_CREDIT_NOTA])
+
             if not (
                 request.user.is_admin or is_client_on_project or is_project_manager_on_project or is_developer_on_project):
                 return HttpResponse(
