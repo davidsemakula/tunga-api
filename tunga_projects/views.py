@@ -26,7 +26,7 @@ class ProjectViewSet(ModelViewSet):
     """
     Project Resource
     """
-    queryset = Project.objects.all()
+    queryset = Project.objects.all(archived=False)
     serializer_class = ProjectSerializer
     permission_classes = [IsAuthenticated, DRYObjectPermissions]
     filter_class = ProjectFilter

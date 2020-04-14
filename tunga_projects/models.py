@@ -123,7 +123,7 @@ class Project(models.Model):
 
     @allow_staff_or_superuser
     def has_object_read_permission(self, request):
-        return True
+        return self.is_participant(user=request.user, active=True)
 
     @staticmethod
     @allow_staff_or_superuser
@@ -197,7 +197,7 @@ class Participation(models.Model):
 
     @allow_staff_or_superuser
     def has_object_read_permission(self, request):
-        return self.project.is_participant(request.user, active=False)
+        return self.project.is_participant(request.user, active=True)
 
     @staticmethod
     @allow_staff_or_superuser
@@ -271,7 +271,7 @@ class InterestPoll(models.Model):
 
     @allow_staff_or_superuser
     def has_object_read_permission(self, request):
-        return self.project.is_participant(request.user, active=False)
+        return self.project.is_participant(request.user, active=True)
 
     @staticmethod
     @allow_staff_or_superuser

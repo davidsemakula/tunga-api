@@ -125,8 +125,7 @@ class SimpleProjectMetaSerializer(SimpleModelSerializer):
 
 class ProjectSerializer(
     NestedModelSerializer, ContentTypeAnnotatedModelSerializer,
-    GetCurrentUserAnnotatedSerializerMixin
-):
+    GetCurrentUserAnnotatedSerializerMixin):
     user = SimplestUserSerializer(required=False, read_only=True,
                                   default=CreateOnlyCurrentUserDefault())
     owner = SimplestUserSerializer(required=False, allow_null=True)

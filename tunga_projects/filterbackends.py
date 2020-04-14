@@ -1,7 +1,8 @@
 from django.db.models import Q
 from dry_rest_permissions.generics import DRYPermissionFiltersBase
 
-from tunga_utils.constants import STATUS_INITIAL, STATUS_ACCEPTED, STATUS_INTERESTED, PROJECT_STAGE_OPPORTUNITY
+from tunga_utils.constants import STATUS_INITIAL, STATUS_ACCEPTED, \
+    STATUS_INTERESTED, PROJECT_STAGE_OPPORTUNITY
 from tunga_utils.filterbackends import dont_filter_staff_or_superuser
 
 
