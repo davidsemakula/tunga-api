@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from dry_rest_permissions.generics import DRYObjectPermissions
-from rest_framework.decorators import detail_route
+from django.http import HttpResponse
+from dry_rest_permissions.generics import DRYObjectPermissions, DRYPermissions
+from rest_framework import status
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
@@ -19,6 +21,7 @@ from tunga_projects.serializers import ProjectSerializer, DocumentSerializer, \
     ProgressEventSerializer, ProgressReportSerializer, InterestPollSerializer, \
     DeveloperRatingSerializer
 from tunga_projects.tasks import manage_interest_polls
+from tunga_utils.constants import PROJECT_STAGE_OPPORTUNITY
 from tunga_utils.filterbackends import DEFAULT_FILTER_BACKENDS
 
 
@@ -48,6 +51,39 @@ class ProjectViewSet(ModelViewSet):
         project = get_object_or_404(self.get_queryset(), pk=pk)
         manage_interest_polls.delay(project.id, remind=True)
         return Response({'message': 'reminders sent'})
+
+    @list_route(
+        methods=['get'], url_path='archived',
+        permission_classes=[IsAuthenticated, DRYPermissions],
+        filter_backends=DEFAULT_FILTER_BACKENDS + (ProjectFilterBackend,),
+        serializer_class=ProjectSerializer,
+    )
+    def archived(self, request):
+        results = Project.objects.filter(archived=True)
+        output_serializer = ProjectSerializer(results, many=True)
+        data = output_serializer.data[:]
+        page = self.paginate_queryset(results)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        return Response(data, status=status.HTTP_201_CREATED)
+
+    @list_route(
+        methods=['get'], url_path='opportunities',
+        permission_classes=[IsAuthenticated, DRYPermissions],
+        filter_backends=DEFAULT_FILTER_BACKENDS + (ProjectFilterBackend,),
+        serializer_class=ProjectSerializer,
+    )
+    def opportunities(self, request):
+        results = Project.objects.filter(archived=False,
+                                         stage=PROJECT_STAGE_OPPORTUNITY)
+        output_serializer = ProjectSerializer(results, many=True)
+        data = output_serializer.data[:]
+        page = self.paginate_queryset(results)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        return Response(data, status=status.HTTP_201_CREATED)
 
 
 class ParticipationViewSet(ModelViewSet):
