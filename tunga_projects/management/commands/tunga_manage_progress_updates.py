@@ -1,14 +1,11 @@
 import datetime
 
 from django.core.management.base import BaseCommand
-from django.db.models.query_utils import Q
 
 from tunga_projects.models import Project, ProgressEvent
 from tunga_projects.notifications.generic import remind_progress_event
-from tunga_projects.utils import get_every_other_monday
 from tunga_utils.constants import STATUS_ACCEPTED, PROGRESS_EVENT_DEVELOPER, \
-    PROGRESS_EVENT_PM, PROGRESS_EVENT_MILESTONE, PROGRESS_EVENT_INTERNAL, \
-    PROGRESS_EVENT_DEVELOPER_RATING
+    PROGRESS_EVENT_PM, PROGRESS_EVENT_DEVELOPER_RATING
 
 
 class Command(BaseCommand):
@@ -27,88 +24,63 @@ class Command(BaseCommand):
         today_end = datetime.datetime.utcnow().replace(hour=23, minute=59,
                                                        second=59,
                                                        microsecond=999999)
+        week_number = today_start.isocalendar()[1]
 
         projects = Project.objects.filter(
-            Q(deadline__isnull=True) | Q(deadline__gte=today_start),
             archived=False
         )
         for project in projects:
+            weekday = today_noon.weekday()
 
-            all_milestones = ProgressEvent.objects.filter(
-                project=project,
-                type__in=[PROGRESS_EVENT_MILESTONE, PROGRESS_EVENT_INTERNAL],
-                due_at__range=[today_start, today_end]
-            )
+            # participants with update on all weekdays
+            participants = project.participation_set.filter(
+                status=STATUS_ACCEPTED, updates_enabled=True,
+                day_selection_for_updates=False)
+            if weekday < 5 and participants:
+                # Only developer updates btn Monday (0) and Friday (4)
+                dev_defaults = dict(title='Developer Update')
+                dev_event, created = ProgressEvent.objects.update_or_create(
+                    project=project, type=PROGRESS_EVENT_DEVELOPER,
+                    due_at=today_noon, defaults=dev_defaults
+                )
 
-            general_milestones = []  # For all stakeholders
-            internal_milestones = []  # Only for PMs
+                if not dev_event.last_reminder_at:
+                    remind_progress_event.delay(dev_event.id)
 
-            for milestone in all_milestones:
-                # Send reminders for milestones
-                if not milestone.last_reminder_at:
-                    remind_progress_event.delay(milestone.id)
+            # now get participants with update on specific days
+            select_update_participants = project.participation_set.filter(
+                status=STATUS_ACCEPTED, updates_enabled=True,
+                day_selection_for_updates=True)
+            if select_update_participants:
+                # Only developer updates specific days
+                for participant in select_update_participants:
+                    if str(weekday) in participant.update_days.split(','):
+                        dev_defaults = dict(title='Developer Update')
+                        dev_event, created = ProgressEvent.objects.update_or_create(
+                            project=project, type=PROGRESS_EVENT_DEVELOPER,
+                            due_at=today_noon, defaults=dev_defaults
+                        )
 
-                # Filter milestone types
-                if milestone.type == PROGRESS_EVENT_MILESTONE:
-                    general_milestones.append(milestone)
-                elif milestone.type == PROGRESS_EVENT_INTERNAL:
-                    internal_milestones.append(milestone)
+                        if not dev_event.last_reminder_at:
+                            remind_progress_event.delay(dev_event.id)
 
-            if not general_milestones:
-                # Automatic updates are only scheduled if no general milestone falls on this date
-                weekday = today_noon.weekday()
+            if weekday in [0, 3] and project.pm and project.pm.is_active:
+                # PM Reports on Monday (0) and Thursday (3)
+                pm_defaults = dict(title='PM Report')
+                pm_event, created = ProgressEvent.objects.update_or_create(
+                    project=project, type=PROGRESS_EVENT_PM,
+                    due_at=today_noon, defaults=pm_defaults
+                )
+                if not pm_event.last_reminder_at:
+                    remind_progress_event.delay(pm_event.id)
 
-                # participants with update on all weekdays
-                participants = project.participation_set.filter(
-                    status=STATUS_ACCEPTED, updates_enabled=True,
-                    day_selection_for_updates=False)
-                if weekday < 5 and participants:
-                    # Only developer updates btn Monday (0) and Friday (4)
-                    dev_defaults = dict(title='Developer Update')
-                    dev_event, created = ProgressEvent.objects.update_or_create(
-                        project=project, type=PROGRESS_EVENT_DEVELOPER,
-                        due_at=today_noon, defaults=dev_defaults
-                    )
-
-                    if not dev_event.last_reminder_at:
-                        remind_progress_event.delay(dev_event.id)
-
-                # now get participants with update on specific days
-                select_update_participants = project.participation_set.filter(
-                    status=STATUS_ACCEPTED, updates_enabled=True,
-                    day_selection_for_updates=True)
-                if select_update_participants:
-                    # Only developer updates specific days
-                    for participant in select_update_participants:
-                        if str(weekday) in participant.update_days.split(','):
-                            dev_defaults = dict(title='Developer Update')
-                            dev_event, created = ProgressEvent.objects.update_or_create(
-                                project=project, type=PROGRESS_EVENT_DEVELOPER,
-                                due_at=today_noon, defaults=dev_defaults
-                            )
-
-                            if not dev_event.last_reminder_at:
-                                remind_progress_event.delay(dev_event.id)
-
-                if weekday in [0,
-                               3] and project.pm and project.pm.is_active and not internal_milestones:
-                    # PM Reports on Monday (0) and Thursday (3)
-                    pm_defaults = dict(title='PM Report')
-                    pm_event, created = ProgressEvent.objects.update_or_create(
-                        project=project, type=PROGRESS_EVENT_PM,
-                        due_at=today_noon, defaults=pm_defaults
-                    )
-                    if not pm_event.last_reminder_at:
-                        remind_progress_event.delay(pm_event.id)
-
-                owner = project.owner or project.user
-                if (today_start in get_every_other_monday(today_start)) and (
-                    participants or select_update_participants) and owner and owner.is_active:
-                    # Client surveys sent on every other monday
-                    client_defaults = dict(title='Client Survey')
-                    client_event, created = ProgressEvent.objects.update_or_create(
-                        project=project, type=PROGRESS_EVENT_DEVELOPER_RATING,
-                        due_at=today_noon, defaults=client_defaults
-                    )
-                    if not client_event.last_reminder_at:
-                        remind_progress_event.delay(client_event.id)
+            owner = project.owner or project.user
+            if weekday == 0 and (week_number % 2 == 1) and owner and owner.is_active:
+                # Client surveys sent on every other monday
+                client_defaults = dict(title='Client Survey')
+                client_event, created = ProgressEvent.objects.update_or_create(
+                    project=project, type=PROGRESS_EVENT_DEVELOPER_RATING,
+                    due_at=today_noon, defaults=client_defaults
+                )
+                if not client_event.last_reminder_at:
+                    remind_progress_event.delay(client_event.id)
