@@ -21,7 +21,8 @@ from tunga_projects.serializers import ProjectSerializer, DocumentSerializer, \
     ProgressEventSerializer, ProgressReportSerializer, InterestPollSerializer, \
     DeveloperRatingSerializer
 from tunga_projects.tasks import manage_interest_polls
-from tunga_utils.constants import PROJECT_STAGE_OPPORTUNITY
+from tunga_utils.constants import PROJECT_STAGE_OPPORTUNITY, \
+    PROJECT_STAGE_ACTIVE
 from tunga_utils.filterbackends import DEFAULT_FILTER_BACKENDS
 
 
@@ -59,7 +60,8 @@ class ProjectViewSet(ModelViewSet):
         serializer_class=ProjectSerializer,
     )
     def archived(self, request):
-        results = Project.objects.filter(archived=True)
+        results = Project.objects.filter(archived=True,
+                                         stage=PROJECT_STAGE_ACTIVE)
         output_serializer = ProjectSerializer(results, many=True)
         data = output_serializer.data[:]
         page = self.paginate_queryset(results)
