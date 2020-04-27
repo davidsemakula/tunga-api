@@ -5,7 +5,7 @@ from django.core.management.base import BaseCommand
 from tunga_projects.models import Project, ProgressEvent
 from tunga_projects.notifications.generic import remind_progress_event
 from tunga_utils.constants import STATUS_ACCEPTED, PROGRESS_EVENT_DEVELOPER, \
-    PROGRESS_EVENT_PM, PROGRESS_EVENT_DEVELOPER_RATING
+    PROGRESS_EVENT_PM, PROGRESS_EVENT_DEVELOPER_RATING, PROJECT_STAGE_ACTIVE
 
 
 class Command(BaseCommand):
@@ -27,7 +27,8 @@ class Command(BaseCommand):
         week_number = today_start.isocalendar()[1]
 
         projects = Project.objects.filter(
-            archived=False
+            archived=False,
+            stage=PROJECT_STAGE_ACTIVE
         )
         for project in projects:
             weekday = today_noon.weekday()
