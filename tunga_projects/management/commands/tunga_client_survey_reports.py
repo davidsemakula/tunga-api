@@ -8,7 +8,7 @@ from tunga_payments.models import Invoice
 from tunga_projects.models import ProgressEvent
 from tunga_utils.constants import INVOICE_TYPE_SALE, \
     PROGRESS_EVENT_DEVELOPER_RATING, PROGRESS_EVENT_CLIENT, \
-    PROJECT_CATEGORY_PROJECT, PROJECT_CATEGORY_DEDICATED
+    PROJECT_CATEGORY_PROJECT, PROJECT_CATEGORY_DEDICATED, PROJECT_STAGE_ACTIVE
 from tunga_utils.helpers import create_to_google_sheet_in_platform_updates, \
     save_to_google_sheet
 
@@ -75,6 +75,7 @@ class Command(BaseCommand):
         project_client_surveys = ProgressEvent.objects.filter(
             type=PROGRESS_EVENT_DEVELOPER_RATING,
             project__category=PROJECT_CATEGORY_PROJECT,
+            project__stage=PROJECT_STAGE_ACTIVE,
             created_at__range=[week_ago, today]
         )
         print("Number of project surveys: %s" % project_client_surveys.count())
@@ -82,6 +83,7 @@ class Command(BaseCommand):
         dedicated_client_surveys = ProgressEvent.objects.filter(
             type=PROGRESS_EVENT_DEVELOPER_RATING,
             project__category=PROJECT_CATEGORY_DEDICATED,
+            project__stage=PROJECT_STAGE_ACTIVE,
             created_at__range=[week_ago, today]
         )
         print("Number of dedicated surveys: %s" % dedicated_client_surveys.count())
