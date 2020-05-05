@@ -13,6 +13,104 @@
     Why? It helps us to monitor and improve the quality of our service for you. And to take direct action where desirable.
     </p>
 
+    <h4>How would you rate the collaboration with Developer Tunga for Test Project?</h4>
+
+    <style>
+        svg {
+            height: 3.6rem;
+            width: 3.6rem;
+            margin: 0.2rem;
+        }
+
+        svg g{
+            fill: rgb(0, 0, 0);
+        }
+
+        input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+
+        input[type="radio"] + svg {
+            -webkit-transition: all 0.2s;
+            transition: all 0.2s;
+        }
+
+        input + svg{
+            cursor: pointer;
+        }
+
+        input[type="radio"]:hover + svg g,
+        input[type="radio"]:checked + svg g,
+        input[type="radio"]:focus + svg g{
+            fill: #da3451;
+        }
+
+        .btn {
+            font-size: .76562rem;
+            font-weight: 300;
+            padding-top: 0!important;
+            padding-bottom: 0!important;
+            line-height: 2.5rem;
+            height: 2.5rem;
+        }
+
+        .btn-primary {
+            color: #fff;
+            background-color: #da3451;
+            border-color: #da3451;
+            box-shadow: 2px 2px 3px 0 rgba(68,68,68,.8);
+        }
+    </style>
+
+
+    <form id="myForm" action="https://example.com">
+
+        <div class="survey__icons">
+            <label><input type="radio" name="rating" value="1"/> {% include "tunga/icons/simley1.html" %}</label>
+            <label><input type="radio" name="rating" value="2"/> {% include "tunga/icons/simley2.html" %}</label>
+            <label><input type="radio" name="rating" value="3"/> {% include "tunga/icons/simley3.html" %}</label>
+            <label><input type="radio" name="rating" value="4"/> {% include "tunga/icons/simley4.html" %}</label>
+            <label><input type="radio" name="rating" value="5"/> {% include "tunga/icons/simley5.html" %}</label>
+        </div>
+        
+        <div class="survey__btn-wrapper">
+            <button type="submit" class="btn btn-primary">Submit Rating</button>
+        </div>
+
+    </form>
+
+    <script type="text/javascript">
+        var form = document.getElementById("myForm"); 
+        function handleForm(event) { 
+            event.preventDefault(); 
+
+            var rating = document.querySelector('input[name="rating"]:checked').value;
+
+            var event = { "id" : 25 } // this is the id of the this project progress event
+            var user = 2 // this should be the client email to whom you are sending the email
+
+            var http = new XMLHttpRequest();
+            var url = 'get_data.php';
+            var params = 'event='+event+'&rating='+rating+'&user='+user;
+            http.open('POST', url, true);
+
+            //Send the proper header information along with the request
+            http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+            http.onreadystatechange = function() {//Call a function when the state changes.
+                if(http.readyState == 4 && http.status == 200) {
+                    alert(http.responseText);
+                    console.log('working perfectly well')
+                }else{
+                    console.log('failed to send data')
+                }
+            }
+            http.send(params);
+        } 
+        form.addEventListener('submit', handleForm);
+    </script>
+
     <p>
         Click the link below to complete the survey:<br/>
         <a href="{{ update_url }}">{{ update_url }}</a>
