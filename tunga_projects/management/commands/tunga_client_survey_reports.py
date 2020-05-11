@@ -70,9 +70,9 @@ class Command(BaseCommand):
         weekday = today_start.weekday()
         week_number = today_start.isocalendar()[1]
 
-        if weekday == 5 and (week_number % 2 == 1):
+        if weekday == 4 and (week_number % 2 == 1):
             today = datetime.datetime.utcnow()
-            week_ago = today - relativedelta(days=7)
+            week_ago = today - relativedelta(days=14)
             project_client_surveys = ProgressEvent.objects.filter(
                 type=PROGRESS_EVENT_DEVELOPER_RATING,
                 project__category=PROJECT_CATEGORY_PROJECT,
