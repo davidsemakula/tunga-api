@@ -26,7 +26,7 @@ class Command(BaseCommand):
                                           created_at__year=last_month.year,
                                           created_at__month=last_month.month)
 
-        title = "Client Invoices - %s" % (today.strftime("%B %Y"))
+        title = "Client Invoices - %s" % (last_month.strftime("%B %Y"))
         file_id = create_to_google_sheet_in_platform_updates(title)
 
         for invoice in invoices:

@@ -17,6 +17,8 @@ class Command(BaseCommand):
         # command to run: python manage.py tunga_developer_rating_report
 
         today = datetime.datetime.utcnow()
+        first_of_the_month = today.replace(day=1)
+        last_month = first_of_the_month - datetime.timedelta(days=1)
         active_projects = Project.objects.filter(archived=False).values_list(
             'id', flat=True)
         active_projects = list(active_projects)
@@ -26,7 +28,7 @@ class Command(BaseCommand):
         active_developers = list(active_developers)
         active_developers = TungaUser.objects.filter(id__in=active_developers)
 
-        title = "Developer Rating - %s" % (today.strftime("%B %Y"))
+        title = "Developer Rating - %s" % (last_month.strftime("%B %Y"))
         file_id = create_to_google_sheet_in_platform_updates(title)
         print("Number of active devs: %s" % active_developers.count())
         for developer in active_developers:
