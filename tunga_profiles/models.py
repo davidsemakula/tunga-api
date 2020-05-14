@@ -210,14 +210,14 @@ class UserProfile(models.Model):
 
     @property
     def country_name(self):
-        return str(self.country.name)
+        return unicode(self.country.name, "utf-8")
 
     @property
     def location(self):
         location = self.city
         if self.country_name:
             location = '{}{}{}'.format(location, location and ', ' or '',
-                                       self.country.name)
+                                       unicode(self.country.name, "utf-8"))
         return location or ''
 
     @allow_staff_or_superuser
