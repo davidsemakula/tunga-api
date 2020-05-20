@@ -18,8 +18,6 @@ class ProjectFilterBackend(DRYPermissionFiltersBase):
                 Q(participation__status__in=[STATUS_INITIAL, STATUS_ACCEPTED])
             ) |
             (
-                Q(stage=PROJECT_STAGE_OPPORTUNITY) &
-                Q(interestpoll__user=request.user) &
-                Q(interestpoll__status__in=[STATUS_INITIAL, STATUS_INTERESTED])
+                Q(stage=PROJECT_STAGE_OPPORTUNITY)
             )
         ).distinct()
