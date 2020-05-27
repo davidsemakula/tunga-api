@@ -48,6 +48,7 @@ def remind_progress_event_email(progress_event):
     successful_sends = []
 
     owner = progress_event.project.owner or progress_event.project.user
+    pm = progress_event.project.pm
     project = clean_instance(progress_event.project.id, Project)
     participants = project.participation_set.filter(status=STATUS_ACCEPTED)
 
