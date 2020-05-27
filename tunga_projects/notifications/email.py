@@ -3,7 +3,8 @@ import datetime
 from django_rq import job
 
 from tunga.settings import TUNGA_URL, MANDRILL_VAR_FIRST_NAME
-from tunga_projects.models import Participation, ProgressReport, ProgressEvent, InterestPoll
+from tunga_projects.models import Participation, ProgressReport, ProgressEvent, InterestPoll, \
+    Project
 from tunga_settings.slugs import NEW_TASK_PROGRESS_REPORT_EMAIL, TASK_SURVEY_REMINDER_EMAIL
 from tunga_settings.utils import check_switch_setting
 from tunga_utils import mandrill_utils
@@ -47,9 +48,12 @@ def remind_progress_event_email(progress_event):
     successful_sends = []
 
     owner = progress_event.project.owner or progress_event.project.user
-    pm = progress_event.project.pm
+    project = clean_instance(progress_event.project.id, Project)
+    participants = project.participation_set.filter(status=STATUS_ACCEPTED)
 
     ctx = {
+        'project': project,
+        'participants': participants,
         'owner': owner,
         'event': progress_event,
         'update_url': '%s/projects/%s/events/%s/' % (TUNGA_URL, progress_event.project.id, progress_event.id)
@@ -118,6 +122,8 @@ def notify_new_progress_report_email_client(progress_report):
     if not to:
         # Should have some recipients
         return
+
+
 
     ctx = {
         'owner': progress_report.event.project.owner or progress_report.event.project.user,

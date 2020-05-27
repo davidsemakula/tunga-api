@@ -13,17 +13,11 @@
     Why? It helps us to monitor and improve the quality of our service for you. And to take direct action where desirable.
     </p>
 
-    <h4>How would you rate the collaboration with Developer Tunga for Test Project?</h4>
-
     <style>
         svg {
             height: 3.6rem;
             width: 3.6rem;
             margin: 0.2rem;
-        }
-
-        svg g{
-            fill: rgb(0, 0, 0);
         }
 
         input[type="radio"] {
@@ -43,7 +37,7 @@
         input[type="radio"]:hover + svg g,
         input[type="radio"]:checked + svg g,
         input[type="radio"]:focus + svg g{
-            fill: #da3451;
+            fill: #da3451 !important;
         }
 
         .btn {
@@ -63,17 +57,21 @@
         }
     </style>
 
-
     <form id="myForm" action="https://example.com">
+        <input type="hidden" id="eventId" name="event" value="{{event.id}}">
 
-        <div class="survey__icons">
-            <label><input type="radio" name="rating" value="1"/> {% include "tunga/icons/simley1.html" %}</label>
-            <label><input type="radio" name="rating" value="2"/> {% include "tunga/icons/simley2.html" %}</label>
-            <label><input type="radio" name="rating" value="3"/> {% include "tunga/icons/simley3.html" %}</label>
-            <label><input type="radio" name="rating" value="4"/> {% include "tunga/icons/simley4.html" %}</label>
-            <label><input type="radio" name="rating" value="5"/> {% include "tunga/icons/simley5.html" %}</label>
-        </div>
-        
+        {% for participant in participants %}
+            <h4>How would you rate the collaboration with {{ participant.user }} for {{ project }}?</h4>
+            <input type="hidden" class="userIds" name="userId-{{participant.user.id}}" value="{{participant.user.id}}">
+            <div class="survey__icons">
+                <label><input type="radio" name="rating-{{participant.user.id}}" value="1"/> {% include "tunga/icons/simley1.html" %}</label>
+                <label><input type="radio" name="rating-{{participant.user.id}}" value="2"/> {% include "tunga/icons/simley2.html" %}</label>
+                <label><input type="radio" name="rating-{{participant.user.id}}" value="3"/> {% include "tunga/icons/simley3.html" %}</label>
+                <label><input type="radio" name="rating-{{participant.user.id}}" value="4"/> {% include "tunga/icons/simley4.html" %}</label>
+                <label><input type="radio" name="rating-{{participant.user.id}}" value="5"/> {% include "tunga/icons/simley5.html" %}</label>
+            </div>
+        {% endfor %}
+    
         <div class="survey__btn-wrapper">
             <button type="submit" class="btn btn-primary">Submit Rating</button>
         </div>
@@ -84,29 +82,49 @@
         var form = document.getElementById("myForm"); 
         function handleForm(event) { 
             event.preventDefault(); 
-
-            var rating = document.querySelector('input[name="rating"]:checked').value;
-
-            var event = { "id" : 25 } // this is the id of the this project progress event
+          
+            var ratings = [];
+            var rating = 0;
+            
+            var userIdElements = document.querySelectorAll("input[class=userIds]");
+            for (index = 0; index < userIdElements.length; ++index) {
+                if(document.querySelector('input[name="rating-'+userIdElements[index].value+'"]:checked')){
+                  var rating = document.querySelector('input[name="rating-'+userIdElements[index].value+'"]:checked').value;
+                  ratings.push({user: userIdElements[index].value, rating: rating})
+                }
+              
+            }
+          
+            var event = { "id" : document.querySelector('input[name="event"]').value } // this is the id of the this project progress event
             var user = 2 // this should be the client email to whom you are sending the email
 
             var http = new XMLHttpRequest();
-            var url = 'get_data.php';
-            var params = 'event='+event+'&rating='+rating+'&user='+user;
-            http.open('POST', url, true);
+            var url = 'https://localhost:8000/api/developer-rating/103/';
+            
+            ratings.forEach(element => {
+              console.log(element)
+              var params = {
+                event: event,
+                rating: element.rating,
+                user: element.user
+              }
+              http.open('POST', url, true);
 
-            //Send the proper header information along with the request
-            http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+              //Send the proper header information along with the request
+              http.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
 
-            http.onreadystatechange = function() {//Call a function when the state changes.
-                if(http.readyState == 4 && http.status == 200) {
-                    alert(http.responseText);
-                    console.log('working perfectly well')
-                }else{
-                    console.log('failed to send data')
-                }
-            }
-            http.send(params);
+              http.onreadystatechange = function() {//Call a function when the state changes.
+                  if(http.readyState == 4 && http.status == 200) {
+                      alert(http.responseText);
+                      console.log('working perfectly well')
+                  }else{
+                      console.log('failed to send data')
+                  }
+              }
+              http.send(JSON.stringify(params));
+            });
+            
+            
         } 
         form.addEventListener('submit', handleForm);
     </script>
