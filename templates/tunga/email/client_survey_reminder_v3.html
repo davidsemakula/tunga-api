@@ -71,7 +71,7 @@
                 <label><input type="radio" name="rating-{{participant.user.id}}" value="5"/> {% include "tunga/icons/simley5.html" %}</label>
             </div>
         {% endfor %}
-    
+
         <div class="survey__btn-wrapper">
             <button type="submit" class="btn btn-primary">Submit Rating</button>
         </div>
@@ -79,28 +79,28 @@
     </form>
 
     <script type="text/javascript">
-        var form = document.getElementById("myForm"); 
-        function handleForm(event) { 
-            event.preventDefault(); 
-          
+        var form = document.getElementById("myForm");
+        function handleForm(event) {
+            event.preventDefault();
+
             var ratings = [];
             var rating = 0;
-            
+
             var userIdElements = document.querySelectorAll("input[class=userIds]");
             for (index = 0; index < userIdElements.length; ++index) {
                 if(document.querySelector('input[name="rating-'+userIdElements[index].value+'"]:checked')){
                   var rating = document.querySelector('input[name="rating-'+userIdElements[index].value+'"]:checked').value;
                   ratings.push({user: userIdElements[index].value, rating: rating})
                 }
-              
+
             }
-          
+
             var event = { "id" : document.querySelector('input[name="event"]').value } // this is the id of the this project progress event
             var user = 2 // this should be the client email to whom you are sending the email
 
             var http = new XMLHttpRequest();
-            var url = 'https://localhost:8000/api/developer-rating/103/';
-            
+            var url = '/api/developer-rating/';
+
             ratings.forEach(element => {
               console.log(element)
               var params = {
@@ -123,9 +123,9 @@
               }
               http.send(JSON.stringify(params));
             });
-            
-            
-        } 
+
+
+        }
         form.addEventListener('submit', handleForm);
     </script>
 
