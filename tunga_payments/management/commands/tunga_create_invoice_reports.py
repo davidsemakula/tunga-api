@@ -17,14 +17,16 @@ class Command(BaseCommand):
         # command to run: python manage.py tunga_create_invoice_reports
 
         today = datetime.datetime.utcnow()
+        first_of_the_month = today.replace(day=1)
+        last_month = first_of_the_month - datetime.timedelta(days=1)
 
         # invoices = Invoice.objects.filter(type=INVOICE_TYPE_SALE)
         invoices = Invoice.objects.filter(type=INVOICE_TYPE_SALE,
                                           finalized=True,
-                                          created_at__year=today.year,
-                                          created_at__month=today.month)
+                                          created_at__year=last_month.year,
+                                          created_at__month=last_month.month)
 
-        title = "Client Invoices - %s" % (today.strftime("%B %Y"))
+        title = "Client Invoices - %s" % (last_month.strftime("%B %Y"))
         file_id = create_to_google_sheet_in_platform_updates(title)
 
         for invoice in invoices:

@@ -2,15 +2,12 @@ import datetime
 
 from dateutil.relativedelta import relativedelta
 from django.core.management.base import BaseCommand
-from django.db.models import Q
 
-from tunga_payments.models import Invoice
 from tunga_projects.models import ProgressEvent
-from tunga_utils.constants import INVOICE_TYPE_SALE, \
-    PROGRESS_EVENT_DEVELOPER_RATING, PROGRESS_EVENT_CLIENT, \
-    PROJECT_CATEGORY_PROJECT, PROJECT_CATEGORY_DEDICATED
-from tunga_utils.helpers import create_to_google_sheet_in_platform_updates, \
-    save_to_google_sheet
+from tunga_utils.constants import PROGRESS_EVENT_DEVELOPER_RATING, \
+    PROJECT_CATEGORY_PROJECT, PROJECT_CATEGORY_DEDICATED, \
+    PROJECT_STAGE_ACTIVE
+from tunga_utils.helpers import save_to_google_sheet
 
 
 def get_dedicated_surveys(dedicated_client_surveys):
@@ -69,30 +66,36 @@ class Command(BaseCommand):
         Schedule progress updates and send update reminders
         """
         # command to run: python manage.py tunga_client_survey_reports
+        today_start = datetime.datetime.utcnow()
+        weekday = today_start.weekday()
+        week_number = today_start.isocalendar()[1]
 
-        today = datetime.datetime.utcnow()
-        week_ago = today - relativedelta(days=13)
-        project_client_surveys = ProgressEvent.objects.filter(
-            type=PROGRESS_EVENT_DEVELOPER_RATING,
-            project__category=PROJECT_CATEGORY_PROJECT,
-            created_at__range=[week_ago, today]
-        )
-        print("Number of project surveys: %s" % project_client_surveys.count())
+        if weekday == 4 and (week_number % 2 == 1):
+            today = datetime.datetime.utcnow()
+            week_ago = today - relativedelta(days=14)
+            project_client_surveys = ProgressEvent.objects.filter(
+                type=PROGRESS_EVENT_DEVELOPER_RATING,
+                project__category=PROJECT_CATEGORY_PROJECT,
+                project__stage=PROJECT_STAGE_ACTIVE,
+                created_at__range=[week_ago, today]
+            )
+            print("Number of project surveys: %s" % project_client_surveys.count())
 
-        dedicated_client_surveys = ProgressEvent.objects.filter(
-            type=PROGRESS_EVENT_DEVELOPER_RATING,
-            project__category=PROJECT_CATEGORY_DEDICATED,
-            created_at__range=[week_ago, today]
-        )
-        print("Number of dedicated surveys: %s" % dedicated_client_surveys.count())
+            dedicated_client_surveys = ProgressEvent.objects.filter(
+                type=PROGRESS_EVENT_DEVELOPER_RATING,
+                project__category=PROJECT_CATEGORY_DEDICATED,
+                project__stage=PROJECT_STAGE_ACTIVE,
+                created_at__range=[week_ago, today]
+            )
+            print("Number of dedicated surveys: %s" % dedicated_client_surveys.count())
 
-        title = "Client Survey Report - %s" % (today.strftime("%B %Y"))
-        file_id = '1_-SxkrrPk8uqwbz_Xe2sZurff9tYCN0sqTkVGJZDNS4'
+            title = "Client Survey Report - %s" % (today.strftime("%B %Y"))
+            file_id = '1_-SxkrrPk8uqwbz_Xe2sZurff9tYCN0sqTkVGJZDNS4'
 
-        project_reports = get_project_surveys(
-            project_client_surveys)
-        dedicated_reports = get_dedicated_surveys(dedicated_client_surveys)
-        project_reports.extend(dedicated_reports)
-        print("Number of total reports: %s" % len(project_reports))
-        for project_report in project_reports:
-            save_to_google_sheet(file_id, project_report, index=2)
+            project_reports = get_project_surveys(
+                project_client_surveys)
+            dedicated_reports = get_dedicated_surveys(dedicated_client_surveys)
+            project_reports.extend(dedicated_reports)
+            print("Number of total reports: %s" % len(project_reports))
+            for project_report in project_reports:
+                save_to_google_sheet(file_id, project_report, index=2)
