@@ -15,9 +15,9 @@
 
     <style>
         svg {
-            height: 3.6rem;
-            width: 3.6rem;
-            margin: 0.2rem;
+            height: 57.6px;
+            width: 57.6px;
+            margin: 3.2px;
         }
 
         input[type="radio"] {
@@ -45,8 +45,8 @@
             font-weight: 300;
             padding-top: 0!important;
             padding-bottom: 0!important;
-            line-height: 2.5rem;
-            height: 2.5rem;
+            line-height: 40px;
+            height: 40px;
         }
 
         .btn-primary {
@@ -73,7 +73,7 @@
         {% endfor %}
     
         <div class="survey__btn-wrapper">
-            <button type="submit" class="btn btn-primary">Submit Rating</button>
+            <button id="submitSurvey" type="submit" class="btn btn-primary">Submit Rating</button>
         </div>
 
     </form>
@@ -85,9 +85,12 @@
           
             var ratings = [];
             var rating = 0;
+          
+            const button = document.getElementById("submitSurvey");
             
             var userIdElements = document.querySelectorAll("input[class=userIds]");
             for (index = 0; index < userIdElements.length; ++index) {
+                // deal with inputs[index] element.
                 if(document.querySelector('input[name="rating-'+userIdElements[index].value+'"]:checked')){
                   var rating = document.querySelector('input[name="rating-'+userIdElements[index].value+'"]:checked').value;
                   ratings.push({user: userIdElements[index].value, rating: rating})
@@ -99,9 +102,12 @@
             var user = 2 // this should be the client email to whom you are sending the email
 
             var http = new XMLHttpRequest();
-            var url = 'https://localhost:8000/api/developer-rating/103/';
+            var url = 'https://sandbox.tunga.io/api/developer-rating/103/';
             
             ratings.forEach(element => {
+              button.innerHTML = "Loading";
+              button.disabled = true
+              
               console.log(element)
               var params = {
                 event: event,
@@ -117,8 +123,11 @@
                   if(http.readyState == 4 && http.status == 200) {
                       alert(http.responseText);
                       console.log('working perfectly well')
+                      button.innerHTML = "Submitted";
                   }else{
                       console.log('failed to send data')
+                      button.innerHTML = "Submit Rating";
+                      button.disabled = false
                   }
               }
               http.send(JSON.stringify(params));
