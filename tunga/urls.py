@@ -36,7 +36,8 @@ from tunga_profiles.views import ProfileView, EducationViewSet, WorkViewSet, Con
     DeveloperInvitationViewSet, CompanyView, WhitePaperVisitorsView
 from tunga_projects.views import ProjectViewSet, DocumentViewSet, \
     ParticipationViewSet, ProgressEventViewSet, \
-    ProgressReportViewSet, InterestPollViewSet, DeveloperRatingViewSet
+    ProgressReportViewSet, InterestPollViewSet, DeveloperRatingViewSet, \
+    ClientSurveyTemplate
 from tunga_settings.views import UserSettingsView
 from tunga_support.views import SupportPageViewSet, SupportSectionViewSet
 from tunga_tasks.views import TimeEntryViewSet, \
@@ -161,5 +162,8 @@ urlpatterns = [
     url(r'^api/weekly-report/(?P<subject>\w+)/$', weekly_report, name="weekly-report"),
     url(r'^$', router.get_api_root_view(), name='backend-root'),
     url(r'^api/sitemap\.xml$', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
-    url(r'^api/visitors/$', WhitePaperVisitorsView.as_view(), name="visiotrs_email")
+    url(r'^api/visitors/$', WhitePaperVisitorsView.as_view(), name="visiotrs_email"),
+
+    url(r'^surveys/client/(?P<id>\d+)/$', ClientSurveyTemplate.as_view(), name="client_survey")
+
 ]

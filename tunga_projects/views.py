@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.http import HttpResponse
+from django.views.generic import TemplateView
 from dry_rest_permissions.generics import DRYObjectPermissions, DRYPermissions
 from rest_framework import status
 from rest_framework.decorators import detail_route, list_route
@@ -10,6 +11,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
+from tunga_auth.models import TungaUser
 from tunga_projects.filterbackends import ProjectFilterBackend
 from tunga_projects.filters import ProjectFilter, DocumentFilter, \
     ParticipationFilter, ProgressEventFilter, \
@@ -22,7 +24,7 @@ from tunga_projects.serializers import ProjectSerializer, DocumentSerializer, \
     DeveloperRatingSerializer
 from tunga_projects.tasks import manage_interest_polls
 from tunga_utils.constants import PROJECT_STAGE_OPPORTUNITY, \
-    PROJECT_STAGE_ACTIVE
+    PROJECT_STAGE_ACTIVE, STATUS_ACCEPTED
 from tunga_utils.filterbackends import DEFAULT_FILTER_BACKENDS
 
 
@@ -152,3 +154,21 @@ class DeveloperRatingViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated, DRYObjectPermissions]
     filter_class = DeveloperRatingFilter
     filter_backends = DEFAULT_FILTER_BACKENDS
+
+
+class ClientSurveyTemplate(TemplateView):
+    template_name = "tunga/html/survey_confirmation.html"
+
+    def get_context_data(self, **kwargs):
+        project_id = kwargs.get('id', None)
+        project = Project.objects.filter(id=project_id).first()
+        team_users_ids = Participation.objects.filter(project=project,
+                                            status=STATUS_ACCEPTED).values_list('user_id',flat=True)
+        team_users_ids = list(team_users_ids)
+        developers = TungaUser.objects.filter(id__in=team_users_ids)
+        project_event = ProgressEvent.objects.filter(project=project).last()
+        context = super(ClientSurveyTemplate, self).get_context_data(**kwargs)
+        context['project'] = project
+        context['project_event'] = project_event
+        context['developers'] = developers
+        return context
