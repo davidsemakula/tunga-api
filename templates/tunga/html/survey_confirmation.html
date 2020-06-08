@@ -5,6 +5,37 @@
     <link rel="stylesheet"
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
     <style>
+        @font-face {
+        font-family: "HK Grotesk";
+        font-style: normal;
+        src: url("https://fontlibrary.org/assets/fonts/hk-grotesk/feb28e2b4e7f37415d136fba0c1bc691/691ce511a6a132407e630de44f799262/HKGroteskRegular.ttf")
+            format("truetype");
+        }
+        @font-face {
+        font-family: "HK Grotesk";
+        font-weight: 300;
+        src: url("https://fontlibrary.org/assets/fonts/hk-grotesk/feb28e2b4e7f37415d136fba0c1bc691/c2d7f134bd8daf703fcbb1fdbb5dcb10/HKGroteskLight.ttf")
+            format("truetype");
+        }
+        @font-face {
+        font-family: "HK Grotesk";
+        font-weight: bold;
+        src: url("https://fontlibrary.org/assets/fonts/hk-grotesk/feb28e2b4e7f37415d136fba0c1bc691/449ea30c4d380a29db0101e25b919f1c/HKGroteskBold.ttf")
+            format("truetype");
+        }
+        @font-face {
+        font-family: "HK Grotesk";
+        font-style: italic;
+        src: url("https://fontlibrary.org/assets/fonts/hk-grotesk/feb28e2b4e7f37415d136fba0c1bc691/3a1832c86aae9381e5e31cc097f92c92/HKGroteskItalic.ttf")
+            format("truetype");
+        }
+        
+
+        body {
+            background-color: #e7f1ff;
+            font-family: 'HK Grotesk', sans-serif;
+        }
+
         svg {
             height: 3.6rem;
             width: 3.6rem;
@@ -80,13 +111,10 @@
             margin-top: 25px;
         }
 
-        body {
-            background-color: #e7f1ff;
-        }
-
         .feedback-label {
             width: 300px;
         }
+
     </style>
     <script>
         window.console = window.console || function (t) {
@@ -107,7 +135,7 @@
     <h4 class="text-center" style="margin-top: 25px">How would you rate the
         collaboration for {{ project.title }}?</h4>
     <p class="text-center">with?</p>
-    <form class="container" id="myForm" action="https://example.com">
+    <form class="container" id="myForm" action="https://localhost:8000/">
         {% if project.category == 'project' %}
             <input type="hidden" id="eventId" name="event" value="103"> <!-- Todo: we need actual event details here Remo -->
             <p class="dev-name">Tunga</p>
@@ -347,9 +375,7 @@
         2020 Tunga BV - All rights reserved
     </div>
 </div>
-<script src="https://static.codepen.io/assets/common/stopExecutionOnTimeout-157cd5b220a5c80d4ff8e0e70ac069bffd87a61252088146915e8726e5d9f147.js"></script>
-<script id="rendered-js">
-
+<script>
     /**
     * Get the URL parameters
     * @param  {String} url The URL
@@ -371,65 +397,6 @@
     var initialisationKeys = getParams(window.location.href);
     var userInitialisation = document.getElementById(initialisationKeys.value + '-' + initialisationKeys.uuid)
     userInitialisation.checked = true;
-
-    var form = document.getElementById("myForm");
-
-    function handleForm(event) {
-        event.preventDefault();
-
-        var ratings = [];
-        var rating = 0;
-
-        var userIdElements = document.querySelectorAll("input[class=userIds]");
-        for (index = 0; index < userIdElements.length; ++index) {
-            if (window.CP.shouldStopExecution(0)) break;
-            if (document.querySelector('input[name="rating-' + userIdElements[index].value + '"]:checked')) {
-                var rating = document.querySelector('input[name="rating-' + userIdElements[index].value + '"]:checked').value;
-                ratings.push({
-                    user: userIdElements[index].value,
-                    rating: rating
-                });
-            }
-
-        }
-        window.CP.exitedLoop(0);
-
-        var event = {"id": document.querySelector('input[name="event"]').value}; // this is the id of the this project progress event
-        var user = 2; // this should be the client email to whom you are sending the email
-
-        var http = new XMLHttpRequest();
-        var url = 'https://localhost:8000/api/developer-rating/103/';
-
-        ratings.forEach(element => {
-            console.log(element);
-            var params = {
-                event: event,
-                rating: element.rating,
-                user: element.user
-            };
-
-            http.open('POST', url, true);
-
-            //Send the proper header information along with the request
-            http.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
-
-            http.onreadystatechange = function () {//Call a function when the state changes.
-                if (http.readyState == 4 && http.status == 200) {
-                    alert(http.responseText);
-                    console.log('working perfectly well');
-                } else {
-                    console.log('failed to send data');
-                }
-            };
-            http.send(JSON.stringify(params));
-        });
-
-
-    }
-
-    form.addEventListener('submit', handleForm);
-    //# sourceURL=pen.js
-
 </script>
 </body>
 </html>
