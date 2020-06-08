@@ -14,121 +14,62 @@
     </p>
 
     <style>
-        input[type="radio"] + .icon {
-            -webkit-transition: all 0.2s;
-            transition: all 0.2s;
-        }
-
         .icons-container{
             display: inline-block;
             position: relative;
-        }
-
-        .icon{
-            display: inline-block;
             height: 57.6px;
             width: 57.6px;
             margin: 3.2px;
         }
 
-        #icon-1 {
-            background: url("https://tunga.io/static/tunga/smileys/simley1.png") no-repeat;
-            background-size: cover;
-            position: absolute;
-        }
-
-        #icon-2 {
-            background: url("https://tunga.io/static/tunga/smileys/simley2.png") no-repeat;
-            background-size: cover;
-            position: absolute;
-        }
-
-        #icon-3 {
-            background: url("https://tunga.io/static/tunga/smileys/simley3.png") no-repeat;
-            background-size: cover;
-            position: absolute;
-        }
-
-        #icon-4 {
-            background: url("https://tunga.io/static/tunga/smileys/simley4.png") no-repeat;
-            background-size: cover;
-            position: absolute;
-        }
-
-        #icon-5 {
-            background: url("https://tunga.io/static/tunga/smileys/simley5.png") no-repeat;
-            background-size: cover;
-            position: absolute;
-        }
-
-        input + .icon{
-            cursor: pointer;
-        }
-
-        .btn {
-            font-size: 12.24992px;
-            font-weight: 300;
-            padding-top: 0!important;
-            padding-bottom: 0!important;
-            line-height: 40px;
-            height: 40px;
-        }
-
-        .btn-primary {
-            color: #fff;
-            background-color: #da3451;
-            border-color: #da3451;
-            box-shadow: 2px 2px 3px 0 rgba(68,68,68,.8);
+        .icons-container a img{
+            height: 57.6px;
+            width: 57.6px;
         }
     </style>
 
-    <form id="myForm" action="https://sandbox.tunga.io/api/developer-rating/">
-        <input type="hidden" id="eventId" name="event" value="{ id: {{event.id}} }">
-
-        {% for participant, i in participants %}
+    <div>
+        {% for participant in participants %}
             <h4>How would you rate the collaboration with {{ participant.user }} for {{ project }}?</h4>
-            <input type="hidden" class="userIds" name="user" value="{{participant.user.id}}">
             <div class="survey__icons">
                 <label>
-                    <input type="radio" name="rating" value="1"/> 
                     <div class="icons-container">
-                        <a href="domain?index="+i+"&simley=1">
-                            <div id="icon-1" class="icon"></div>
+                        <a target="_blank" href="http://localhost:8000/surveys/client/{{project.id}}/?uuid={{participant.user.id}}&value=1">
+                            <img src="https://tunga.io/static/tunga/smileys/simley1.png" />
                         </a>
                     </div>
                 </label>
                 <label>
-                    <input type="radio" name="rating" value="2"/>
                     <div class="icons-container">
-                        <div id="icon-2" class="icon"></div>
+                        <a target="_blank" href="http://localhost:8000/surveys/client/{{project.id}}/?uuid={{participant.user.id}}&value=2">
+                            <img src="https://tunga.io/static/tunga/smileys/simley2.png" />
+                        </a>
                     </div>
                 </label>
                 <label>
-                    <input type="radio" name="rating" value="3"/>
                     <div class="icons-container">
-                        <div id="icon-3" class="icon"></div>
+                        <a target="_blank" href="http://localhost:8000/surveys/client/{{project.id}}/?uuid={{participant.user.id}}&value=3">
+                            <img src="https://tunga.io/static/tunga/smileys/simley3.png" />
+                        </a>
                     </div>
                 </label>
                 <label>
-                    <input type="radio" name="rating" value="4"/>
                     <div class="icons-container">
-                        <div id="icon-4" class="icon"></div>
+                        <a target="_blank" href="http://localhost:8000/surveys/client/{{project.id}}/?uuid={{participant.user.id}}&value=4">
+                            <img src="https://tunga.io/static/tunga/smileys/simley4.png" />
+                        </a>
                     </div>
                 </label>
                 <label>
-                    <input type="radio" name="rating" value="5"/>
                     <div class="icons-container">
-                        <div id="icon-5" class="icon"></div>
+                        <a target="_blank" href="http://localhost:8000/surveys/client/{{project.id}}/?uuid={{participant.user.id}}&value=5">
+                            <img src="https://tunga.io/static/tunga/smileys/simley5.png" />
+                        </a>
                     </div>
                 </label>
             </div>
         {% endfor %}
-
-        <div class="survey__btn-wrapper">
-            <button id="submitSurvey" type="submit" class="btn btn-primary">Submit Rating</button>
-        </div>
-
-    </form>
+    </div>
 
     <p>
         Click the link below to complete the survey:<br/>
