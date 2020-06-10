@@ -57,6 +57,7 @@ def remind_progress_event_email(progress_event):
         'participants': participants,
         'owner': owner,
         'event': progress_event,
+        'rating_url': '%s/surveys/client/%s/' % (TUNGA_URL, project.id),
         'update_url': '%s/projects/%s/events/%s/' % (TUNGA_URL, progress_event.project.id, progress_event.id)
     }
 
