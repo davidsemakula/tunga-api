@@ -37,7 +37,8 @@ from tunga_profiles.views import ProfileView, EducationViewSet, WorkViewSet, Con
 from tunga_projects.views import ProjectViewSet, DocumentViewSet, \
     ParticipationViewSet, ProgressEventViewSet, \
     ProgressReportViewSet, InterestPollViewSet, DeveloperRatingViewSet, \
-    ClientSurveyTemplate
+    ClientSurveyTemplate, ClientSurveyFormView, ClientSurveySuccessTemplate, \
+    ClientSurveyErrorTemplate
 from tunga_settings.views import UserSettingsView
 from tunga_support.views import SupportPageViewSet, SupportSectionViewSet
 from tunga_tasks.views import TimeEntryViewSet, \
@@ -164,6 +165,9 @@ urlpatterns = [
     url(r'^api/sitemap\.xml$', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
     url(r'^api/visitors/$', WhitePaperVisitorsView.as_view(), name="visiotrs_email"),
 
-    url(r'^surveys/client/(?P<id>\d+)/$', ClientSurveyTemplate.as_view(), name="client_survey")
+    url(r'^surveys/client/(?P<id>\d+)/$', ClientSurveyTemplate.as_view(), name="client_survey"),
+    url(r'^surveys/client/success/$', ClientSurveySuccessTemplate.as_view(), name="client_survey_success"),
+    url(r'^surveys/client/error/$', ClientSurveyErrorTemplate.as_view(), name="client_survey_error"),
+    url(r'^surveys/client/(?P<id>\d+)/created/$', ClientSurveyFormView.as_view(), name="client_survey_submit"),
 
 ]

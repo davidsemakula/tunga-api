@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.http import HttpResponse
-from django.views.generic import TemplateView
+from django import forms
+from django.shortcuts import render, redirect
+from django.views.generic import CreateView, TemplateView, FormView
 from dry_rest_permissions.generics import DRYObjectPermissions, DRYPermissions
 from rest_framework import status
 from rest_framework.decorators import detail_route, list_route
@@ -156,6 +157,20 @@ class DeveloperRatingViewSet(ModelViewSet):
     filter_backends = DEFAULT_FILTER_BACKENDS
 
 
+class GeeksForm(forms.Form):
+    # specify fields for model
+    title = forms.CharField()
+    description = forms.CharField(widget=forms.Textarea)
+
+
+class ClientSurveySuccessTemplate(TemplateView):
+    template_name = "tunga/html/success_submission.html"
+
+
+class ClientSurveyErrorTemplate(TemplateView):
+    template_name = "tunga/html/error_submission.html"
+
+
 class ClientSurveyTemplate(TemplateView):
     template_name = "tunga/html/survey_confirmation.html"
 
@@ -163,12 +178,52 @@ class ClientSurveyTemplate(TemplateView):
         project_id = kwargs.get('id', None)
         project = Project.objects.filter(id=project_id).first()
         team_users_ids = Participation.objects.filter(project=project,
-                                            status=STATUS_ACCEPTED).values_list('user_id',flat=True)
+                                                      status=STATUS_ACCEPTED).values_list(
+            'user_id', flat=True)
         team_users_ids = list(team_users_ids)
         developers = TungaUser.objects.filter(id__in=team_users_ids)
-        project_event = ProgressEvent.objects.filter(project=project).last()
+        project_event = ProgressEvent.objects.filter(project=project).first()
         context = super(ClientSurveyTemplate, self).get_context_data(**kwargs)
         context['project'] = project
         context['project_event'] = project_event
         context['developers'] = developers
         return context
+
+
+class ClientSurveyFormView(CreateView):
+    template_name = "tunga/html/survey_confirmation.html"
+    model = DeveloperRating
+
+    def post(self, request, *args, **kwargs):
+        print(request)
+        print(request.POST)
+        event_id = request.POST['event']
+        rating_type = request.POST['rating_type']
+        progress_event = ProgressEvent.objects.filter(id=event_id).first()
+        project = progress_event.project
+        team_users_ids = Participation.objects.filter(project=project,
+                                                      status=STATUS_ACCEPTED).values_list(
+            'user_id', flat=True)
+        team_users_ids = list(team_users_ids)
+        if rating_type == 'project':
+            project_rating = request.POST.get("project-rating-%s" % project.id,
+                                              None)
+            if project_rating:
+                progress_report = ProgressReport.objects.create(
+                    rate_deliverables=project_rating,
+                    user=project.owner,
+                    event_id=event_id)
+            return redirect('client_survey_success', )
+
+        elif rating_type == 'dedicated':
+            for user_id in team_users_ids:
+                rating = request.POST.get(str(int(user_id)), None)
+                owner = project.owner or project.pm
+                if rating:
+                    developer_rating = DeveloperRating.objects.create(
+                        user_id=user_id,
+                        rating=int(rating),
+                        created_by=owner,
+                        event_id=event_id)
+            return redirect('client_survey_success')
+        return super(ClientSurveyFormView, self).post(request, *args, **kwargs)
