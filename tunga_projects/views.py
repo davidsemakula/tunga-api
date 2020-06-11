@@ -208,9 +208,13 @@ class ClientSurveyFormView(CreateView):
         if rating_type == 'project':
             project_rating = request.POST.get("project-rating-%s" % project.id,
                                               None)
+
+            reason_for_rating = request.POST.get("project-feedback-%s" % project.id,
+                                              None)
             if project_rating:
                 progress_report = ProgressReport.objects.create(
-                    rate_deliverables=project_rating,
+                    rate_communication=project_rating,
+                    reason_for_rating=reason_for_rating,
                     user=project.owner,
                     event_id=event_id)
             return redirect('client_survey_success', )
@@ -218,11 +222,15 @@ class ClientSurveyFormView(CreateView):
         elif rating_type == 'dedicated':
             for user_id in team_users_ids:
                 rating = request.POST.get(str(int(user_id)), None)
+                reason_of_rating = request.POST.get(
+                    "feedback-%s" % user_id,
+                    None)
                 owner = project.owner or project.pm
                 if rating:
                     developer_rating = DeveloperRating.objects.create(
                         user_id=user_id,
                         rating=int(rating),
+                        reason_of_rating=reason_of_rating,
                         created_by=owner,
                         event_id=event_id)
             return redirect('client_survey_success')

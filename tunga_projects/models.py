@@ -487,6 +487,7 @@ class ProgressReport(models.Model):
         null=True
     )
     pm_communication = models.NullBooleanField(blank=True, null=True)
+    reason_for_rating = models.TextField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -554,6 +555,7 @@ class DeveloperRating(models.Model):
         validators=[MinValueValidator(1), MaxValueValidator(5)], blank=True,
         null=True
     )
+    reason_of_rating = models.TextField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

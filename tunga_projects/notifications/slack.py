@@ -219,6 +219,15 @@ def create_progress_report_slack_message(progress_report, updated=False,
                 slack_utils.KEY_MRKDWN_IN: [slack_utils.KEY_TEXT],
                 slack_utils.KEY_COLOR: SLACK_ATTACHMENT_COLOR_RED
             })
+
+        if progress_report.reason_for_rating:
+            attachments.append({
+                slack_utils.KEY_TITLE: 'Reason for Rating',
+                slack_utils.KEY_TEXT: convert_to_text(
+                    progress_report.reason_for_rating),
+                slack_utils.KEY_MRKDWN_IN: [slack_utils.KEY_TEXT],
+                slack_utils.KEY_COLOR: SLACK_ATTACHMENT_COLOR_BLUE
+            })
     else:
         # Status
         if progress_report.stuck_details:
@@ -413,6 +422,13 @@ def create_developer_rating_slack_message(developer_rating, updated):
         slack_utils.KEY_MRKDWN_IN: [slack_utils.KEY_TEXT],
         slack_utils.KEY_COLOR: SLACK_ATTACHMENT_COLOR_RED
     }]
+    if developer_rating.reason_of_rating:
+        attachments.append({
+            slack_utils.KEY_TITLE: 'Reason for rating',
+            slack_utils.KEY_TEXT: developer_rating.reason_of_rating,
+            slack_utils.KEY_MRKDWN_IN: [slack_utils.KEY_TEXT],
+            slack_utils.KEY_COLOR: SLACK_ATTACHMENT_COLOR_BLUE
+        })
 
     return slack_msg, attachments
 
@@ -437,7 +453,8 @@ def notify_missed_progress_event_slack(progress_event):
     slack_msg = "`Alert (!):` {} {} for \"{}\" | <{}|View on Tunga>".format(
         target_user and '{} missed a'.format(
             target_user.short_name) or 'Missed',
-        ((progress_event.type == PROGRESS_EVENT_CLIENT or progress_event.type == PROGRESS_EVENT_DEVELOPER_RATING ) and 'progress survey') or
+        ((
+             progress_event.type == PROGRESS_EVENT_CLIENT or progress_event.type == PROGRESS_EVENT_DEVELOPER_RATING) and 'progress survey') or
         (
             progress_event.type == PROGRESS_EVENT_MILESTONE and 'milestone report') or
         'progress report',
