@@ -6,14 +6,14 @@
 {% block email_content %}
     <p>Hi {{ owner.first_name }},</p>
 
-    <p>Please fill in this weekly survey to report on your Tunga
-        project: {{ event.project.title }}.<br/>
+    <p>Please fill in our client survey to report on your satisfaction regarding
+        Tunga project: {{ event.project.title }}.<br/>
 
-        It is very important that you complete this survey within 48 hours and
-        it will take you less than a minute.<br/>
+        It is very important that we receive timely feedback to respond to
+        any issues. We promise it'll only take a minute!<br/>
 
-        Why? It helps us to monitor and improve the quality of our service for
-        you. And to take direct action where desirable.
+        Why? It helps us to monitor and improve the quality of our service
+        for you. And to take direct action where desirable.<br/>
     </p>
 
     <style>
@@ -84,50 +84,50 @@
 
         {% else %}
             <h4>How would you rate the collaboration
-                    with Tunga
-                    for {{ project }}?</h4>
-                <div class="survey__icons">
+                with Tunga
+                for {{ project }}?</h4>
+            <div class="survey__icons">
                 <label>
-                        <div class="icons-container">
-                            <a target="_blank"
-                               href="{{ rating_url }}?uuid={{ project.id }}&value=5">
-                                <img src="https://tunga.io/static/tunga/smileys/simley5.png"/>
-                            </a>
-                        </div>
-                    </label>
-                    <label>
-                        <div class="icons-container">
-                            <a target="_blank"
-                               href="{{ rating_url }}?uuid={{ project.id }}&value=4">
-                                <img src="https://tunga.io/static/tunga/smileys/simley4.png"/>
-                            </a>
-                        </div>
-                    </label>
-                    <label>
-                        <div class="icons-container">
-                            <a target="_blank"
-                               href="{{ rating_url }}?uuid={{ project.id }}&value=3">
-                                <img src="https://tunga.io/static/tunga/smileys/simley3.png"/>
-                            </a>
-                        </div>
-                    </label>
-                    <label>
-                        <div class="icons-container">
-                            <a target="_blank"
-                               href="{{ rating_url }}?uuid={{ project.id }}&value=2">
-                                <img src="https://tunga.io/static/tunga/smileys/simley2.png"/>
-                            </a>
-                        </div>
-                    </label>
-                    <label>
-                        <div class="icons-container">
-                            <a target="_blank"
-                               href="{{ rating_url }}?uuid={{ project.id }}&value=1">
-                                <img src="https://tunga.io/static/tunga/smileys/simley1.png"/>
-                            </a>
-                        </div>
-                    </label>
-                </div>
+                    <div class="icons-container">
+                        <a target="_blank"
+                           href="{{ rating_url }}?uuid={{ project.id }}&value=5">
+                            <img src="https://tunga.io/static/tunga/smileys/simley5.png"/>
+                        </a>
+                    </div>
+                </label>
+                <label>
+                    <div class="icons-container">
+                        <a target="_blank"
+                           href="{{ rating_url }}?uuid={{ project.id }}&value=4">
+                            <img src="https://tunga.io/static/tunga/smileys/simley4.png"/>
+                        </a>
+                    </div>
+                </label>
+                <label>
+                    <div class="icons-container">
+                        <a target="_blank"
+                           href="{{ rating_url }}?uuid={{ project.id }}&value=3">
+                            <img src="https://tunga.io/static/tunga/smileys/simley3.png"/>
+                        </a>
+                    </div>
+                </label>
+                <label>
+                    <div class="icons-container">
+                        <a target="_blank"
+                           href="{{ rating_url }}?uuid={{ project.id }}&value=2">
+                            <img src="https://tunga.io/static/tunga/smileys/simley2.png"/>
+                        </a>
+                    </div>
+                </label>
+                <label>
+                    <div class="icons-container">
+                        <a target="_blank"
+                           href="{{ rating_url }}?uuid={{ project.id }}&value=1">
+                            <img src="https://tunga.io/static/tunga/smileys/simley1.png"/>
+                        </a>
+                    </div>
+                </label>
+            </div>
         {% endif %}
 
 
