@@ -731,7 +731,7 @@
         }else{
             var projectId = document.querySelector('input[name="projectId"]').value;
             if(!document.querySelector('input[name="project-rating-' + projectId + '"]:checked')){
-                document.getElementById('label-'+id).style.display = "initial";
+                document.getElementById('label-'+projectId).style.display = "initial";
                 submit = false
             }
         }
