@@ -704,7 +704,7 @@
     if("pid" in initialisationKeys){
         var userInitialisation = document.getElementById(initialisationKeys.value + '-' + initialisationKeys.pid);
         userInitialisation.checked = true;
-    }else{
+    }else if("uuid" in initialisationKeys){
         var userInitialisation = document.getElementById(initialisationKeys.value + '-' + initialisationKeys.uuid);
         userInitialisation.checked = true;
     }
