@@ -25,7 +25,7 @@ from tunga_projects.serializers import ProjectSerializer, DocumentSerializer, \
     DeveloperRatingSerializer
 from tunga_projects.tasks import manage_interest_polls
 from tunga_utils.constants import PROJECT_STAGE_OPPORTUNITY, \
-    PROJECT_STAGE_ACTIVE, STATUS_ACCEPTED
+    PROJECT_STAGE_ACTIVE, STATUS_ACCEPTED, PROGRESS_EVENT_DEVELOPER_RATING
 from tunga_utils.filterbackends import DEFAULT_FILTER_BACKENDS
 
 
@@ -182,8 +182,10 @@ class ClientSurveyTemplate(TemplateView):
         project_id = kwargs.get('id', None)
         project = Project.objects.filter(id=project_id).first()
         project_event = ProgressEvent.objects.filter(project=project).first()
-        developer_ratings = DeveloperRating.objects.filter(event=project_event).count()
-        project_rating = ProgressReport.objects.filter(event=project_event,).count()
+        developer_ratings = DeveloperRating.objects.filter(
+            event=project_event).count()
+        project_rating = ProgressReport.objects.filter(
+            event=project_event, ).count()
         if developer_ratings or project_rating:
             return redirect('client_survey_submitted')
         return super(ClientSurveyTemplate, self).get(request, *args, **kwargs)
@@ -196,7 +198,8 @@ class ClientSurveyTemplate(TemplateView):
             'user_id', flat=True)
         team_users_ids = list(team_users_ids)
         developers = TungaUser.objects.filter(id__in=team_users_ids)
-        project_event = ProgressEvent.objects.filter(project=project).first()
+        project_event = ProgressEvent.objects.filter(project=project,
+                                                     type=PROGRESS_EVENT_DEVELOPER_RATING).first()
         context = super(ClientSurveyTemplate, self).get_context_data(**kwargs)
         context['project'] = project
         context['project_event'] = project_event
