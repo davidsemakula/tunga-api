@@ -241,6 +241,10 @@
             border: 1px solid #dee2e6 !important;
         }
 
+        .error-messages {
+            display: none;
+        }
+
         @media (min-width: 992px) {
             .Nav__bar {
                 padding: 25px 70px;
@@ -313,7 +317,7 @@
                         <p class="dev-name"></p>
                         <div class="survey__icons">
                             <label>
-                                <input id="project-{{ project.id }}"
+                                <input id="5-{{ project.id }}"
                                        type="radio"
                                        name="project-rating-{{ project.id }}"
                                        value="5">
@@ -338,7 +342,7 @@
                                 </svg>
                             </label>
                             <label>
-                                <input id="project-{{ project.id }}"
+                                <input id="4-{{ project.id }}"
                                        type="radio"
                                        name="project-rating-{{ project.id }}"
                                        value="4">
@@ -363,7 +367,7 @@
                                 </svg>
                             </label>
                             <label>
-                                <input id="project-{{ project.id }}"
+                                <input id="3-{{ project.id }}"
                                        type="radio"
                                        name="project-rating-{{ project.id }}"
                                        value="3">
@@ -388,7 +392,7 @@
                                 </svg>
                             </label>
                             <label>
-                                <input id="project-{{ project.id }}"
+                                <input id="2-{{ project.id }}"
                                        type="radio"
                                        name="project-rating-{{ project.id }}"
                                        value="2">
@@ -413,8 +417,9 @@
                                 </svg>
                             </label>
                             <label>
-                                <input id="project-{{ project.id }}"
+                                <input id="1-{{ project.id }}"
                                        type="radio"
+                                       class="project-managed"
                                        name="project-rating-{{ project.id }}"
                                        value="1">
                                 <svg width="49px" height="50px"
@@ -456,7 +461,7 @@
 
                     {% elif project.category == 'dedicated' %}
                     <div class="">How would you rate the collaboration
-                        for {{ project.title }} with?
+                        for {{ project.title }}?
                     </div>
                     <div class="border"></div>
                 </div>
@@ -473,8 +478,14 @@
                     <input type="hidden" id="eventType"
                            name="numbers_of_devs"
                            value="{{ developers|length }}">
+                    <input type="hidden" id="eventType"
+                           id="ids_of_devs"
+                           name="ids_of_devs"
+                           value="{{ ids_of_devs }}">
+                
                     {% for developer in developers %}
                         <p class="dev-name">{{ developer.display_name }}</p>
+                        <small id="label-{{ developer.id }}" class="error-messages text-danger">You need to rate this developer</small>
                         <hr>
                         <div class="survey__icons">
                             <label>
@@ -690,8 +701,38 @@
     };
 
     var initialisationKeys = getParams(window.location.href);
-    var userInitialisation = document.getElementById(initialisationKeys.value + '-' + initialisationKeys.uuid);
-    userInitialisation.checked = true;
+    if("pid" in initialisationKeys){
+        var userInitialisation = document.getElementById(initialisationKeys.value + '-' + initialisationKeys.pid);
+        userInitialisation.checked = true;
+    }else{
+        var userInitialisation = document.getElementById(initialisationKeys.value + '-' + initialisationKeys.uuid);
+        userInitialisation.checked = true;
+    }
+
+    var form = document.getElementById("myForm");
+    function handleForm(event) {
+        event.preventDefault();
+        var submit = true;
+
+        if("pid" in initialisationKeys){
+            // here project is already selected
+        }else{
+            var userIds = document.querySelector('input[name="ids_of_devs"]').value;
+            var ids = userIds.split(',');
+
+            ids.forEach(id => {
+                if(!document.querySelector('input[name="' + id + '"]:checked')){
+                    document.getElementById('label-'+id).style.display = "initial";
+                    submit = false
+                }
+            });
+        }
+
+        if(submit){
+            document.getElementById("myForm").submit();
+        }
+    }
+    form.addEventListener('submit', handleForm);
 </script>
 </body>
 </html>
