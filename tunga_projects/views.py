@@ -201,7 +201,7 @@ class ClientSurveyTemplate(TemplateView):
         context = super(ClientSurveyTemplate, self).get_context_data(**kwargs)
         context['project'] = project
         context['project_event'] = project_event
-        context['developers'] = developers
+        context['developers'] = reversed(developers)
         context['ids_of_devs'] = ','.join([str(i) for i in team_users_ids])
         return context
 
