@@ -216,7 +216,8 @@ class ClientSurveyFormView(CreateView):
         print(request.POST)
         event_id = request.POST['event']
         rating_type = request.POST['rating_type']
-        progress_event = ProgressEvent.objects.filter(id=event_id).first()
+        progress_event = ProgressEvent.objects.filter(id=event_id,
+                                                      type=PROGRESS_EVENT_DEVELOPER_RATING).first()
         project = progress_event.project
         team_users_ids = Participation.objects.filter(project=project,
                                                       status=STATUS_ACCEPTED).values_list(
