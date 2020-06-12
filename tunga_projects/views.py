@@ -192,6 +192,7 @@ class ClientSurveyTemplate(TemplateView):
         return super(ClientSurveyTemplate, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
+        
         project_id = kwargs.get('id', None)
         project = Project.objects.filter(id=project_id).first()
         team_users_ids = Participation.objects.filter(project=project,
@@ -205,6 +206,7 @@ class ClientSurveyTemplate(TemplateView):
         context['project'] = project
         context['project_event'] = project_event
         context['developers'] = developers
+        context['ids_of_devs'] = ','.join([str(i) for i in team_users_ids])
         return context
 
 
