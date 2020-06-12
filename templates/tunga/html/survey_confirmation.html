@@ -718,13 +718,7 @@
         event.preventDefault();
         var submit = true;
 
-        if("pid" in initialisationKeys){
-            var projectId = document.querySelector('input[name="projectId"]').value;
-            if(!document.querySelector('input[name="project-rating-' + projectId + '"]:checked')){
-                document.getElementById('label-'+id).style.display = "initial";
-                submit = false
-            }
-        }else{
+        if("uuid" in initialisationKeys){
             var userIds = document.querySelector('input[name="ids_of_devs"]').value;
             var ids = userIds.split(',');
 
@@ -734,6 +728,12 @@
                     submit = false
                 }
             });
+        }else{
+            var projectId = document.querySelector('input[name="projectId"]').value;
+            if(!document.querySelector('input[name="project-rating-' + projectId + '"]:checked')){
+                document.getElementById('label-'+id).style.display = "initial";
+                submit = false
+            }
         }
 
         if(submit){
