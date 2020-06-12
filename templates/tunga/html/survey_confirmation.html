@@ -310,11 +310,15 @@
                           method="post">
                         {% csrf_token %}
 
+                        <input type="hidden" name="projectId" value="{{project.id}}" >
+
                         <input type="hidden" id="eventId" name="event"
                                value="{{ project_event.id }}">
                         <input type="hidden" id="eventType" name="rating_type"
                                value="project">
-                        <p class="dev-name"></p>
+                        <p class="dev-name">
+                            <small id="label-{{ project.id }}" class="error-messages text-danger">You need to rate this developer</small>
+                        </p>
                         <div class="survey__icons">
                             <label>
                                 <input id="5-{{ project.id }}"
@@ -715,7 +719,11 @@
         var submit = true;
 
         if("pid" in initialisationKeys){
-            // here project is already selected
+            var projectId = document.querySelector('input[name="projectId"]').value;
+            if(!document.querySelector('input[name="project-rating-' + projectId + '"]:checked')){
+                document.getElementById('label-'+id).style.display = "initial";
+                submit = false
+            }
         }else{
             var userIds = document.querySelector('input[name="ids_of_devs"]').value;
             var ids = userIds.split(',');
