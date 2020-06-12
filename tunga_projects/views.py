@@ -181,7 +181,8 @@ class ClientSurveyTemplate(TemplateView):
     def get(self, request, *args, **kwargs):
         project_id = kwargs.get('id', None)
         project = Project.objects.filter(id=project_id).first()
-        project_event = ProgressEvent.objects.filter(project=project).first()
+        project_event = ProgressEvent.objects.filter(project=project,
+                                                     type=PROGRESS_EVENT_DEVELOPER_RATING).first()
         developer_ratings = DeveloperRating.objects.filter(
             event=project_event).count()
         project_rating = ProgressReport.objects.filter(
