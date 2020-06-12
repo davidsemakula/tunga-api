@@ -38,7 +38,7 @@ from tunga_projects.views import ProjectViewSet, DocumentViewSet, \
     ParticipationViewSet, ProgressEventViewSet, \
     ProgressReportViewSet, InterestPollViewSet, DeveloperRatingViewSet, \
     ClientSurveyTemplate, ClientSurveyFormView, ClientSurveySuccessTemplate, \
-    ClientSurveyErrorTemplate
+    ClientSurveyErrorTemplate, ClientSurveyFilledTemplate
 from tunga_settings.views import UserSettingsView
 from tunga_support.views import SupportPageViewSet, SupportSectionViewSet
 from tunga_tasks.views import TimeEntryViewSet, \
@@ -168,6 +168,7 @@ urlpatterns = [
     url(r'^surveys/client/(?P<id>\d+)/$', ClientSurveyTemplate.as_view(), name="client_survey"),
     url(r'^surveys/client/success/$', ClientSurveySuccessTemplate.as_view(), name="client_survey_success"),
     url(r'^surveys/client/error/$', ClientSurveyErrorTemplate.as_view(), name="client_survey_error"),
+    url(r'^surveys/client/submitted/$', ClientSurveyFilledTemplate.as_view(), name="client_survey_submitted"),
     url(r'^surveys/client/(?P<id>\d+)/created/$', ClientSurveyFormView.as_view(), name="client_survey_submit"),
 
 ]

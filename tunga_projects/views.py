@@ -171,8 +171,22 @@ class ClientSurveyErrorTemplate(TemplateView):
     template_name = "tunga/html/error_submission.html"
 
 
+class ClientSurveyFilledTemplate(TemplateView):
+    template_name = "tunga/html/already_submitted.html"
+
+
 class ClientSurveyTemplate(TemplateView):
     template_name = "tunga/html/survey_confirmation.html"
+
+    def get(self, request, *args, **kwargs):
+        project_id = kwargs.get('id', None)
+        project = Project.objects.filter(id=project_id).first()
+        project_event = ProgressEvent.objects.filter(project=project).first()
+        developer_ratings = DeveloperRating.objects.filter(event=project_event).count()
+        project_rating = ProgressReport.objects.filter(event=project_event,).count()
+        if developer_ratings or project_rating:
+            return redirect('client_survey_submitted')
+        return super(ClientSurveyTemplate, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         project_id = kwargs.get('id', None)
@@ -208,9 +222,14 @@ class ClientSurveyFormView(CreateView):
         if rating_type == 'project':
             project_rating = request.POST.get("project-rating-%s" % project.id,
                                               None)
+
+            reason_for_rating = request.POST.get(
+                "project-feedback-%s" % project.id,
+                None)
             if project_rating:
                 progress_report = ProgressReport.objects.create(
-                    rate_deliverables=project_rating,
+                    rate_communication=project_rating,
+                    reason_for_rating=reason_for_rating,
                     user=project.owner,
                     event_id=event_id)
             return redirect('client_survey_success', )
@@ -218,11 +237,15 @@ class ClientSurveyFormView(CreateView):
         elif rating_type == 'dedicated':
             for user_id in team_users_ids:
                 rating = request.POST.get(str(int(user_id)), None)
+                reason_of_rating = request.POST.get(
+                    "feedback-%s" % user_id,
+                    None)
                 owner = project.owner or project.pm
                 if rating:
                     developer_rating = DeveloperRating.objects.create(
                         user_id=user_id,
                         rating=int(rating),
+                        reason_of_rating=reason_of_rating,
                         created_by=owner,
                         event_id=event_id)
             return redirect('client_survey_success')
