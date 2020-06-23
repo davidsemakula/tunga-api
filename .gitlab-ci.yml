@@ -35,7 +35,7 @@ stages:
 Build:
     stage: build
     script:
-        - pytest -p no:warnings
+        - pytest -c pytest.ini
     artifacts:
         paths:
         - htmlcov/index.html
@@ -43,7 +43,7 @@ Build:
 Test:
     stage: test
     script:
-        - pytest --cov-report term-missing:skip-covered --cov=.
+        - pytest --cov-report term-missing:skip-covered --cov=. -c pytest.ini
     artifacts:
         paths:
         - htmlcov/index.html
