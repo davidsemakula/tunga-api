@@ -44,18 +44,18 @@ Build:
     stage: build
     script:
         - pytest -c pytest.ini
+    services:
+        - redis:latest
     artifacts:
         paths:
         - htmlcov/index.html
-    services:
-        - redis:latest
 
 Test:
     stage: test
     script:
         - pytest --cov-report term-missing:skip-covered --cov=. -c pytest.ini
+    services:
+        - redis:latest
     artifacts:
         paths:
         - htmlcov/index.html
-    services:
-        - redis:latest
