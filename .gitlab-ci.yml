@@ -15,7 +15,6 @@ cache:
 
 before_script:
   - python -V # Print out python version for debugging
-  - apt install python-dev libssl-dev
   - pip install virtualenv
   - virtualenv venv
   - source venv/bin/activate
