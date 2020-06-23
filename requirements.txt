@@ -101,6 +101,7 @@ urllib3==1.25.2           # via requests, sentry-sdk
 weasyprint==0.42.3
 webencodings==0.5         # via html5lib, tinycss2
 xlsxwriter==1.0.4
+google-api-python-client==1.8.0
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

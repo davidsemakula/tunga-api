@@ -103,6 +103,7 @@ xlsxwriter==1.0.4
 pytest==4.6.9
 pytest-cov==2.8.1
 pytest-django==3.8.0
+google-api-python-client==1.8.0
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
