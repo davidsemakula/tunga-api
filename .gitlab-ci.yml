@@ -23,6 +23,9 @@ before_script:
 include:
   - template: Code-Quality.gitlab-ci.yml
 
+services:
+  - redis:latest
+  
 code_quality:
   artifacts:
     paths: [gl-code-quality-report.json]
