@@ -25,7 +25,7 @@ include:
 
 services:
   - redis:latest
-  
+
 code_quality:
   artifacts:
     paths: [gl-code-quality-report.json]
@@ -42,6 +42,8 @@ Build:
     artifacts:
         paths:
         - htmlcov/index.html
+    services:
+        - redis:latest
 
 Test:
     stage: test
@@ -50,3 +52,5 @@ Test:
     artifacts:
         paths:
         - htmlcov/index.html
+    services:
+        - redis:latest
