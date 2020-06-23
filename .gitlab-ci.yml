@@ -3,6 +3,10 @@
 # https://hub.docker.com/r/library/python/tags/
 image: python:2.7
 
+
+services:
+  - redis:latest
+
 # Change pip's cache directory to be inside the project directory since we can
 # only cache local items.
 variables:
@@ -26,8 +30,6 @@ before_script:
 include:
   - template: Code-Quality.gitlab-ci.yml
 
-services:
-  - redis:latest
 
 code_quality:
   artifacts:
