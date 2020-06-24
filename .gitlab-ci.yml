@@ -27,14 +27,14 @@ before_script:
   - source venv/bin/activate
   - pip install -r requirements-dev.txt
 
-include:
-  - template: Code-Quality.gitlab-ci.yml
-
-
-code_quality:
-  artifacts:
-    paths: [gl-code-quality-report.json]
-
+#include:
+#  - template: Code-Quality.gitlab-ci.yml
+#
+#
+#code_quality:
+#  artifacts:
+#    paths: [gl-code-quality-report.json]
+#
 
 stages:
   - build
@@ -44,8 +44,6 @@ Build:
     stage: build
     script:
         - pytest -c pytest.ini
-    services:
-        - redis:latest
     artifacts:
         paths:
         - htmlcov/index.html
@@ -54,8 +52,6 @@ Test:
     stage: test
     script:
         - pytest --cov-report term-missing:skip-covered --cov=. -c pytest.ini
-    services:
-        - redis:latest
     artifacts:
         paths:
         - htmlcov/index.html
