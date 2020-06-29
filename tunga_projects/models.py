@@ -130,7 +130,7 @@ class Project(models.Model):
 
     @allow_staff_or_superuser
     def has_object_read_permission(self, request):
-        return self.is_participant(user=request.user, active=True) or self.is_an_opportunity(self)
+        return self.is_participant(user=request.user, active=True) or self.is_an_opportunity()
 
     @staticmethod
     @allow_staff_or_superuser
