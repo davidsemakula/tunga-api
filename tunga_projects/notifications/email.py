@@ -144,7 +144,7 @@ def notify_interest_poll_email(interest_poll, reminder=False):
 
     to = [interest_poll.user.email]
 
-    poll_url = '{}/project/{}'.format(TUNGA_URL, interest_poll.project.id)
+    poll_url = '{}/projects/{}'.format(TUNGA_URL, interest_poll.project.id)
 
     merge_vars = [
         mandrill_utils.create_merge_var(MANDRILL_VAR_FIRST_NAME, interest_poll.user.first_name),
