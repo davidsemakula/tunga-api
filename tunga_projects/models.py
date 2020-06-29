@@ -29,7 +29,8 @@ from tunga_utils.constants import PROJECT_TYPE_CHOICES, PROJECT_TYPE_OTHER, \
     PROGRESS_EVENT_CLIENT, PROGRESS_EVENT_INTERNAL, PROJECT_STAGE_ACTIVE, \
     PROJECT_STAGE_CHOICES, STATUS_UNINTERESTED, \
     STATUS_INTERESTED, INVOICE_TYPE_SALE, INVOICE_TYPE_PURCHASE, \
-    PROJECT_CATEGORY_CHOICES, UPDATE_DAYS, PROGRESS_EVENT_DEVELOPER_RATING
+    PROJECT_CATEGORY_CHOICES, UPDATE_DAYS, PROGRESS_EVENT_DEVELOPER_RATING, \
+    PROJECT_STAGE_OPPORTUNITY
 from tunga_utils.models import Rating
 
 
@@ -116,6 +117,12 @@ class Project(models.Model):
         else:
             return False
 
+    @allow_staff_or_superuser
+    def is_an_opportunity(self):
+        if self.stage == PROJECT_STAGE_OPPORTUNITY:
+            return True
+        return False
+
     @staticmethod
     @allow_staff_or_superuser
     def has_read_permission(request):
@@ -123,7 +130,7 @@ class Project(models.Model):
 
     @allow_staff_or_superuser
     def has_object_read_permission(self, request):
-        return self.is_participant(user=request.user, active=True)
+        return self.is_participant(user=request.user, active=True) or self.is_an_opportunity(self)
 
     @staticmethod
     @allow_staff_or_superuser
