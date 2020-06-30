@@ -4,106 +4,97 @@
 #
 #    pip-compile --output-file=requirements.txt requirements.in
 #
-algoliasearch==1.17.0
-apscheduler==3.3.1
-argon2-cffi==16.2.0
-beautifulsoup4==4.6.0
+algoliasearch==1.17.0     # via -r requirements.in
+apscheduler==3.3.1        # via -r requirements.in
+argon2-cffi==16.2.0       # via -r requirements.in
+beautifulsoup4==4.6.0     # via -r requirements.in
 cairocffi==0.7.2          # via cairosvg, weasyprint
 cairosvg==1.0.22          # via weasyprint
 certifi==2018.10.15       # via requests, sentry-sdk
-cffi==1.13.2              # via argon2-cffi, cairocffi, cryptography, weasyprint
+cffi==1.13.2              # via argon2-cffi, cairocffi, weasyprint
 chardet==3.0.4            # via requests
 click==6.6                # via rq
-coinbase==2.1.0
-configparser==4.0.2       # via flake8
+coinbase==2.1.0           # via -r requirements.in
 contextlib2==0.5.5        # via raven
 coreapi==2.3.0            # via django-rest-swagger, openapi-codec
 coreschema==0.0.4         # via coreapi
-cryptography==2.8         # via pyopenssl, requests
 cssselect2==0.2.1         # via weasyprint
 cssselect==0.9.2          # via premailer
 cssutils==1.0.1           # via premailer
-django-activity-stream==0.6.2
-django-allauth==0.31.0
+defusedxml==0.6.0         # via python3-openid
+django-activity-stream==0.6.2  # via -r requirements.in
+django-allauth==0.31.0    # via -r requirements.in
 django-braces==1.11.0     # via django-oauth-toolkit
-django-cors-headers==1.2.2
-django-countries==4.2
-django-filter==1.1.0
-django-hashers-passlib==0.3
-django-oauth-toolkit==0.12.0
-django-redis==4.4.3
-django-rest-auth==0.9.1
-django-rest-swagger==2.2.0
-django-rq==0.9.5
-django-tagulous==0.12.0
-django==1.11.27
-djangorestframework-jwt==1.8.0
-djangorestframework==3.6.4
+django-cors-headers==1.2.2  # via -r requirements.in
+django-countries==4.2     # via -r requirements.in
+django-filter==1.1.0      # via -r requirements.in
+django-hashers-passlib==0.3  # via -r requirements.in
+django-oauth-toolkit==0.12.0  # via -r requirements.in
+django-redis==4.4.3       # via -r requirements.in
+django-rest-auth==0.9.1   # via -r requirements.in
+django-rest-swagger==2.2.0  # via -r requirements.in
+django-rq==0.9.5          # via -r requirements.in
+django-tagulous==0.12.0   # via -r requirements.in
+django==1.11.29           # via -r requirements.in, django-allauth, django-hashers-passlib, django-oauth-toolkit, django-rest-auth, django-rq
+djangorestframework-jwt==1.8.0  # via -r requirements.in
+djangorestframework==3.6.4  # via -r requirements.in, django-rest-auth, django-rest-swagger, rest-framework-generic-relations
 docopt==0.4.0             # via mandrill
-dry-rest-permissions==0.1.6
-enum34==1.1.6             # via argon2-cffi, cryptography, flake8
-exactonline==0.3.2
-flake8==3.5.0
-funcsigs==1.0.2           # via apscheduler
-futures==3.3.0            # via apscheduler, isort
-gspread==3.1.0
-gunicorn==19.6.0
-honcho==1.0.1
+dry-rest-permissions==0.1.6  # via -r requirements.in
+exactonline==0.3.2        # via -r requirements.in
+flake8==3.5.0             # via -r requirements.in
+gspread==3.1.0            # via -r requirements.in
+gunicorn==19.6.0          # via -r requirements.in
+honcho==1.0.1             # via -r requirements.in
 html5lib==0.999999999     # via weasyprint
 httplib2==0.12.3          # via oauth2client
 idna==2.7                 # via requests
-ipaddress==1.0.23         # via cryptography
-isort==4.3.4
+isort==4.3.4              # via -r requirements.in
 itypes==1.1.0             # via coreapi
 jinja2==2.10.1            # via coreschema
 lxml==3.6.4               # via premailer
-mailchimp3==2.0.7
-mandrill==1.0.57
+mailchimp3==2.0.7         # via -r requirements.in
+mandrill==1.0.57          # via -r requirements.in
 markupsafe==1.0           # via jinja2
 mccabe==0.6.1             # via flake8
-oauth2client==4.1.3
-oauthlib==2.0.1
+mysqlclient==1.3.14       # via -r requirements.in
+oauth2client==4.1.3       # via -r requirements.in
+oauthlib==2.0.1           # via -r requirements.in, django-oauth-toolkit, requests-oauthlib
 openapi-codec==1.3.1      # via django-rest-swagger
 passlib==1.6.5            # via django-hashers-passlib
 pdfrw==0.4                # via weasyprint
-pillow==6.2.1
-premailer==3.0.1
+pillow==6.2.1             # via -r requirements.in
+premailer==3.0.1          # via -r requirements.in
 pyasn1-modules==0.2.5     # via oauth2client
 pyasn1==0.4.5             # via oauth2client, pyasn1-modules, rsa
 pycodestyle==2.3.1        # via flake8
 pycparser==2.14           # via cffi
-pycryptodome==3.7.0
+pycryptodome==3.7.0       # via -r requirements.in, coinbase
 pyflakes==1.6.0           # via flake8
 pyjwt==1.4.0              # via djangorestframework-jwt
-pyopenssl==19.1.0         # via requests
 pyphen==0.9.4             # via weasyprint
-python-dateutil==2.5.3
-python-openid==2.2.5      # via django-allauth
+python-dateutil==2.5.3    # via -r requirements.in
+python3-openid==3.2.0     # via django-allauth
 pytz==2016.10             # via apscheduler, django, tzlocal
-raven==6.0.0
+raven==6.0.0              # via -r requirements.in
 redis==2.10.5             # via django-redis, rq
 requests-oauthlib==0.8.0  # via django-allauth
-requests[security]==2.22.0
-rest-framework-generic-relations==1.1.0
+requests==2.22.0          # via -r requirements.in, algoliasearch, coinbase, coreapi, django-allauth, gspread, mailchimp3, mandrill, premailer, requests-oauthlib, slacker, stripe
+rest-framework-generic-relations==1.1.0  # via -r requirements.in
 rq==0.6.0                 # via django-rq
 rsa==4.0                  # via oauth2client
-sentry-sdk==0.13.4
+sentry-sdk==0.13.4        # via -r requirements.in
 simplejson==3.10.0        # via django-rest-swagger
-six==1.10.0
-slackdown==0.0.3
-slacker==0.9.30
-stripe==2.36.2
+six==1.10.0               # via -r requirements.in, apscheduler, argon2-cffi, coinbase, django-oauth-toolkit, django-rest-auth, html5lib, oauth2client, python-dateutil
+slackdown==0.0.3          # via -r requirements.in
+slacker==0.9.30           # via -r requirements.in
+stripe==2.36.2            # via -r requirements.in
 tinycss2==0.6.1           # via cssselect2, weasyprint
 tzlocal==1.3              # via apscheduler
 uritemplate==3.0.0        # via coreapi
 urllib3==1.25.2           # via requests, sentry-sdk
-weasyprint==0.42.3
+weasyprint==0.42.3        # via -r requirements.in
 webencodings==0.5         # via html5lib, tinycss2
-xlsxwriter==1.0.4
-pytest==4.6.9
-pytest-cov==2.8.1
-pytest-django==3.8.0
-google-api-python-client==1.8.0
+xlsxwriter==1.0.4         # via -r requirements.in
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
