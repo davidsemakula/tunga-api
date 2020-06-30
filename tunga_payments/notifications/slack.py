@@ -1,10 +1,11 @@
 from django_rq import job
 
-from tunga.settings import TUNGA_URL, SLACK_ATTACHMENT_COLOR_BLUE, SLACK_STAFF_INCOMING_WEBHOOK, \
+from tunga.settings import TUNGA_URL, SLACK_ATTACHMENT_COLOR_BLUE, \
+    SLACK_STAFF_INCOMING_WEBHOOK, \
     SLACK_STAFF_PAYMENTS_CHANNEL
 from tunga_payments.models import Invoice
 from tunga_utils import slack_utils
-from tunga_utils.constants import INVOICE_TYPE_SALE
+from tunga_utils.constants import INVOICE_TYPE_SALE, INVOICE_TYPE_CREDIT_NOTA
 from tunga_utils.helpers import clean_instance
 
 
@@ -19,12 +20,19 @@ def notify_invoice_slack_admin(invoice, updated=False):
     project_url = '{}/projects/{}/'.format(TUNGA_URL, invoice.project.id)
     payment_url = '{}pay'.format(project_url)
     person_url = '{}/network/{}/'.format(TUNGA_URL, invoice.user.username)
-    invoice_url = '{}/api/invoices/{}/download/?format=pdf'.format(TUNGA_URL, invoice.id)
+    invoice_url = '{}/api/invoices/{}/download/?format=pdf'.format(TUNGA_URL,
+                                                                   invoice.id)
+    if invoice.type == INVOICE_TYPE_SALE:
+        invoice_type = 'client payment'
+    elif invoice.type == INVOICE_TYPE_CREDIT_NOTA:
+        invoice_type = 'credit nota'
+    else:
+        invoice_type = 'developer payout'
 
     slack_msg = '{} {} a {}'.format(
         (updated and invoice.updated_by or invoice.created_by).display_name.encode('utf-8'),
         updated and 'updated' or 'created',
-        invoice.type == INVOICE_TYPE_SALE and 'client payment' or 'developer payout'
+        invoice_type
     )
 
     invoice_summary = '{}: <{}|{}>\nProject: <{}|{}>\nTitle: {}\nFee: EUR {}\n<{}|Download invoice>'.format(
@@ -32,7 +40,7 @@ def notify_invoice_slack_admin(invoice, updated=False):
         person_url, invoice.user.display_name.encode('utf-8'),
         project_url, invoice.project.title,
         invoice.title,
-        invoice.amount,
+        "-%s" % invoice.amount if invoice.type == INVOICE_TYPE_CREDIT_NOTA else invoice.amount,
         invoice_url
     )
 
@@ -66,7 +74,8 @@ def notify_paid_invoice_slack_admin(invoice):
 
     project_url = '{}/projects/{}/'.format(TUNGA_URL, invoice.project.id)
     person_url = '{}/network/{}/'.format(TUNGA_URL, invoice.user.username)
-    invoice_url = '{}/api/invoices/{}/download/?format=pdf'.format(TUNGA_URL, invoice.id)
+    invoice_url = '{}/api/invoices/{}/download/?format=pdf'.format(TUNGA_URL,
+                                                                   invoice.id)
 
     slack_msg = ':tada: A {} of *EUR {}* has been {} *<{}|{}>* for <{}|{}> | <{}|Download Invoice>'.format(
         invoice.type == INVOICE_TYPE_SALE and 'payment' or 'payout',

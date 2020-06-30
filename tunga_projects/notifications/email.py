@@ -64,8 +64,6 @@ def remind_progress_event_email(progress_event):
     if is_client_event and owner and owner.is_active and check_switch_setting(owner, TASK_SURVEY_REMINDER_EMAIL):
         subject = "Progress Survey"
         to = [owner.email]
-        if owner.email != progress_event.project.user.email:
-            to.append(progress_event.project.user.email)
 
         if send_mail(subject, 'tunga/email/client_survey_reminder_v3', to, ctx):
             successful_sends.append('client')
@@ -146,7 +144,7 @@ def notify_interest_poll_email(interest_poll, reminder=False):
 
     to = [interest_poll.user.email]
 
-    poll_url = '{}/poll/{}/{}'.format(TUNGA_URL, interest_poll.id, interest_poll.token)
+    poll_url = '{}/projects/{}'.format(TUNGA_URL, interest_poll.project.id)
 
     merge_vars = [
         mandrill_utils.create_merge_var(MANDRILL_VAR_FIRST_NAME, interest_poll.user.first_name),
@@ -154,8 +152,7 @@ def notify_interest_poll_email(interest_poll, reminder=False):
         mandrill_utils.create_merge_var('skills', str(interest_poll.project.skills)),
         mandrill_utils.create_merge_var('description', interest_poll.project.description),
         mandrill_utils.create_merge_var('scope', interest_poll.project.get_expected_duration_display()),
-        mandrill_utils.create_merge_var('yes_url', '{}?status=interested'.format(poll_url)),
-        mandrill_utils.create_merge_var('no_url', '{}?status=uninterested'.format(poll_url)),
+        mandrill_utils.create_merge_var('project_url', poll_url),
     ]
 
     mandrill_response = mandrill_utils.send_email(

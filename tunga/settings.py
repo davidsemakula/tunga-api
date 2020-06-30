@@ -230,6 +230,7 @@ PASSWORD_HASHERS = [
 ]
 
 # Use redis for caches
+
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
