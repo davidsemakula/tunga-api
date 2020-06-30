@@ -50,7 +50,7 @@ gspread==3.1.0
 gunicorn==19.6.0
 honcho==1.0.1
 html5lib==0.999999999     # via weasyprint
-httplib2==0.12.3          # via oauth2client
+httplib2==0.18.0          # via oauth2client
 idna==2.7                 # via requests
 ipaddress==1.0.23         # via cryptography
 isort==4.3.4
@@ -75,7 +75,7 @@ pycodestyle==2.3.1        # via flake8
 pycparser==2.14           # via cffi
 pycryptodome==3.7.0
 pyflakes==1.6.0           # via flake8
-pyjwt==1.4.0              # via djangorestframework-jwt
+pyjwt==1.5.1              # via djangorestframework-jwt
 pyopenssl==19.1.0         # via requests
 pyphen==0.9.4             # via weasyprint
 python-dateutil==2.5.3
@@ -87,7 +87,7 @@ requests-oauthlib==0.8.0  # via django-allauth
 requests[security]==2.22.0
 rest-framework-generic-relations==1.1.0
 rq==0.6.0                 # via django-rq
-rsa==4.0                  # via oauth2client
+rsa==4.1                  # via oauth2client
 sentry-sdk==0.13.4
 simplejson==3.10.0        # via django-rest-swagger
 six==1.10.0
@@ -97,7 +97,7 @@ stripe==2.36.2
 tinycss2==0.6.1           # via cssselect2, weasyprint
 tzlocal==1.3              # via apscheduler
 uritemplate==3.0.0        # via coreapi
-urllib3==1.25.2           # via requests, sentry-sdk
+urllib3==1.25.8           # via requests, sentry-sdk
 weasyprint==0.42.3
 webencodings==0.5         # via html5lib, tinycss2
 xlsxwriter==1.0.4
