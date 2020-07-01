@@ -60,9 +60,12 @@ def manage_interest_polls(project, remind=False):
             defaults=dict(created_by=project.user)
         )
 
-        if created or remind:
+        if created:
             notify_interest_poll_email.delay(interest_poll.id,
-                                             reminder=not created)
+                                             reminder=False)
+        elif remind:
+            notify_interest_poll_email.delay(interest_poll.id,
+                                             reminder=True)
 
 
 @job
