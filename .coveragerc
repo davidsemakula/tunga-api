@@ -9,4 +9,6 @@ omit =
   *migrations/*,
   *tunga_tasks/*,
   *tests/*,
+  *commands/*,
+  *venv/*,
 branch = True

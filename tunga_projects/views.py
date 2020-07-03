@@ -35,7 +35,7 @@ class ProjectViewSet(ModelViewSet):
     """
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-    permission_classes = [IsAuthenticated, DRYObjectPermissions]
+    permission_classes = [IsAuthenticated, DRYPermissions]
     filter_class = ProjectFilter
     filter_backends = DEFAULT_FILTER_BACKENDS + (ProjectFilterBackend,)
     search_fields = ('title',)
@@ -192,7 +192,6 @@ class ClientSurveyTemplate(TemplateView):
         return super(ClientSurveyTemplate, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        
         project_id = kwargs.get('id', None)
         project = Project.objects.filter(id=project_id).first()
         team_users_ids = Participation.objects.filter(project=project,
