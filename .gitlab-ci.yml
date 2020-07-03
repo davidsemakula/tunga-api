@@ -55,4 +55,5 @@ Test:
     artifacts:
         paths:
         - htmlcov/index.html
+        - coverage.xml
     coverage: '/TOTAL.+?(\d+%)/'
