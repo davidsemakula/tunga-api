@@ -54,6 +54,6 @@ Test:
         - pytest --cov-report term-missing:skip-covered --cov=. -c pytest.ini
     artifacts:
         paths:
-        - htmlcov/index.html
+        - htmlcov/
         - coverage.xml
     coverage: '/TOTAL.+?(\d+%)/'
