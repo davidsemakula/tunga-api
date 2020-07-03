@@ -102,7 +102,6 @@ class Project(models.Model):
     class Meta:
         ordering = ['-created_at']
 
-    @allow_staff_or_superuser
     def is_participant(self, user, active=True):
         if user == self.user or user == self.owner:
             return True
@@ -135,11 +134,11 @@ class Project(models.Model):
     @staticmethod
     @allow_staff_or_superuser
     def has_write_permission(request):
-        return request.user.is_project_owner or request.user.is_project_manager
+        return request.user.is_project_manager
 
     @allow_staff_or_superuser
     def has_object_write_permission(self, request):
-        return request.user == self.user or request.user == self.owner or request.user == self.pm
+        return request.user == self.user or request.user == self.pm
 
     @property
     def margin(self):
