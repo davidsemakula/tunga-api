@@ -20,19 +20,26 @@ from django.contrib.auth.views import password_reset_confirm
 from django.contrib.sitemaps.views import sitemap
 from rest_auth.views import UserDetailsView
 from rest_framework.routers import DefaultRouter
-from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token, verify_jwt_token
+from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token, \
+    verify_jwt_token
 from rest_framework_swagger.views import get_swagger_view
 
 from tunga_activity.views import ActionViewSet, NotificationReadLogViewSet
-from tunga_auth.views import VerifyUserView, AccountInfoView, UserViewSet, social_login_view, coinbase_connect_callback, \
-    slack_connect_callback, EmailVisitorView, github_connect_callback, DevelopersSitemap, \
+from tunga_auth.views import VerifyUserView, AccountInfoView, UserViewSet, \
+    social_login_view, coinbase_connect_callback, \
+    slack_connect_callback, EmailVisitorView, github_connect_callback, \
+    DevelopersSitemap, \
     payoneer_sign_up, payoneer_notification, exact_connect_callback
 from tunga_comments.views import CommentViewSet
-from tunga_messages.views import MessageViewSet, ChannelViewSet, slack_customer_notification
-from tunga_pages.views import SkillPageViewSet, SkillPagesSitemap, BlogPostViewSet, BlogSitemap
+from tunga_messages.views import MessageViewSet, ChannelViewSet, \
+    slack_customer_notification
+from tunga_pages.views import SkillPageViewSet, SkillPagesSitemap, \
+    BlogPostViewSet, BlogSitemap
 from tunga_payments.views import InvoiceViewSet, PaymentViewSet
-from tunga_profiles.views import ProfileView, EducationViewSet, WorkViewSet, ConnectionViewSet, \
-    NotificationView, CountryListView, DeveloperApplicationViewSet, RepoListView, IssueListView, SlackIntegrationView, \
+from tunga_profiles.views import ProfileView, EducationViewSet, WorkViewSet, \
+    NotificationView, CountryListView, \
+    DeveloperApplicationViewSet, RepoListView, IssueListView, \
+    SlackIntegrationView, \
     DeveloperInvitationViewSet, CompanyView, WhitePaperVisitorsView
 from tunga_projects.views import ProjectViewSet, DocumentViewSet, \
     ParticipationViewSet, ProgressEventViewSet, \
@@ -40,13 +47,13 @@ from tunga_projects.views import ProjectViewSet, DocumentViewSet, \
     ClientSurveyTemplate, ClientSurveyFormView, ClientSurveySuccessTemplate, \
     ClientSurveyErrorTemplate, ClientSurveyFilledTemplate
 from tunga_settings.views import UserSettingsView
-from tunga_support.views import SupportPageViewSet, SupportSectionViewSet
-from tunga_tasks.views import TimeEntryViewSet, \
-    coinbase_notification, bitpesa_notification, EstimateViewSet, QuoteViewSet, MultiTaskPaymentKeyViewSet, \
-    TaskPaymentViewSet, ParticipantPaymentViewSet, SkillsApprovalViewSet, SprintViewSet, TaskDocumentViewSet, TaskViewSet
+from tunga_tasks.views import coinbase_notification, bitpesa_notification, \
+    TaskViewSet
 from tunga_uploads.views import UploadViewSet
-from tunga_utils.views import SkillViewSet, ContactRequestView, get_medium_posts, get_oembed_details, upload_file, \
-    find_by_legacy_id, InviteRequestView, weekly_report, hubspot_notification, calendly_notification, search_logger
+from tunga_utils.views import SkillViewSet, ContactRequestView, \
+    get_medium_posts, get_oembed_details, upload_file, \
+    find_by_legacy_id, InviteRequestView, weekly_report, hubspot_notification, \
+    calendly_notification, search_logger
 
 api_schema_view = get_swagger_view(title='Tunga API')
 
