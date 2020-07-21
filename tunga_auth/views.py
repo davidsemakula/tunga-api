@@ -527,7 +527,7 @@ def slack_connect_callback(request):
 
 
 @api_view(('GET',))
-@renderer_classes((TemplateHTMLRenderer, JSONRenderer))
+@renderer_classes((JSONRenderer, ))
 def exact_connect_callback(request):
     code = request.GET.get('code', None)
     if code:
