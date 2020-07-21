@@ -18,11 +18,12 @@ from django.views.decorators.csrf import csrf_exempt
 from dry_rest_permissions.generics import DRYPermissions
 from rest_framework import views, status, generics, viewsets, mixins
 from rest_framework.decorators import detail_route, permission_classes, \
-    api_view, list_route
+    api_view, list_route, renderer_classes
 from rest_framework.exceptions import NotAuthenticated, PermissionDenied
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.renderers import StaticHTMLRenderer
+from rest_framework.renderers import StaticHTMLRenderer, TemplateHTMLRenderer, \
+    JSONRenderer
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_500_INTERNAL_SERVER_ERROR, HTTP_401_UNAUTHORIZED
 from slacker import Slacker
@@ -525,6 +526,8 @@ def slack_connect_callback(request):
     return redirect(get_session_next_url(request, provider=APP_INTEGRATION_PROVIDER_SLACK))
 
 
+@api_view(('GET',))
+@renderer_classes((TemplateHTMLRenderer, JSONRenderer))
 def exact_connect_callback(request):
     code = request.GET.get('code', None)
     if code:
