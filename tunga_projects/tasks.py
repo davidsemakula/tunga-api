@@ -52,7 +52,7 @@ def manage_interest_polls(project, remind=False):
 
     developers = get_user_model().objects.filter(is_active=True,
                                                  type=USER_TYPE_DEVELOPER,
-                                                 userprofile__skills__in=project.skills.all())
+                                                 userprofile__skills__in=project.skills.all()).distinct()
 
     for developer in developers:
         interest_poll, created = InterestPoll.objects.update_or_create(
