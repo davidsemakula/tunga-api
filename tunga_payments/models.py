@@ -176,6 +176,9 @@ class Invoice(models.Model):
         if self.type == INVOICE_TYPE_SALE and self.issued_at:
             return (self.issued_at + relativedelta(days=14)).replace(
                 hour=23, minute=59, second=59, microsecond=999999)
+        elif self.type == INVOICE_TYPE_PURCHASE and self.issued_at:
+            return (self.issued_at + relativedelta(days=5)).replace(
+                hour=23, minute=59, second=59, microsecond=999999)
         return self.issued_at
 
     @property
