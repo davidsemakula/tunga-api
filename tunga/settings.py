@@ -180,6 +180,8 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'tunga/static'),
 )
 
+SSO_TOKEN_URL = 'https://id.tunga.io/api/'
+
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_URL = '/media/'
@@ -190,11 +192,15 @@ AUTHENTICATION_BACKENDS = (
     # Third Party
     'oauth2_provider.backends.OAuth2Backend',
 
+    #Tunga SSO
+    'tunga_auth.middleware.TungaSSORemoteUserBackend',
+
     # Default
     'django.contrib.auth.backends.ModelBackend',
 
     # Third Party
     'allauth.account.auth_backends.AuthenticationBackend',
+
 )
 
 SITE_ID = 1

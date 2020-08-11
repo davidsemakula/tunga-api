@@ -24,6 +24,7 @@ from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token, \
     verify_jwt_token
 from rest_framework_swagger.views import get_swagger_view
 
+from tunga import settings
 from tunga_activity.views import ActionViewSet, NotificationReadLogViewSet
 from tunga_auth.views import VerifyUserView, AccountInfoView, UserViewSet, \
     social_login_view, coinbase_connect_callback, \
