@@ -196,7 +196,7 @@ AUTHENTICATION_BACKENDS = (
     'tunga_auth.middleware.TungaSSORemoteUserBackend',
 
     # Default
-    'django.contrib.auth.backends.ModelBackend',
+    # 'django.contrib.auth.backends.ModelBackend',
 
     # Third Party
     'allauth.account.auth_backends.AuthenticationBackend',
