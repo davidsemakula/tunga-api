@@ -25,7 +25,7 @@ def notify_invoice_slack_admin(invoice, updated=False):
     if invoice.type == INVOICE_TYPE_SALE:
         invoice_type = 'client payment'
     elif invoice.type == INVOICE_TYPE_CREDIT_NOTA:
-        invoice_type = 'credit nota'
+        invoice_type = 'credit note'
     else:
         invoice_type = 'developer payout'
 
