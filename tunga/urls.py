@@ -118,6 +118,9 @@ sitemaps = {
     'developers': DevelopersSitemap(),
 }
 
+def trigger_error(request):
+    division_by_zero = 1 / 0
+
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^admin/django-rq/', include('django_rq.urls')),
@@ -177,5 +180,6 @@ urlpatterns = [
     url(r'^surveys/client/error/$', ClientSurveyErrorTemplate.as_view(), name="client_survey_error"),
     url(r'^surveys/client/submitted/$', ClientSurveyFilledTemplate.as_view(), name="client_survey_submitted"),
     url(r'^surveys/client/(?P<id>\d+)/created/$', ClientSurveyFormView.as_view(), name="client_survey_submit"),
+    url('sentry-debug/', trigger_error),
 
 ]
