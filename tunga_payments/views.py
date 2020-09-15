@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import csv
 import datetime
 # Create your views here.
 import json
@@ -31,7 +32,7 @@ from tunga_payments.notifications.generic import notify_paid_invoice, \
 from tunga_payments.serializers import InvoiceSerializer, PaymentSerializer, \
     StripePaymentSerializer, \
     BulkInvoiceSerializer, StripePaymentIntentSerializer, \
-    StripePaymentIntentCompleteSerializer
+    StripePaymentIntentCompleteSerializer, ExportInvoiceSerializer
 from tunga_tasks.renderers import PDFRenderer
 from tunga_utils import stripe_utils
 from tunga_utils.constants import PAYMENT_METHOD_STRIPE, CURRENCY_EUR, \
@@ -433,6 +434,45 @@ class InvoiceViewSet(ModelViewSet):
             invoice_serializer = InvoiceSerializer(invoice,
                                                    context={'request': request})
             return Response(invoice_serializer.data, status=status.HTTP_200_OK)
+
+    @list_route(methods=['post'],
+                permission_classes=[IsAuthenticated],
+                serializer_class=ExportInvoiceSerializer,
+                url_path='export', url_name='export-invoice')
+    def export_invoices(self, request, pk=None):
+        """
+            Invoice Generate Endpoint
+            ---
+            omit_serializer: true
+            omit_parameters: false
+                - query
+        """
+        serializer = ExportInvoiceSerializer(data=request.data)
+        if serializer.is_valid():
+            start = serializer.validated_data['start']
+            end = serializer.validated_data['end']
+            type = serializer.validated_data['type']
+
+            invoices = Invoice.objects.filter(created_at__range=(start, end),
+                                              type=type)
+            response = HttpResponse(content_type='text/csv')
+            filename = "%s-invoices-export-%s-%s.csv" % (
+                type, start.strftime('%m/%d/%Y'), end.strftime('%m/%d/%Y'))
+            response[
+                'Content-Disposition'] = "attachment; filename=%s" % filename
+
+            writer = csv.writer(response)
+            writer.writerow(
+                ['client', 'project', 'description', 'invoice_number', 'amount',
+                 'date', 'due_date', 'paid'])
+            [writer.writerow([
+                invoice.project.owner.company, invoice.project.title,
+                invoice.title, invoice.number, invoice.amount,
+                invoice.created_at,
+                invoice.due_at, invoice.paid]) for invoice in
+                invoices]
+            return response
+        return Response({})
 
 
 class PaymentViewSet(ModelViewSet):
