@@ -466,8 +466,9 @@ class InvoiceViewSet(ModelViewSet):
                 ['client', 'project', 'description', 'invoice_number', 'amount',
                  'date', 'due_date', 'paid'])
             [writer.writerow([
-                invoice.project.owner.company, invoice.project.title,
-                invoice.title, invoice.number, invoice.amount,
+                invoice.project.owner.display_name.encode('utf-8').strip(),
+                invoice.project.title,
+                invoice.full_title, invoice.number, invoice.amount,
                 invoice.created_at,
                 invoice.due_at, invoice.paid]) for invoice in
                 invoices]
