@@ -452,9 +452,10 @@ class InvoiceViewSet(ModelViewSet):
             start = serializer.validated_data['start']
             end = serializer.validated_data['end']
             type = serializer.validated_data['type']
+            is_paid = serializer.validated_data['paid']
 
             invoices = Invoice.objects.filter(created_at__range=(start, end),
-                                              type=type)
+                                              type=type, paid=is_paid)
             response = HttpResponse(content_type='text/csv')
             filename = "%s-invoices-export-%s-%s.csv" % (
                 type, start.strftime('%m/%d/%Y'), end.strftime('%m/%d/%Y'))

@@ -85,6 +85,7 @@ class ExportInvoiceSerializer(serializers.Serializer):
     start = serializers.DateTimeField(required=True)
     end = serializers.DateTimeField(required=True)
     type = serializers.ChoiceField(required=True, choices=INVOICE_TYPE_CHOICES)
+    paid = serializers.BooleanField(required=True)
 
 
 class StripePaymentIntentSerializer(serializers.Serializer):
