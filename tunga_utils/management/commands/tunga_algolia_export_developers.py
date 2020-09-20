@@ -14,6 +14,6 @@ class Command(BaseCommand):
         """
         # command to run: python manage.py tunga_algolia_export_developers
 
-        users = TungaUser.objects.filter(type=USER_TYPE_DEVELOPER)
+        users = TungaUser.objects.filter(type=USER_TYPE_DEVELOPER, is_active=True)
 
         algolia_utils.add_objects(SearchUserSerializer(users, many=True).data)
