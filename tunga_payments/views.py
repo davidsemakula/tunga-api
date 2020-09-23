@@ -272,25 +272,28 @@ class InvoiceViewSet(ModelViewSet):
             is_paid = serializer.validated_data['paid']
 
             invoices = Invoice.objects.filter(created_at__range=(start, end),
-                                              type=type, paid=is_paid)
+                                              type=type, paid=is_paid,
+                                              finalized=True, archived=False)
             response = HttpResponse(content_type='text/csv')
             filename = "%s-invoices-export-%s-%s.csv" % (
-                type, start.strftime('%m/%d/%Y'), end.strftime('%m/%d/%Y'))
+                type, start.strftime('%d/%m/%Y'), end.strftime('%d/%m/%Y'))
             response[
                 'Content-Disposition'] = "attachment; filename=%s" % filename
 
             writer = csv.writer(response)
             writer.writerow(
-                ['client', 'project', 'description', 'invoice_number', 'amount',
-                 'date', 'due_date', 'paid'])
+                ['Client', 'Project', 'Description', 'Invoice Number',
+                 'Amount (EUR)', 'Invoice Date', 'Due Date', 'Status'])
             [writer.writerow([
                 invoice.project.owner.display_name.encode(
                     'utf-8').strip() if invoice.project.owner else invoice.project.user.display_name.encode(
                     'utf-8').strip(),
                 invoice.project.title,
-                invoice.full_title, invoice.number, invoice.amount,
-                invoice.created_at,
-                invoice.due_at, invoice.paid]) for invoice in
+                invoice.title, invoice.number, invoice.amount,
+                invoice.created_at.strftime('%d/%m/%Y'),
+                invoice.due_at.strftime('%d/%m/%Y'),
+                "Paid" if invoice.paid else "Pending"]) for
+                invoice in
                 invoices]
             return response
         return Response({})
