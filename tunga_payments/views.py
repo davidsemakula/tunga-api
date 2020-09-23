@@ -273,7 +273,10 @@ class InvoiceViewSet(ModelViewSet):
 
             invoices = Invoice.objects.filter(created_at__range=(start, end),
                                               type=type, paid=is_paid,
-                                              finalized=True, archived=False)
+                                              archived=False)
+
+            if type == INVOICE_TYPE_SALE or type == INVOICE_TYPE_CREDIT_NOTA:
+                invoices.filter(finalized=True)
             response = HttpResponse(content_type='text/csv')
             filename = "%s-invoices-export-%s-%s.csv" % (
                 type, start.strftime('%d/%m/%Y'), end.strftime('%d/%m/%Y'))
