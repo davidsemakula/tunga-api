@@ -296,11 +296,11 @@ class TungaUser(AbstractUser):
         month_ago = datetime.datetime.utcnow() - relativedelta(days=30)
         now = datetime.datetime.utcnow()
         rating_count = DeveloperRating.objects.filter(
-            created_at__range=(month_ago, now),
+            created_at__range=[month_ago, now],
             user=self
         ).count()
         rating = DeveloperRating.objects.filter(
-            created_at__range=(month_ago, now),
+            created_at__range=[month_ago, now],
             user=self
         ).aggregate(rating=Coalesce(Sum('rating'), 0))
         if rating_count == 0:

@@ -268,12 +268,14 @@ class InvoiceViewSet(ModelViewSet):
         if serializer.is_valid():
             start = serializer.validated_data['start']
             end = serializer.validated_data['end']
+            end.replace(hour=23, minute=59, second=59, microsecond=999999)
             type = serializer.validated_data['type']
             is_paid = serializer.validated_data['paid']
 
-            invoices = Invoice.objects.filter(created_at__range=(start, end),
-                                              type=type, paid=is_paid,
-                                              archived=False)
+            invoices = Invoice.objects.filter(
+                created_at__date__range=(start, end),
+                type=type, paid=is_paid,
+                archived=False)
 
             if type == INVOICE_TYPE_SALE or type == INVOICE_TYPE_CREDIT_NOTA:
                 invoices.filter(finalized=True)
@@ -284,22 +286,47 @@ class InvoiceViewSet(ModelViewSet):
                 'Content-Disposition'] = "attachment; filename=%s" % filename
 
             writer = csv.writer(response)
+            if type == INVOICE_TYPE_PURCHASE:
+                writer.writerow(
+                    ['Client', 'Project', 'Description', 'Developer',
+                     'Invoice Number', 'Amount (EUR)', 'Invoice Date',
+                     'Status'])
+                if invoices:
+                    [writer.writerow([
+                        invoice.project.owner.display_name.encode(
+                            'utf-8').strip() if invoice.project.owner else invoice.project.user.display_name.encode(
+                            'utf-8').strip(),
+                        invoice.project.title,
+                        invoice.title, invoice.user.display_name,
+                        invoice.number,
+                        invoice.amount,
+                        invoice.created_at.strftime('%d/%m/%Y'),
+                        "Paid" if invoice.paid else "Pending"]) for
+                        invoice in
+                        invoices]
+                else:
+                    writer.writerow(['No records found in that date range'])
+                return response
+
             writer.writerow(
                 ['Client', 'Project', 'Description', 'Invoice Number',
                  'Amount (EUR)', 'Invoice Date', 'Due Date', 'Status'])
-            [writer.writerow([
-                invoice.project.owner.display_name.encode(
-                    'utf-8').strip() if invoice.project.owner else invoice.project.user.display_name.encode(
-                    'utf-8').strip(),
-                invoice.project.title,
-                invoice.title, invoice.number, invoice.amount,
-                invoice.created_at.strftime('%d/%m/%Y'),
-                invoice.due_at.strftime('%d/%m/%Y'),
-                "Paid" if invoice.paid else "Pending"]) for
-                invoice in
-                invoices]
+
+            if invoices:
+                [writer.writerow([
+                    invoice.project.owner.display_name.encode(
+                        'utf-8').strip() if invoice.project.owner else invoice.project.user.display_name.encode(
+                        'utf-8').strip(),
+                    invoice.project.title,
+                    invoice.title, invoice.number, invoice.amount,
+                    invoice.created_at.strftime('%d/%m/%Y'),
+                    invoice.due_at.strftime('%d/%m/%Y'),
+                    "Paid" if invoice.paid else "Pending"]) for
+                    invoice in
+                    invoices]
+            else:
+                writer.writerow(['No records found in that date range'])
             return response
-        return Response({})
 
 
 class PaymentViewSet(ModelViewSet):
