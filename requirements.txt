@@ -102,6 +102,7 @@ weasyprint==0.42.3
 webencodings==0.5         # via html5lib, tinycss2
 xlsxwriter==1.0.4
 google-api-python-client==1.8.0
+drf-yasg==1.17.1
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

@@ -459,6 +459,7 @@ class UploadSerializer(SimpleUploadSerializer):
     class Meta(SimpleUploadSerializer.Meta):
         model = Upload
         fields = SimpleUploadSerializer.Meta.fields + ('user',)
+        ref_name = 'tunga_utils_upload'
 
 
 class ContactRequestSerializer(serializers.ModelSerializer):

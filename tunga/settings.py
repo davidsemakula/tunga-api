@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'django_rq',
     'raven.contrib.django.raven_compat',
     'django_filters',
+    'drf_yasg',
 
     # Social Auth Providers
     'allauth.socialaccount.providers.bitbucket_oauth2',

@@ -18,8 +18,11 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from django.contrib.auth.views import password_reset_confirm
 from django.contrib.sitemaps.views import sitemap
+from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
 from rest_auth.views import UserDetailsView
-from rest_framework.routers import DefaultRouter
+from rest_framework import permissions
+from rest_framework.routers import DefaultRouter, SimpleRouter
 from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token, \
     verify_jwt_token
 from rest_framework_swagger.views import get_swagger_view
@@ -56,7 +59,15 @@ from tunga_utils.views import SkillViewSet, ContactRequestView, \
     find_by_legacy_id, InviteRequestView, weekly_report, hubspot_notification, \
     calendly_notification, search_logger
 
-api_schema_view = get_swagger_view(title='Tunga API')
+schema_view = get_schema_view(
+   openapi.Info(
+      title="Tunga API",
+      default_version='v1',
+   ),
+   public=True,
+   permission_classes=(permissions.IsAuthenticated,),
+)
+
 
 router = DefaultRouter()
 # v3 routes
@@ -90,7 +101,7 @@ router.register(r'notification-log', NotificationReadLogViewSet)
 # router.register(r'apply', DeveloperApplicationViewSet)
 # router.register(r'invite', DeveloperInvitationViewSet)
 # router.register(r'project', LegacyProjectViewSet)
-router.register(r'task', TaskViewSet)
+# router.register(r'task', TaskViewSet)
 # router.register(r'application', ApplicationViewSet)
 # router.register(r'participation', LegacyParticipationViewSet)
 # router.register(r'estimate', EstimateViewSet)
@@ -165,14 +176,13 @@ urlpatterns = [
     url(r'^api/log/search/$', search_logger, name="search-logger"),
     url(r'^api/oembed/', get_oembed_details, name='oembed-details'),
     url(r'^api/upload/', upload_file, name='upload-file'),
-    url(r'^api/docs/', api_schema_view),
     url(r'^api/payoneer/ipcn/callback/', payoneer_notification, name="payoneer-ipcn-status"),
     url(r'^api/payoneer/', payoneer_sign_up, name="payoneer"),
     url(r'^reset-password/confirm/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
         password_reset_confirm, name='password_reset_confirm'),
     url(r'^api/migrate/(?P<model>\w+)/(?P<pk>\d+)/$', find_by_legacy_id, name="migrate"),
     url(r'^api/weekly-report/(?P<subject>\w+)/$', weekly_report, name="weekly-report"),
-    url(r'^$', router.get_api_root_view(), name='backend-root'),
+    url(r'^$', router.get_api_root_view(api_urls='api/'), name='backend-root'),
     url(r'^api/sitemap\.xml$', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
     url(r'^api/visitors/$', WhitePaperVisitorsView.as_view(), name="visiotrs_email"),
 
@@ -182,5 +192,6 @@ urlpatterns = [
     url(r'^surveys/client/submitted/$', ClientSurveyFilledTemplate.as_view(), name="client_survey_submitted"),
     url(r'^surveys/client/(?P<id>\d+)/created/$', ClientSurveyFormView.as_view(), name="client_survey_submit"),
     url('api/sentry-debug/', trigger_error),
+    url(r'^api/docs/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 
 ]
