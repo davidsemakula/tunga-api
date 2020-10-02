@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import csv
 import datetime
 # Create your views here.
 import json
@@ -31,7 +32,7 @@ from tunga_payments.notifications.generic import notify_paid_invoice, \
 from tunga_payments.serializers import InvoiceSerializer, PaymentSerializer, \
     StripePaymentSerializer, \
     BulkInvoiceSerializer, StripePaymentIntentSerializer, \
-    StripePaymentIntentCompleteSerializer
+    StripePaymentIntentCompleteSerializer, ExportInvoiceSerializer
 from tunga_tasks.renderers import PDFRenderer
 from tunga_utils import stripe_utils
 from tunga_utils.constants import PAYMENT_METHOD_STRIPE, CURRENCY_EUR, \
@@ -129,189 +130,6 @@ class InvoiceViewSet(ModelViewSet):
     def delete_bulk_invoices(self, request, batch_ref=None):
         Invoice.objects.filter(batch_ref=batch_ref).delete()
         return Response({}, status=status.HTTP_200_OK)
-
-    @detail_route(
-        methods=['get', 'post'], url_path='pay', url_name='pay-invoice',
-        serializer_class=StripePaymentSerializer,
-        permission_classes=[IsAuthenticated]
-    )
-    def pay(self, request, pk=None):
-        """
-        Invoice Payment Endpoint
-        ---
-        omit_serializer: true
-        omit_parameters:
-            - query
-        """
-        invoice = self.get_object()
-        payload = request.data
-
-        if payload['payment_method'] == PAYMENT_METHOD_STRIPE:
-            # Pay with Stripe
-            paid_at = datetime.datetime.utcnow()
-
-            stripe = stripe_utils.get_client()
-
-            try:
-                # Create customer
-                customer = stripe.Customer.create(
-                    **dict(source=payload['token'], email=payload['email']))
-
-                # Create Charge
-                charge = stripe.Charge.create(
-                    idempotency_key=payload.get('idem_key', None),
-                    **dict(
-                        amount=payload['amount'],
-                        description=payload.get('description', invoice.title),
-                        currency=payload.get('currency', CURRENCY_EUR),
-                        customer=customer.id,
-                        metadata=dict(
-                            invoice_id=invoice.id,
-                            project_id=invoice.project.id
-                        )
-                    )
-                )
-
-                if charge.paid:
-                    # Save payment details
-                    Payment.objects.create(
-                        invoice=invoice,
-                        payment_method=PAYMENT_METHOD_STRIPE,
-                        amount=Decimal(charge.amount) * Decimal(0.01),
-                        currency=(charge.currency or CURRENCY_EUR).upper(),
-                        status=STATUS_COMPLETED,
-                        ref=charge.id,
-                        paid_at=paid_at,
-                        created_by=request.user,
-                        extra=json.dumps(dict(
-                            paid=charge.paid,
-                            token=payload['token'],
-                            email=payload['email'],
-                            captured=charge.captured,
-                        ))
-                    )
-
-                    # Update invoice
-                    invoice.paid = True
-                    invoice.paid_at = paid_at
-                    invoice.save()
-
-                    notify_paid_invoice.delay(invoice)
-
-                invoice_serializer = InvoiceSerializer(invoice, context={
-                    'request': request})
-                return Response(invoice_serializer.data)
-            except:
-                return Response(dict(
-                    message='We could not process your payment! Please contact hello@tunga.io'),
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        else:
-            return Response(dict(
-                message='We could not process your payment! Please contact hello@tunga.io'),
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    @detail_route(
-        methods=['get', 'post'], url_path='pay-intent',
-        url_name='pay-invoice-intent',
-        serializer_class=StripePaymentIntentSerializer,
-        permission_classes=[IsAuthenticated]
-    )
-    def pay_intent(self, request, pk=None):
-        """
-        Invoice Payment Endpoint
-        ---
-        omit_serializer: true
-        omit_parameters:
-            - query
-        """
-        invoice = self.get_object()
-        payload = request.data
-
-        # Pay with Stripe
-        paid_at = datetime.datetime.utcnow()
-
-        stripe = stripe_utils.get_client()
-
-        try:
-            # Create customer
-            customer = stripe.Customer.create(**dict(email=payload['email']))
-
-            # Create Payment Intent
-            payment_intent = stripe.PaymentIntent.create(
-                amount=payload['amount'],
-                currency=payload.get('currency', CURRENCY_EUR),
-                description=payload.get('description', invoice.title),
-                payment_method_types=['card'],
-                customer=customer.id,
-                metadata=dict(
-                    invoice_id=invoice.id,
-                    project_id=invoice.project.id
-                )
-            )
-
-            # invoice_serializer = InvoiceSerializer(invoice, context={'request': request})
-            return Response(payment_intent)
-        except:
-            return Response(dict(
-                message='We could not process your payment! Please contact hello@tunga.io'),
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    @detail_route(
-        methods=['get', 'post'], url_path='pay-intent-complete',
-        url_name='pay-invoice-intent-complete',
-        serializer_class=StripePaymentIntentCompleteSerializer,
-        permission_classes=[IsAuthenticated]
-    )
-    def pay_intent_complete(self, request, pk=None):
-        """
-        Invoice Payment Endpoint
-        ---
-        omit_serializer: true
-        omit_parameters:
-            - query
-        """
-        invoice = self.get_object()
-        payload = request.data
-
-        # Pay with Stripe
-        paid_at = datetime.datetime.utcnow()
-        stripe = stripe_utils.get_client()
-
-        try:
-            payment_intent = stripe.PaymentIntent.retrieve(payload['id'])
-
-            if payment_intent.status == 'succeeded':
-                # Save payment details
-                Payment.objects.create(
-                    invoice=invoice,
-                    payment_method=PAYMENT_METHOD_STRIPE,
-                    amount=Decimal(payment_intent.amount) * Decimal(0.01),
-                    currency=(payment_intent.currency or CURRENCY_EUR).upper(),
-                    status=STATUS_COMPLETED,
-                    ref=payment_intent.id,
-                    paid_at=paid_at,
-                    created_by=request.user,
-                    extra=json.dumps(dict(
-                        paid=True,
-                        itent_id=payment_intent.id,
-                        email=payload.get('email', None)
-                    ))
-                )
-
-                # Update invoice
-                invoice.paid = True
-                invoice.paid_at = paid_at
-                invoice.save()
-
-                notify_paid_invoice.delay(invoice)
-
-            invoice_serializer = InvoiceSerializer(invoice, context={
-                'request': request})
-            return Response(invoice_serializer.data)
-        except:
-            return Response(dict(
-                message='We could not process your payment! Please contact hello@tunga.io'),
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @detail_route(
         methods=['get'], url_path='download',
@@ -433,6 +251,82 @@ class InvoiceViewSet(ModelViewSet):
             invoice_serializer = InvoiceSerializer(invoice,
                                                    context={'request': request})
             return Response(invoice_serializer.data, status=status.HTTP_200_OK)
+
+    @list_route(methods=['post'],
+                permission_classes=[IsAuthenticated],
+                serializer_class=ExportInvoiceSerializer,
+                url_path='export', url_name='export-invoice')
+    def export_invoices(self, request, pk=None):
+        """
+            Invoice Generate Endpoint
+            ---
+            omit_serializer: true
+            omit_parameters: false
+                - query
+        """
+        serializer = ExportInvoiceSerializer(data=request.data)
+        if serializer.is_valid():
+            start = serializer.validated_data['start']
+            end = serializer.validated_data['end']
+            end.replace(hour=23, minute=59, second=59, microsecond=999999)
+            type = serializer.validated_data['type']
+            is_paid = serializer.validated_data['paid']
+
+            invoices = Invoice.objects.filter(
+                created_at__date__range=(start, end),
+                type=type, paid=is_paid,
+                archived=False)
+
+            if type == INVOICE_TYPE_SALE or type == INVOICE_TYPE_CREDIT_NOTA:
+                invoices.filter(finalized=True)
+            response = HttpResponse(content_type='text/csv')
+            filename = "%s-invoices-export-%s-%s.csv" % (
+                type, start.strftime('%d/%m/%Y'), end.strftime('%d/%m/%Y'))
+            response[
+                'Content-Disposition'] = "attachment; filename=%s" % filename
+
+            writer = csv.writer(response)
+            if type == INVOICE_TYPE_PURCHASE:
+                writer.writerow(
+                    ['Client', 'Project', 'Description', 'Developer',
+                     'Invoice Number', 'Amount (EUR)', 'Invoice Date',
+                     'Status'])
+                if invoices:
+                    [writer.writerow([
+                        invoice.project.owner.display_name.encode(
+                            'utf-8').strip() if invoice.project.owner else invoice.project.user.display_name.encode(
+                            'utf-8').strip(),
+                        invoice.project.title,
+                        invoice.title, invoice.user.display_name,
+                        invoice.number,
+                        invoice.amount,
+                        invoice.created_at.strftime('%d/%m/%Y'),
+                        "Paid" if invoice.paid else "Pending"]) for
+                        invoice in
+                        invoices]
+                else:
+                    writer.writerow(['No records found in that date range'])
+                return response
+
+            writer.writerow(
+                ['Client', 'Project', 'Description', 'Invoice Number',
+                 'Amount (EUR)', 'Invoice Date', 'Due Date', 'Status'])
+
+            if invoices:
+                [writer.writerow([
+                    invoice.project.owner.display_name.encode(
+                        'utf-8').strip() if invoice.project.owner else invoice.project.user.display_name.encode(
+                        'utf-8').strip(),
+                    invoice.project.title,
+                    invoice.title, invoice.number, invoice.amount,
+                    invoice.created_at.strftime('%d/%m/%Y'),
+                    invoice.due_at.strftime('%d/%m/%Y'),
+                    "Paid" if invoice.paid else "Pending"]) for
+                    invoice in
+                    invoices]
+            else:
+                writer.writerow(['No records found in that date range'])
+            return response
 
 
 class PaymentViewSet(ModelViewSet):

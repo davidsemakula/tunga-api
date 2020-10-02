@@ -6,7 +6,7 @@ from rest_framework.serializers import ListSerializer
 
 from tunga_payments.models import Payment, Invoice
 from tunga_projects.serializers import NestedProjectSerializer, SimpleProgressEventSerializer
-from tunga_utils.constants import PAYMENT_METHOD_STRIPE
+from tunga_utils.constants import PAYMENT_METHOD_STRIPE, INVOICE_TYPE_CHOICES
 from tunga_utils.serializers import NestedModelSerializer, ContentTypeAnnotatedModelSerializer, \
     CreateOnlyCurrentUserDefault, SimplestUserSerializer, SimpleModelSerializer
 
@@ -79,6 +79,13 @@ class StripePaymentSerializer(serializers.Serializer):
     ))
     amount = serializers.DecimalField(required=True, max_digits=17, decimal_places=2)
     token = serializers.CharField(required=True)
+
+
+class ExportInvoiceSerializer(serializers.Serializer):
+    start = serializers.DateTimeField(required=True)
+    end = serializers.DateTimeField(required=True)
+    type = serializers.ChoiceField(required=True, choices=INVOICE_TYPE_CHOICES)
+    paid = serializers.BooleanField(required=True)
 
 
 class StripePaymentIntentSerializer(serializers.Serializer):
