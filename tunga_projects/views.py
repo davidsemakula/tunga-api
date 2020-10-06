@@ -198,13 +198,13 @@ class ClientSurveyTemplate(TemplateView):
                                                       status=STATUS_ACCEPTED).values_list(
             'user_id', flat=True)
         team_users_ids = list(team_users_ids)
-        developers = TungaUser.objects.filter(id__in=team_users_ids)
+        developers = TungaUser.objects.filter(id__in=team_users_ids).order_by("-date_joined")
         project_event = ProgressEvent.objects.filter(project=project,
                                                      type=PROGRESS_EVENT_DEVELOPER_RATING).first()
         context = super(ClientSurveyTemplate, self).get_context_data(**kwargs)
         context['project'] = project
         context['project_event'] = project_event
-        context['developers'] = reversed(developers)
+        context['developers'] = developers
         context['ids_of_devs'] = ','.join([str(i) for i in team_users_ids])
         return context
 
