@@ -208,7 +208,7 @@
 
         #contact-us {
             text-align: center;
-            padding: 140px 18px 30px;
+            padding: 0px 18px 30px;
         }
 
         .developer-invite-page #contact-us .section-heading {
@@ -762,6 +762,38 @@
         }
     }
     form.addEventListener('submit', handleForm);
+
+    var smileys = document.querySelectorAll("input[type=radio]");
+
+    function checkValidity(event){
+        var ratingType = document.querySelector('input[name="rating_type"]').value;
+
+        if("uuid" in initialisationKeys || ratingType == "dedicated"){
+            var userIds = document.querySelector('input[name="ids_of_devs"]').value;
+            var ids = userIds.split(',');
+
+            ids.forEach(id => {
+                if(!document.querySelector('input[name="' + id + '"]:checked')){
+                    //...
+                }else{
+                    document.getElementById('label-'+id).style.display = "none";
+                }
+            });
+            
+        }else if("pid" in initialisationKeys || ratingType == "project"){
+            var projectId = document.querySelector('input[name="projectId"]').value;
+            if(!document.querySelector('input[name="project-rating-' + projectId + '"]:checked')){
+                //...
+            }else{
+                document.getElementById('label-'+projectId).style.display = "none";
+            }
+        }
+    }
+
+    smileys.forEach(smiley => {
+        smiley.addEventListener("click", checkValidity);
+    });
+
 </script>
 </body>
 </html>
