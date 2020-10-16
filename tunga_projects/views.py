@@ -185,8 +185,7 @@ class ClientSurveyTemplate(TemplateView):
                                                      type=PROGRESS_EVENT_DEVELOPER_RATING).first()
         developer_ratings = DeveloperRating.objects.filter(
             event=project_event).count()
-        project_rating = ProgressReport.objects.filter(
-            event=project_event, ).count()
+        project_rating = project_event.progressreport_set.count()
         if developer_ratings or project_rating:
             return redirect('client_survey_submitted')
         return super(ClientSurveyTemplate, self).get(request, *args, **kwargs)
@@ -198,7 +197,8 @@ class ClientSurveyTemplate(TemplateView):
                                                       status=STATUS_ACCEPTED).values_list(
             'user_id', flat=True)
         team_users_ids = list(team_users_ids)
-        developers = TungaUser.objects.filter(id__in=team_users_ids).order_by("-date_joined")
+        developers = TungaUser.objects.filter(id__in=team_users_ids).order_by(
+            "-date_joined")
         project_event = ProgressEvent.objects.filter(project=project,
                                                      type=PROGRESS_EVENT_DEVELOPER_RATING).first()
         context = super(ClientSurveyTemplate, self).get_context_data(**kwargs)
