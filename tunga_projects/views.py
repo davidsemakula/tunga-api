@@ -214,8 +214,6 @@ class ClientSurveyFormView(CreateView):
     model = DeveloperRating
 
     def post(self, request, *args, **kwargs):
-        print(request)
-        print(request.POST)
         event_id = request.POST['event']
         rating_type = request.POST['rating_type']
         progress_event = ProgressEvent.objects.filter(id=event_id,
@@ -225,7 +223,8 @@ class ClientSurveyFormView(CreateView):
                                                       status=STATUS_ACCEPTED).values_list(
             'user_id', flat=True)
         team_users_ids = list(team_users_ids)
-        if progress_event.progressreport_set.count() > 1:
+        
+        if progress_event.progressreport_set.count() > 0:
             return redirect('client_survey_submitted')
         if rating_type == 'project':
             project_rating = request.POST.get("project-rating-%s" % project.id,
