@@ -185,8 +185,7 @@ class ClientSurveyTemplate(TemplateView):
                                                      type=PROGRESS_EVENT_DEVELOPER_RATING).first()
         developer_ratings = DeveloperRating.objects.filter(
             event=project_event).count()
-        project_rating = ProgressReport.objects.filter(
-            event=project_event, ).count()
+        project_rating = project_event.progressreport_set.count()
         if developer_ratings or project_rating:
             return redirect('client_survey_submitted')
         return super(ClientSurveyTemplate, self).get(request, *args, **kwargs)
@@ -198,13 +197,14 @@ class ClientSurveyTemplate(TemplateView):
                                                       status=STATUS_ACCEPTED).values_list(
             'user_id', flat=True)
         team_users_ids = list(team_users_ids)
-        developers = TungaUser.objects.filter(id__in=team_users_ids)
+        developers = TungaUser.objects.filter(id__in=team_users_ids).order_by(
+            "-date_joined")
         project_event = ProgressEvent.objects.filter(project=project,
                                                      type=PROGRESS_EVENT_DEVELOPER_RATING).first()
         context = super(ClientSurveyTemplate, self).get_context_data(**kwargs)
         context['project'] = project
         context['project_event'] = project_event
-        context['developers'] = reversed(developers)
+        context['developers'] = developers
         context['ids_of_devs'] = ','.join([str(i) for i in team_users_ids])
         return context
 
@@ -214,8 +214,6 @@ class ClientSurveyFormView(CreateView):
     model = DeveloperRating
 
     def post(self, request, *args, **kwargs):
-        print(request)
-        print(request.POST)
         event_id = request.POST['event']
         rating_type = request.POST['rating_type']
         progress_event = ProgressEvent.objects.filter(id=event_id,
@@ -225,6 +223,9 @@ class ClientSurveyFormView(CreateView):
                                                       status=STATUS_ACCEPTED).values_list(
             'user_id', flat=True)
         team_users_ids = list(team_users_ids)
+        
+        if progress_event.progressreport_set.count() > 0:
+            return redirect('client_survey_submitted')
         if rating_type == 'project':
             project_rating = request.POST.get("project-rating-%s" % project.id,
                                               None)
@@ -238,7 +239,7 @@ class ClientSurveyFormView(CreateView):
                     reason_for_rating=reason_for_rating,
                     user=project.owner,
                     event_id=event_id)
-            return redirect('client_survey_success', )
+            return redirect('client_survey_success')
 
         elif rating_type == 'dedicated':
             for user_id in team_users_ids:
