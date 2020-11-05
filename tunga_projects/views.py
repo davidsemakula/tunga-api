@@ -223,7 +223,7 @@ class ClientSurveyFormView(CreateView):
                                                       status=STATUS_ACCEPTED).values_list(
             'user_id', flat=True)
         team_users_ids = list(team_users_ids)
-        
+
         if progress_event.progressreport_set.count() > 0:
             return redirect('client_survey_submitted')
         if rating_type == 'project':

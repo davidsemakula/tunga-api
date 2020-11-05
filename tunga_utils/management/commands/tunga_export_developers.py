@@ -35,7 +35,7 @@ class Command(BaseCommand):
                     [user.date_joined.strftime('%d/%m/%Y'), user.first_name, user.last_name,
                      user.category,
                      user.email, user.phone_number,
-                     user.profile.city if user.profile else "",
+                     user.profile.street if user.profile else "",
                      user.profile.city if user.profile else "",
                      user.profile.country.name if user.profile else "",
                      "https://tunga.io/dev-profile/%d" % user.id])
