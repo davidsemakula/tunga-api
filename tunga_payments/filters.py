@@ -11,6 +11,8 @@ from tunga_utils.filters import GenericDateFilterSet
 
 
 class InvoiceFilter(GenericDateFilterSet):
+    overdue = django_filters.BooleanFilter(method='filter_overdue')
+
     class Meta:
         model = Invoice
         fields = ('type', 'batch_ref', 'number', 'user', 'project', 'created_by', 'paid', 'status', 'overdue',)
