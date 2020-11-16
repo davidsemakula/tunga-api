@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from tunga_profiles.models import Education, Work, Connection, \
+from tunga_profiles.models import Education, Work, ProfileProject, Connection, \
     DeveloperApplication, BTCWallet, UserProfile, AppIntegration, Inquirer, \
     DeveloperInvitation, Skill, Company, \
     WhitePaperUser
@@ -47,6 +47,11 @@ class EducationAdmin(admin.ModelAdmin):
 @admin.register(Work)
 class WorkAdmin(admin.ModelAdmin):
     list_display = ('user', 'company', 'position')
+
+
+@admin.register(ProfileProject)
+class ProfileProjectAdmin(admin.ModelAdmin):
+    list_display = ('user', 'title')
 
 
 @admin.register(Connection)
