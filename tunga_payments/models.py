@@ -17,12 +17,17 @@ from weasyprint import HTML
 from tunga import settings
 from tunga.settings import TUNGA_URL
 from tunga_projects.models import Project, Participation, ProgressEvent
-from tunga_utils.constants import PAYMENT_METHOD_STRIPE, PAYMENT_METHOD_BANK, PAYMENT_METHOD_BITCOIN, \
-    PAYMENT_METHOD_BITONIC, INVOICE_TYPE_TUNGA, STATUS_CANCELED, STATUS_APPROVED, STATUS_PENDING, \
+from tunga_utils.constants import PAYMENT_METHOD_STRIPE, PAYMENT_METHOD_BANK, \
+    PAYMENT_METHOD_BITCOIN, \
+    PAYMENT_METHOD_BITONIC, INVOICE_TYPE_TUNGA, STATUS_CANCELED, \
+    STATUS_APPROVED, STATUS_PENDING, \
     INVOICE_TYPE_CHOICES, CURRENCY_EUR, CURRENCY_CHOICES_EUR_ONLY, \
-    INVOICE_TYPE_PURCHASE, PAYMENT_TYPE_PURCHASE, PAYMENT_TYPE_SALE, VAT_LOCATION_WORLD, VAT_LOCATION_EUROPE, \
-    VAT_LOCATION_NL, INVOICE_TYPE_SALE, INVOICE_TYPE_CLIENT, INVOICE_PAYMENT_METHOD_CHOICES, STATUS_INITIATED, \
-    STATUS_COMPLETED, STATUS_FAILED, STATUS_RETRY, INVOICE_TYPE_CREDIT_NOTA
+    INVOICE_TYPE_PURCHASE, PAYMENT_TYPE_PURCHASE, PAYMENT_TYPE_SALE, \
+    VAT_LOCATION_WORLD, VAT_LOCATION_EUROPE, \
+    VAT_LOCATION_NL, INVOICE_TYPE_SALE, INVOICE_TYPE_CLIENT, \
+    INVOICE_PAYMENT_METHOD_CHOICES, STATUS_INITIATED, \
+    STATUS_COMPLETED, STATUS_FAILED, STATUS_RETRY, INVOICE_TYPE_CREDIT_NOTA, \
+    INVOICE_TYPE_SALE_DUE_DATE, INVOICE_TYPE_PURCHASE_DUE_DATE
 from tunga_utils.validators import validate_btc_address_or_none
 
 
@@ -174,10 +179,10 @@ class Invoice(models.Model):
     @property
     def due_at(self):
         if self.type == INVOICE_TYPE_SALE and self.issued_at:
-            return (self.issued_at + relativedelta(days=14)).replace(
+            return (self.issued_at + relativedelta(days=INVOICE_TYPE_SALE_DUE_DATE)).replace(
                 hour=23, minute=59, second=59, microsecond=999999)
         elif self.type == INVOICE_TYPE_PURCHASE and self.issued_at:
-            return (self.issued_at + relativedelta(days=5)).replace(
+            return (self.issued_at + relativedelta(days=INVOICE_TYPE_PURCHASE_DUE_DATE)).replace(
                 hour=23, minute=59, second=59, microsecond=999999)
         return self.issued_at
 

@@ -529,11 +529,3 @@ if 'test' in sys.argv[1:]:
     TESTS_IN_PROGRESS = True
     MIGRATION_MODULES = DisableMigrations()
 
-# add sentry code to server
-# import sentry_sdk
-# from sentry_sdk.integrations.django import DjangoIntegration
-#
-# sentry_sdk.init(
-#     dsn="https://16d0dbd199654df0a76e6dd257a45d7d@sentry.io/1806591",
-#     integrations=[DjangoIntegration()]
-# )

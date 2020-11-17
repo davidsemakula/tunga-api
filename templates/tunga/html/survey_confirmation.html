@@ -208,7 +208,7 @@
 
         #contact-us {
             text-align: center;
-            padding: 140px 18px 30px;
+            padding: 0px 18px 30px;
         }
 
         .developer-invite-page #contact-us .section-heading {
@@ -481,7 +481,7 @@
                            value="dedicated">
                     <input type="hidden" id="eventType"
                            name="numbers_of_devs"
-                           value="{{ developers|length }}">
+                           value="{{ developers.count }}">
                     <input type="hidden" id="eventType"
                            id="ids_of_devs"
                            name="ids_of_devs"
@@ -627,12 +627,19 @@
                                       name="feedback-{{ developer.id }}"></textarea>
                         </div>
 
+                        {% empty %}
+
+                        <p style="margin-top: 24px">The project currently has no developers attached to it for you to rate. Please ask Tunga personnel to enable this.</p>
+
                     {% endfor %}
-                    <div class="survey__btn-wrapper">
-                        <button type="submit" class="btn btn-primary">Submit
-                            Rating
-                        </button>
-                    </div>
+
+                    {% if developers.count > 0 %}
+                        <div class="survey__btn-wrapper">
+                            <button type="submit" class="btn btn-primary">Submit
+                                Rating
+                            </button>
+                        </div>
+                    {% endif %}
                 </form>
             {% else %}
                 <div class="section-heading ">
@@ -713,26 +720,40 @@
         userInitialisation.checked = true;
     }
 
+    (function() {
+        //....
+    })();
+
     var form = document.getElementById("myForm");
     function handleForm(event) {
         event.preventDefault();
-        var submit = true;
+        var submit = false;
 
-        if("uuid" in initialisationKeys){
+        var ratingType = document.querySelector('input[name="rating_type"]').value;
+
+        if("uuid" in initialisationKeys || ratingType == "dedicated"){
             var userIds = document.querySelector('input[name="ids_of_devs"]').value;
             var ids = userIds.split(',');
+            
+            var _submit = true
 
             ids.forEach(id => {
                 if(!document.querySelector('input[name="' + id + '"]:checked')){
                     document.getElementById('label-'+id).style.display = "initial";
-                    submit = false
+                    _submit = false;
                 }
             });
-        }else{
+
+            if(_submit){
+                submit = true;
+            }
+            
+        }else if("pid" in initialisationKeys || ratingType == "project"){
             var projectId = document.querySelector('input[name="projectId"]').value;
             if(!document.querySelector('input[name="project-rating-' + projectId + '"]:checked')){
                 document.getElementById('label-'+projectId).style.display = "initial";
-                submit = false
+            }else{
+                submit = true;
             }
         }
 
@@ -741,6 +762,38 @@
         }
     }
     form.addEventListener('submit', handleForm);
+
+    var smileys = document.querySelectorAll("input[type=radio]");
+
+    function checkValidity(event){
+        var ratingType = document.querySelector('input[name="rating_type"]').value;
+
+        if("uuid" in initialisationKeys || ratingType == "dedicated"){
+            var userIds = document.querySelector('input[name="ids_of_devs"]').value;
+            var ids = userIds.split(',');
+
+            ids.forEach(id => {
+                if(!document.querySelector('input[name="' + id + '"]:checked')){
+                    //...
+                }else{
+                    document.getElementById('label-'+id).style.display = "none";
+                }
+            });
+            
+        }else if("pid" in initialisationKeys || ratingType == "project"){
+            var projectId = document.querySelector('input[name="projectId"]').value;
+            if(!document.querySelector('input[name="project-rating-' + projectId + '"]:checked')){
+                //...
+            }else{
+                document.getElementById('label-'+projectId).style.display = "none";
+            }
+        }
+    }
+
+    smileys.forEach(smiley => {
+        smiley.addEventListener("click", checkValidity);
+    });
+
 </script>
 </body>
 </html>
