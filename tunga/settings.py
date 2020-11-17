@@ -180,7 +180,7 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'tunga/static'),
 )
 
-SSO_TOKEN_URL = 'https://id.tunga.io/api/'
+SSO_TOKEN_URL = 'https://id-staging.tunga.io/api/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
