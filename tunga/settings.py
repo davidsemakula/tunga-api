@@ -331,8 +331,10 @@ REST_AUTH_SERIALIZERS = {
     'USER_DETAILS_SERIALIZER': 'tunga_auth.serializers.UserSerializer',
     'PASSWORD_RESET_SERIALIZER': 'tunga_auth.serializers.TungaPasswordResetSerializer',
     'PASSWORD_RESET_CONFIRM_SERIALIZER': 'tunga_auth.serializers.TungaPasswordResetConfirmSerializer',
+    'PASSWORD_CHANGE_SERIALIZER': 'tunga_auth.serializers.TungaDefaultPasswordChangeSerializer',
 }
 
+OLD_PASSWORD_FIELD_ENABLED = True
 REST_AUTH_REGISTER_SERIALIZERS = {
     'REGISTER_SERIALIZER': 'tunga_auth.serializers.TungaRegisterSerializer',
 }
