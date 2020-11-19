@@ -23,8 +23,7 @@ class Command(BaseCommand):
 
         users = TungaUser.objects.filter(is_active=True)
         row = ['Date', 'Last Login', 'First Name', ' Last Name', 'Email',
-               'Username', 'Role',
-               'Active', 'Password']
+               'Username', 'Role', 'Type', 'Active', 'Password']
         with open('tunga_users_active.csv', 'a') as csvFile:
             writer = csv.writer(csvFile)
             writer.writerow(row)
@@ -36,6 +35,7 @@ class Command(BaseCommand):
                         'utf-8').strip(), user.email,
                      user.username,
                      user_type.get(user.type, None),
+                     user.type,
                      user.is_active, user.password])
 
         csvFile.close()

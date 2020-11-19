@@ -243,8 +243,6 @@ class TungaRegisterSerializer(RegisterSerializer):
             # Skip email activation for developer applications and invitations
             adapter = get_adapter()
             adapter.stash_verified_email(request, email)
-        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-        print(cleaned_data)
 
         user = super(TungaRegisterSerializer, self).save(request)
         user.type = user_type
