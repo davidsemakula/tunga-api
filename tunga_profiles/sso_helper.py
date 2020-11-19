@@ -39,9 +39,9 @@ def change_sso_user_password(user, old_password, new_password):
     pay_load = {
         'old_password': old_password,
         'new_password': new_password,
-        'id': user.sso_uuid
     }
-    sso_create_user_endpoint = SSO_TOKEN_URL + "reset/password/"
+    sso_create_user_endpoint = SSO_TOKEN_URL + "users/%s/set_password/" % user.sso_uuid
     response = requests.post(sso_create_user_endpoint, data=pay_load)
     if response.status_code == HTTP_200_OK:
-        return response.json()
+        return True
+    return False

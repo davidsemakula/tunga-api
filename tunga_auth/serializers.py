@@ -321,10 +321,13 @@ class TungaDefaultPasswordChangeSerializer(serializers.Serializer):
     def save(self):
         old_password = self.validated_data['old_password']
         new_password = self.validated_data['new_password1']
-        self.set_password_form.save()
-        sso_helper.change_sso_user_password(self.user,
-                                            old_password=old_password,
-                                            new_password=new_password)
+        sso_password_change = sso_helper.change_sso_user_password(self.user,
+                                                                  old_password=old_password,
+                                                                  new_password=new_password)
+        if sso_password_change:
+            self.set_password_form.save()
+        else:
+            raise serializers.ValidationError('Password not saved')
 
         if not self.logout_on_password_change:
             from django.contrib.auth import update_session_auth_hash
