@@ -15,7 +15,7 @@ def sync_user_sso(user, password):
 
     user_data = {
         'first_name': user.first_name,
-        'last_name': user.first_name,
+        'last_name': user.last_name,
         'username': user.username,
         'email': user.email,
         'password': password,
