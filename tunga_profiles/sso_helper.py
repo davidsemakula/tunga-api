@@ -51,6 +51,50 @@ def change_sso_user_password(user, old_password, new_password):
     return False
 
 
+def update_sso_user_details(user_profile, data):
+    user_details = {
+        "first_name": data.get('first_name'),
+        "last_name": data.get('first_name'),
+        "country": data.get('country'),
+        "zip_code": data.get('postal_code'),
+        "city": data.get('city'),
+        "street": data.get('street'),
+        "phone_number": data.get('phone_number'),
+
+    }
+    headers = {
+        'Authorization': "Bearer %s" % get_sso_access_token(user_profile.user)
+    }
+
+    sso_update_user_endpoint = SSO_TOKEN_URL + "users/%s/" % user_profile.user.sso_uuid
+    update_user_response = requests.patch(sso_update_user_endpoint,
+                                          data=user_details,
+                                          headers=headers)
+    if update_user_response.status_code == HTTP_200_OK:
+        return True
+    return False
+
+
+def update_platform_user_details(user):
+    headers = {
+        'Authorization': "Bearer %s" % get_sso_access_token(user)
+    }
+
+    sso_user_details_endpoint = SSO_TOKEN_URL + "users/%s/" % user.sso_uuid
+    sso_user_details_response = requests.get(sso_user_details_endpoint,
+                                             headers=headers)
+    if sso_user_details_response.status_code == HTTP_200_OK:
+        user_details = sso_user_details_response.json()
+        user.profile.country = user_details.get('country')
+        user.profile.postal_code = user_details.get('zip_code')
+        user.profile.phone_number = user_details.get('phone_number')
+        user.profile.city = user_details.get('city')
+        user.profile.street = user_details.get('street')
+        user.save()
+
+    return None
+
+
 def set_sso_user_password(user, new_password):
     pay_load = {
         'new_password': new_password,
@@ -96,8 +140,8 @@ def change_user_access_in_sso(current_user, email, platform_role):
                 'platform_role': platform_role
             }
             update_user_response = requests.patch(sso_update_user_endpoint,
-                                                 data=payload,
-                                                 headers=headers)
+                                                  data=payload,
+                                                  headers=headers)
             if update_user_response.status_code == HTTP_200_OK:
                 return True
         else:

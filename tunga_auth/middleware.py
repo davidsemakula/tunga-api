@@ -10,6 +10,7 @@ from rest_framework.response import Response
 
 from tunga import settings
 from tunga_auth.models import TungaUser
+from tunga_profiles import sso_helper
 from tunga_utils.constants import USER_TYPE_DEVELOPER
 
 
@@ -63,7 +64,7 @@ class TungaSSORemoteUserBackend(RemoteUserBackend):
                         'type': USER_TYPE_DEVELOPER,
                         'verified': True
                     })
-
+                sso_helper.update_platform_user_details(user=user)
                 user.sso_refresh_token = refresh_token
                 user.set_password(password)
                 user.sso_uuid = response_data.get('id')
