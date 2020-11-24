@@ -51,6 +51,21 @@ def change_sso_user_password(user, old_password, new_password):
     return False
 
 
+def set_sso_user_password(user, new_password):
+    pay_load = {
+        'new_password': new_password,
+    }
+    sso_create_user_endpoint = SSO_TOKEN_URL + "users/%s/set_password/" % user.sso_uuid
+    headers = {
+        'Authorization': "Bearer %s" % get_sso_access_token(user)
+    }
+    response = requests.post(sso_create_user_endpoint, data=pay_load,
+                             headers=headers)
+    if response.status_code == HTTP_200_OK:
+        return True
+    return False
+
+
 def check_if_users_exists_in_sso(current_user, email):
     sso_filter_user_by_email_endpoint = SSO_TOKEN_URL + "users/?email=%s" % requests.utils.quote(
         email)
