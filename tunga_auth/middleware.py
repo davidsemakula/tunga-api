@@ -10,6 +10,7 @@ from rest_framework.response import Response
 
 from tunga import settings
 from tunga_auth.models import TungaUser
+from tunga_utils.constants import USER_TYPE_DEVELOPER
 
 
 class UserLastActivityMiddleware(MiddlewareMixin):
@@ -31,19 +32,7 @@ class TungaSSORemoteUserBackend(RemoteUserBackend):
 
     def __init__(self, session=None):
         super(TungaSSORemoteUserBackend, self).__init__()
-        # self.session = session if session else self._create_session()
         self.sso_base_url = settings.SSO_TOKEN_URL
-
-    # @staticmethod
-    # def _create_session():
-    #     s = requests.Session()
-    #     s.headers.update(
-    #         {
-    #             'accept': 'application/json',
-    #             'Content-Type': 'application/json'
-    #         }
-    #     )
-    #     return s
 
     def authenticate(self, request, username=None, password=None, **kwargs):
 
@@ -58,10 +47,28 @@ class TungaSSORemoteUserBackend(RemoteUserBackend):
         }
         response = requests.post(url=api_url, data=data)
         if response.status_code == 200:
-            username = response.json()['username']
-            platform_access = response.json()['platform_access']
+            response_data = response.json()
+            refresh_token = response_data['refresh']
+            platform_access = response_data['platform_access']
             if 'platform' in platform_access:
-                user = get_object_or_404(TungaUser, username=username)
+                user, created = TungaUser.objects.get_or_create(
+                    username=response_data.get('username'),
+                    defaults={
+                        'email': response_data.get('email'),
+                        'sso_uuid': response_data.get('id'),
+                        'sso_refresh_token': refresh_token,
+                        'first_name': response_data.get('first_name'),
+                        'last_name': response_data.get('last_name'),
+                        'is_active': True,
+                        'type': USER_TYPE_DEVELOPER,
+                        'verified': True
+                    })
+
+                user.sso_refresh_token = refresh_token
+                user.set_password(password)
+                user.sso_uuid = response_data.get('id')
+                user.save()
+
                 return user if self.user_can_authenticate(user) else None
             else:
                 raise ValidationError(no_access_message)
