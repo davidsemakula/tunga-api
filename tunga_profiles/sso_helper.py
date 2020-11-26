@@ -84,22 +84,41 @@ def update_platform_user_details(user):
     sso_user_details_response = requests.get(sso_user_details_endpoint,
                                              headers=headers)
     if sso_user_details_response.status_code == HTTP_200_OK:
+        print(user.profile)
         user_details = sso_user_details_response.json()
-        user.profile.country = user_details.get('country')
-        user.profile.postal_code = user_details.get('zip_code')
-        user.profile.phone_number = user_details.get('phone_number')
-        user.profile.city = user_details.get('city')
-        user.profile.street = user_details.get('street')
-        user.save()
+        if user.profile:
+            user.profile.country = user_details.get('country', None)
+            user.profile.postal_code = user_details.get('zip_code', None)
+            user.profile.phone_number = user_details.get('phone_number', None)
+            user.profile.city = user_details.get('city', None)
+            user.profile.street = user_details.get('street', None)
+            user.save()
+        return True
 
     return None
 
 
-def set_sso_user_password(user, new_password):
+def set_sso_user_password(user, new_password, over_ride=False):
     pay_load = {
         'new_password': new_password,
     }
     sso_create_user_endpoint = SSO_TOKEN_URL + "users/%s/set_password/" % user.sso_uuid
+
+    if over_ride:
+        api_url = SSO_TOKEN_URL + 'token/'
+        data = {
+            "username": user.email,
+            "password": user.sso_refresh_token
+        }
+        response = requests.post(url=api_url, data=data)
+        if response.status_code == 200:
+            response_data = response.json()
+            refresh_token = response_data['refresh']
+            user.sso_refresh_token = refresh_token
+            user.save()
+        else:
+            return False
+
     headers = {
         'Authorization': "Bearer %s" % get_sso_access_token(user)
     }

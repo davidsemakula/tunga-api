@@ -25,7 +25,7 @@ from tunga_profiles import sso_helper
 from tunga_profiles.notifications import \
     send_developer_invitation_accepted_email
 from tunga_utils.constants import USER_TYPE_DEVELOPER, STATUS_REJECTED, \
-    STATUS_INITIAL, STATUS_ACCEPTED
+    STATUS_INITIAL, STATUS_ACCEPTED, USER_SOURCE_MANUAL
 from tunga_profiles.models import Connection, DeveloperApplication, UserProfile, \
     DeveloperInvitation, Company
 from tunga_utils.mixins import GetCurrentUserAnnotatedSerializerMixin
@@ -140,7 +140,7 @@ class UserSerializer(NestedModelSerializer, SimpleUserSerializer,
             try:
                 connection = Connection.objects.filter(
                     (Q(to_user=current_user) & Q(from_user=obj)) | (
-                        Q(to_user=obj) & Q(from_user=current_user))
+                            Q(to_user=obj) & Q(from_user=current_user))
                 ).latest('created_at')
                 return SimpleConnectionSerializer(connection).data
             except:
@@ -314,7 +314,6 @@ class TungaPasswordResetSerializer(PasswordResetSerializer):
 class TungaPasswordResetConfirmSerializer(PasswordResetConfirmSerializer):
 
     def save(self):
-        super(TungaPasswordResetConfirmSerializer, self).save()
         try:
             uid = force_text(
                 urlsafe_base64_decode(self.initial_data.get('uid', None)))
@@ -326,16 +325,19 @@ class TungaPasswordResetConfirmSerializer(PasswordResetConfirmSerializer):
             email_address.primary = True
             email_address.save()
             new_password = self.validated_data['new_password1']
-            if sso_helper.set_sso_user_password(user=user,
-                                                new_password=new_password):
-                pass
+            if user.source == USER_SOURCE_MANUAL and user.password == "":
+                sso_helper.set_sso_user_password(user=user,
+                                                 new_password=new_password,
+                                                 over_ride=True)
             else:
-                return ValidationError('Password not reset please try again')
+                if sso_helper.set_sso_user_password(user=user,
+                                                    new_password=new_password):
+                    pass
+                else:
+                    return ValidationError('Password not reset please try again')
 
-            request = self.context.get("request", None)
-            if request:
-                user.backend = 'django.contrib.auth.backends.ModelBackend'
-                login(request, user)
+            user.set_password(new_password)
+            return user
         except:
             pass
 

@@ -530,4 +530,3 @@ if 'test' in sys.argv[1:]:
     TEMPLATE_DEBUG = False
     TESTS_IN_PROGRESS = True
     MIGRATION_MODULES = DisableMigrations()
-
