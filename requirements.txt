@@ -56,7 +56,7 @@ ipaddress==1.0.23         # via cryptography
 isort==4.3.4
 itypes==1.1.0             # via coreapi
 jinja2==2.10.1            # via coreschema
-lxml==3.6.4               # via premailer
+lxml==4.6.2               # via premailer
 mailchimp3==2.0.7
 mandrill==1.0.57
 markupsafe==1.0           # via jinja2
