@@ -1,4 +1,5 @@
 import requests
+from django.core.files.base import ContentFile
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
 
 from tunga.settings import SSO_TOKEN_URL
@@ -52,9 +53,8 @@ def change_sso_user_password(user, old_password, new_password):
 
 
 def update_sso_user_details(user_profile, data):
+    file_dict = {}
     user_details = {
-        "first_name": data.get('first_name'),
-        "last_name": data.get('first_name'),
         "country": data.get('country'),
         "zip_code": data.get('postal_code'),
         "city": data.get('city'),
@@ -65,10 +65,16 @@ def update_sso_user_details(user_profile, data):
     headers = {
         'Authorization': "Bearer %s" % get_sso_access_token(user_profile.user)
     }
-
+    if data.get('user'):
+        user = data.get('user')
+        user_details['first_name'] = user.get('first_name')
+        user_details['last_name'] = user.get('last_name')
+        if user.get('image', None):
+            file_dict['image'] = user['image']
     sso_update_user_endpoint = SSO_TOKEN_URL + "users/%s/" % user_profile.user.sso_uuid
     update_user_response = requests.patch(sso_update_user_endpoint,
                                           data=user_details,
+                                          files=file_dict,
                                           headers=headers)
     if update_user_response.status_code == HTTP_200_OK:
         return True
@@ -84,7 +90,6 @@ def update_platform_user_details(user):
     sso_user_details_response = requests.get(sso_user_details_endpoint,
                                              headers=headers)
     if sso_user_details_response.status_code == HTTP_200_OK:
-        print(user.profile)
         user_details = sso_user_details_response.json()
         if user.profile:
             user.profile.country = user_details.get('country', None)
@@ -93,6 +98,13 @@ def update_platform_user_details(user):
             user.profile.city = user_details.get('city', None)
             user.profile.street = user_details.get('street', None)
             user.save()
+
+            if user_details.get('image', None):
+                image_url_status = requests.get(user_details.get('image'))
+                file_name = user_details.get('image').split('/')[-1]
+                if image_url_status.status_code == HTTP_200_OK:
+                    user.image.save(file_name, ContentFile(image_url_status.content), save=True)
+
         return True
 
     return None

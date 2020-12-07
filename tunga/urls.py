@@ -15,6 +15,7 @@ Including another URLconf
 """
 from allauth.account.views import ConfirmEmailView
 from django.conf.urls import url, include
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth.views import password_reset_confirm
 from django.contrib.sitemaps.views import sitemap
@@ -183,4 +184,4 @@ urlpatterns = [
     url(r'^surveys/client/(?P<id>\d+)/created/$', ClientSurveyFormView.as_view(), name="client_survey_submit"),
     url('api/sentry-debug/', trigger_error),
 
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
