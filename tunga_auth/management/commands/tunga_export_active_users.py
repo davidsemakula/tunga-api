@@ -42,7 +42,6 @@ class Command(BaseCommand):
                      user.is_active, user.password,
                      user.profile.country if user.profile else "",
                      user.profile.postal_code if user.profile else "",
-                     user.profile.postal_code if user.profile else "",
                      user.profile.city if user.profile else "",
                      user.profile.street if user.profile else "",
                      user.profile.phone_number if user.profile else "",
