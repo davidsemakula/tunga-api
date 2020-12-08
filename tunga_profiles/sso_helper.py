@@ -3,6 +3,7 @@ from django.core.files.base import ContentFile
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
 
 from tunga.settings import SSO_TOKEN_URL
+from tunga_profiles.models import UserProfile
 from tunga_utils.constants import USER_TYPE_DEVELOPER, \
     USER_TYPE_PROJECT_MANAGER, USER_TYPE_PROJECT_OWNER
 
@@ -91,19 +92,23 @@ def update_platform_user_details(user):
                                              headers=headers)
     if sso_user_details_response.status_code == HTTP_200_OK:
         user_details = sso_user_details_response.json()
-        if user.profile:
-            user.profile.country = user_details.get('country', None)
-            user.profile.postal_code = user_details.get('zip_code', None)
-            user.profile.phone_number = user_details.get('phone_number', None)
-            user.profile.city = user_details.get('city', None)
-            user.profile.street = user_details.get('street', None)
-            user.save()
 
-            if user_details.get('image', None):
-                image_url_status = requests.get(user_details.get('image'))
-                file_name = user_details.get('image').split('/')[-1]
-                if image_url_status.status_code == HTTP_200_OK:
-                    user.image.save(file_name, ContentFile(image_url_status.content), save=True)
+        profile, created = UserProfile.objects.update_or_create(
+            user=user,
+            defaults={
+                'country': user_details.get('country', None),
+                'postal_code': user_details.get('zip_code', None),
+                'phone_number': user_details.get('phone_number', None),
+                'city': user_details.get('city', None),
+                'street': user_details.get('street', None),
+            }
+        )
+
+        if user_details.get('image', None):
+            image_url_status = requests.get(user_details.get('image'))
+            file_name = user_details.get('image').split('/')[-1]
+            if image_url_status.status_code == HTTP_200_OK:
+                user.image.save(file_name, ContentFile(image_url_status.content), save=True)
 
         return True
 
