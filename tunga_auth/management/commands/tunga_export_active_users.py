@@ -27,7 +27,7 @@ class Command(BaseCommand):
         row = ['Date', 'Last Login', 'First Name', ' Last Name', 'Email',
                'Username', 'Role', 'Type', 'Active', 'Password', 'Country', 'Zip Code', 'City', 'Street',
                'Phone_number', 'Image']
-        with open('tunga_users_active.csv', 'a') as csvFile:
+        with open('tunga_users_active.csv', 'w') as csvFile:
             writer = csv.writer(csvFile)
             writer.writerow(row)
 
@@ -45,6 +45,6 @@ class Command(BaseCommand):
                      user.profile.city if user.profile else "",
                      user.profile.street if user.profile else "",
                      user.profile.phone_number if user.profile else "",
-                     "%s%s" % (TUNGA_URL, user.image.url)]) if user.image else ""
+                     "%s%s" % (TUNGA_URL, user.image.url) if user.image else "", ])
 
         csvFile.close()
