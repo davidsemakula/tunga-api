@@ -10,7 +10,8 @@ from tunga_utils.constants import USER_TYPE_DEVELOPER, \
 DEVELOPPP_TEST_CONTRIBUTOR = 2
 PLATFORM_DESIGNER_ROLE_ON_SSO = 4
 
-def sync_user_sso(user, password):
+
+def sync_user_sso(user, password, over_ride=True):
     testing_role = USER_TYPE_DEVELOPER
     user_type = user.type
     if user.type == USER_TYPE_DEVELOPER:
@@ -40,17 +41,18 @@ def sync_user_sso(user, password):
         sso_uuid = response.json()['id']
         user.sso_uuid = sso_uuid
         user.save()
-        api_url = SSO_TOKEN_URL + 'token/'
-        data = {
-            "username": user.email,
-            "password": password
-        }
-        response = requests.post(url=api_url, data=data)
-        if response.status_code == 200:
-            response_data = response.json()
-            refresh_token = response_data['refresh']
-            user.sso_refresh_token = refresh_token
-            user.save()
+        if over_ride:
+            api_url = SSO_TOKEN_URL + 'token/'
+            data = {
+                "username": user.email,
+                "password": password
+            }
+            response = requests.post(url=api_url, data=data)
+            if response.status_code == 200:
+                response_data = response.json()
+                refresh_token = response_data['refresh']
+                user.sso_refresh_token = refresh_token
+                user.save()
 
 
 def change_sso_user_password(user, old_password, new_password):

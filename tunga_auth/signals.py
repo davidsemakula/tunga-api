@@ -32,7 +32,7 @@ def activity_handler_new_user(sender, instance, created, **kwargs):
         random_string = ''.join(random.choice(string.ascii_lowercase) for _ in range(18))
         instance.sso_refresh_token = random_string
         instance.save()
-        sso_helper.sync_user_sso(user=instance, password=random_string)
+        sso_helper.sync_user_sso(user=instance, password=random_string, over_ride=False)
 
         if instance.is_developer:
             sync_algolia_user.delay(instance.id)
