@@ -5,13 +5,18 @@ from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
 from tunga.settings import SSO_TOKEN_URL
 from tunga_profiles.models import UserProfile
 from tunga_utils.constants import USER_TYPE_DEVELOPER, \
-    USER_TYPE_PROJECT_MANAGER, USER_TYPE_PROJECT_OWNER
+    USER_TYPE_PROJECT_MANAGER, USER_TYPE_PROJECT_OWNER, USER_CATEGORY_DESIGNER
 
 DEVELOPPP_TEST_CONTRIBUTOR = 2
-
+PLATFORM_DESIGNER_ROLE_ON_SSO = 4
 
 def sync_user_sso(user, password):
     testing_role = USER_TYPE_DEVELOPER
+    user_type = user.type
+    if user.type == USER_TYPE_DEVELOPER:
+        if user.category == USER_CATEGORY_DESIGNER:
+            user_type = PLATFORM_DESIGNER_ROLE_ON_SSO
+
     if user.type == USER_TYPE_PROJECT_MANAGER or user.type == USER_TYPE_PROJECT_OWNER:
         testing_role = DEVELOPPP_TEST_CONTRIBUTOR
 
@@ -21,7 +26,7 @@ def sync_user_sso(user, password):
         'username': user.username,
         'email': user.email,
         'password': password,
-        'platform_role': user.type,
+        'platform_role': user_type,
         'developpp_role': testing_role,
         'access': [
             'platform', 'developpp'
