@@ -35,7 +35,7 @@ def sync_user_sso(user, password, over_ride=True):
 
     }
 
-    sso_create_user_endpoint = SSO_TOKEN_URL + "users/"
+    sso_create_user_endpoint = SSO_TOKEN_URL + "users/?source=platform"
     response = requests.post(sso_create_user_endpoint, data=user_data)
     if response.status_code == HTTP_201_CREATED:
         sso_uuid = response.json()['id']
