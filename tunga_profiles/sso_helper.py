@@ -121,6 +121,9 @@ def update_platform_user_details(user):
                 'street': user_details.get('street', None),
             }
         )
+        user.first_name = user_details.get('first_name', None)
+        user.last_name = user_details.get('last_name', None)
+        user.save()
 
         if user_details.get('image', None):
             image_url_status = requests.get(user_details.get('image'))

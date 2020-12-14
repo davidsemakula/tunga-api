@@ -25,7 +25,7 @@ from tunga_profiles import sso_helper
 from tunga_profiles.notifications import \
     send_developer_invitation_accepted_email
 from tunga_utils.constants import USER_TYPE_DEVELOPER, STATUS_REJECTED, \
-    STATUS_INITIAL, STATUS_ACCEPTED, USER_SOURCE_MANUAL
+    STATUS_INITIAL, STATUS_ACCEPTED, USER_SOURCE_MANUAL, USER_CATEGORY_DEVELOPER
 from tunga_profiles.models import Connection, DeveloperApplication, UserProfile, \
     DeveloperInvitation, Company
 from tunga_utils.mixins import GetCurrentUserAnnotatedSerializerMixin
@@ -222,6 +222,7 @@ class TungaRegisterSerializer(RegisterSerializer):
         invite_key = self.initial_data.get('invite_key', None)
         application = None
         invitation = None
+        user_category = USER_CATEGORY_DEVELOPER
         cleaned_data = self.get_cleaned_data()
 
         if confirm_key:
@@ -236,6 +237,7 @@ class TungaRegisterSerializer(RegisterSerializer):
                 invitation = DeveloperInvitation.objects.get(
                     invitation_key=invite_key, used=False)
                 user_type = invitation.type
+                user_category = invitation.category
             except:
                 raise ValidationError({'invite_key': 'Invalid or expired key'})
 
@@ -246,6 +248,8 @@ class TungaRegisterSerializer(RegisterSerializer):
 
         user = super(TungaRegisterSerializer, self).save(request)
         user.type = user_type
+        if user.type == USER_TYPE_DEVELOPER:
+            user.catergory = user_category
         user.first_name = self.initial_data['first_name']
         user.last_name = self.initial_data['last_name']
         user.pending = False
