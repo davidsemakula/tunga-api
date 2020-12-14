@@ -249,7 +249,7 @@ class TungaRegisterSerializer(RegisterSerializer):
         user = super(TungaRegisterSerializer, self).save(request)
         user.type = user_type
         if user.type == USER_TYPE_DEVELOPER:
-            user.catergory = user_category
+            user.category = user_category
         user.first_name = self.initial_data['first_name']
         user.last_name = self.initial_data['last_name']
         user.pending = False
