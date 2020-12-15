@@ -328,6 +328,23 @@ class InvoiceViewSet(ModelViewSet):
                 writer.writerow(['No records found in that date range'])
             return response
 
+    @list_route(
+        methods=['get'], url_path='archived',
+        permission_classes=[IsAuthenticated, DRYPermissions],
+        filter_backends=DEFAULT_FILTER_BACKENDS + (InvoiceFilterBackend,),
+        filter_class=InvoiceFilter,
+        serializer_class=InvoiceSerializer,
+        queryset=Invoice.objects.filter(archived=True)
+    )
+    def archived(self, request):
+        results = self.filter_queryset(queryset=self.queryset)
+        page = self.paginate_queryset(results)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(results, many=True)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 class PaymentViewSet(ModelViewSet):
     serializer_class = PaymentSerializer
