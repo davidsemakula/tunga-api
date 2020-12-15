@@ -4,6 +4,7 @@ from django.core.management import BaseCommand
 
 from tunga.settings import TUNGA_URL
 from tunga_auth.models import TungaUser
+from tunga_utils.constants import USER_CATEGORY_DESIGNER
 
 
 class Command(BaseCommand):
@@ -16,12 +17,30 @@ class Command(BaseCommand):
         USER_TYPE_DEVELOPER = 1
         USER_TYPE_PROJECT_OWNER = 2
         USER_TYPE_PROJECT_MANAGER = 3
+        USER_TYPE_DESIGNGER = 4
         user_type = {
             USER_TYPE_DEVELOPER: "Developer",
             USER_TYPE_PROJECT_OWNER: "Project Owner",
             USER_TYPE_PROJECT_MANAGER: "Project Manager",
+            USER_TYPE_DESIGNGER: "Designer",
 
         }
+
+        def get_user_role(user):
+            if user.type == USER_TYPE_DEVELOPER:
+                if user.category == USER_CATEGORY_DESIGNER:
+                    return user_type.get(USER_TYPE_DESIGNGER)
+                return user_type.get(USER_TYPE_DEVELOPER)
+            else:
+                return user_type.get(user.type)
+
+        def get_user_type(user):
+            if user.type == USER_TYPE_DEVELOPER:
+                if user.category == USER_CATEGORY_DESIGNER:
+                    return USER_TYPE_DESIGNGER
+                return USER_TYPE_DEVELOPER
+            else:
+                return user.type
 
         users = TungaUser.objects.filter(is_active=True)
         row = ['Date', 'Last Login', 'First Name', ' Last Name', 'Email',
@@ -37,8 +56,8 @@ class Command(BaseCommand):
                         'utf-8').strip(), user.last_name.encode(
                         'utf-8').strip(), user.email,
                      user.username,
-                     user_type.get(user.type, None),
-                     user.type,
+                     get_user_role(user),
+                     get_user_type(user),
                      user.is_active, user.password,
                      user.profile.country if user.profile else "",
                      user.profile.postal_code if user.profile else "",
