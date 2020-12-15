@@ -3,10 +3,13 @@ import datetime
 from django.contrib.auth import get_user_model
 from django_rq.decorators import job
 
-from tunga.settings import TUNGA_STAFF_UPDATE_EMAIL_RECIPIENTS, TUNGA_URL, SLACK_STAFF_INCOMING_WEBHOOK, \
-    SLACK_ATTACHMENT_COLOR_GREEN, SLACK_ATTACHMENT_COLOR_RED, SLACK_STAFF_PROFILES_CHANNEL, SLACK_STAFF_LEADS_CHANNEL, \
+from tunga.settings import TUNGA_STAFF_UPDATE_EMAIL_RECIPIENTS, TUNGA_URL, \
+    SLACK_STAFF_INCOMING_WEBHOOK, \
+    SLACK_ATTACHMENT_COLOR_GREEN, SLACK_ATTACHMENT_COLOR_RED, \
+    SLACK_STAFF_PROFILES_CHANNEL, SLACK_STAFF_LEADS_CHANNEL, \
     SLACK_STAFF_PLATFORM_ALERTS
-from tunga_profiles.models import DeveloperApplication, Skill, DeveloperInvitation, UserProfile, UserRequest
+from tunga_profiles.models import DeveloperApplication, Skill, \
+    DeveloperInvitation, UserProfile, UserRequest
 from tunga_tasks.models import Task
 from tunga_utils import slack_utils
 from tunga_utils.constants import USER_TYPE_DEVELOPER
@@ -17,7 +20,8 @@ from tunga_utils.helpers import clean_instance
 @job
 def send_new_developer_email(instance):
     instance = clean_instance(instance, DeveloperApplication)
-    subject = "{} has applied to become a Tunga developer".format(instance.display_name)
+    subject = "{} has applied to become a Tunga developer".format(
+        instance.display_name)
     to = TUNGA_STAFF_UPDATE_EMAIL_RECIPIENTS
     ctx = {
         'application': instance,
@@ -43,9 +47,11 @@ def send_developer_accepted_email(instance):
     to = [instance.email]
     ctx = {
         'application': instance,
-        'invite_url': '%s/signup/developer/%s/' % (TUNGA_URL, instance.confirmation_key)
+        'invite_url': '%s/signup/developer/%s/' % (
+            TUNGA_URL, instance.confirmation_key)
     }
-    if send_mail(subject, 'tunga/email/developer_application_accepted', to, ctx):
+    if send_mail(subject, 'tunga/email/developer_application_accepted', to,
+                 ctx):
         instance.confirmation_sent_at = datetime.datetime.utcnow()
         instance.save()
 
@@ -67,7 +73,8 @@ def send_new_skill_email(instance):
 
 
 @job
-def send_developer_invited_email(instance, resend=False):
+def send_developer_invited_email(instance, resend=False,
+                                 transfer_from_sso=False):
     instance = clean_instance(instance, DeveloperInvitation)
     subject = "You have been invited to become a Tunga {}".format(
         instance.display_type.lower()
@@ -75,19 +82,31 @@ def send_developer_invited_email(instance, resend=False):
     to = [instance.email]
     ctx = {
         'invite': instance,
-        'invite_url': '%s/signup/invite/%s/' % (TUNGA_URL, instance.invitation_key,)
+        'invite_url': '%s/signup/invite/%s/' % (
+        TUNGA_URL, instance.invitation_key,),
+        'tunga_platform': TUNGA_URL
     }
-    if send_mail(subject, 'tunga/email/user_invitation', to, ctx):
-        if resend:
-            instance.used = False
-            instance.resent = True
-            instance.resent_at = datetime.datetime.utcnow()
-        else:
-            instance.invitation_sent_at = datetime.datetime.utcnow()
-        instance.save()
 
-        if not resend:
-            notify_user_has_been_invited_to_developer_slack(instance)
+    if transfer_from_sso:
+        subject = "You have been granted access to Tunga Platform"
+        send_mail(subject, 'tunga/email/user_invitation_by_transfer', to, ctx)
+        instance.used = True
+        instance.invitation_sent_at = datetime.datetime.utcnow()
+        instance.used_at = datetime.datetime.utcnow()
+        instance.save()
+        notify_user_has_been_invited_to_developer_slack(instance)
+    else:
+        if send_mail(subject, 'tunga/email/user_invitation', to, ctx):
+            if resend:
+                instance.used = False
+                instance.resent = True
+                instance.resent_at = datetime.datetime.utcnow()
+            else:
+                instance.invitation_sent_at = datetime.datetime.utcnow()
+            instance.save()
+
+            if not resend:
+                notify_user_has_been_invited_to_developer_slack(instance)
 
 
 @job
@@ -153,7 +172,8 @@ def notify_user_request_slack(instance):
         # Only send requests for devs
         return
 
-    requester_url = '{}/network/{}'.format(TUNGA_URL, instance.created_by.username)
+    requester_url = '{}/network/{}'.format(TUNGA_URL,
+                                           instance.created_by.username)
     requestee_url = '{}/network/{}'.format(TUNGA_URL, instance.user.username)
     slack_msg = "<{}|{}> requested to work with <{}|{}>".format(
         requester_url,

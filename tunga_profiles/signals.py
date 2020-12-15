@@ -51,12 +51,6 @@ def activity_handler_new_skill(sender, instance, created, **kwargs):
         send_new_skill_email.delay(instance.id)
 
 
-@receiver(post_save, sender=DeveloperInvitation)
-def activity_handler_developer_invitation(sender, instance, created, **kwargs):
-    if created:
-        send_developer_invited_email.delay(instance.id)
-
-
 @receiver(user_profile_updated, sender=UserProfile)
 def activity_handler_profile_update(sender, profile, **kwargs):
     notify_user_profile_updated_slack.delay(profile.id)

@@ -1,0 +1,18 @@
+{% extends "tunga/email/content.html" %}
+{% load i18n %}
+{% block email_header %}
+    Welcome to Tunga! Let's get you set up!
+{% endblock %}
+{% block email_content %}
+    <p>Hi {{ invite.first_name }},</p>
+
+    <p>You have been granted to access to Tunga Platform
+        as {{ invite.display_type | lower }}.</p>
+
+    <p>
+        Click the link below and login using the same credentials you use to
+        access Tunga testing :<br/>
+        <a href="{{ tunga_platform }}">{{ tunga_platform }}</a>
+    </p>
+
+{% endblock %}

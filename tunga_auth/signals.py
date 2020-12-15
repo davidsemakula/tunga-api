@@ -1,3 +1,6 @@
+import random
+import string
+
 from allauth.account.models import EmailAddress
 from allauth.account.signals import user_signed_up
 from django.contrib.auth import get_user_model
@@ -7,6 +10,7 @@ from django.dispatch.dispatcher import receiver
 from tunga_auth.models import EmailVisitor
 from tunga_auth.notifications import send_new_user_password_email
 from tunga_auth.tasks import sync_hubspot_contact, sync_hubspot_email
+from tunga_profiles import sso_helper
 from tunga_profiles.tasks import sync_algolia_user
 from tunga_projects.notifications.slack import notify_new_user_signup_on_platform
 from tunga_utils.constants import USER_TYPE_PROJECT_OWNER, USER_SOURCE_MANUAL
@@ -25,6 +29,10 @@ def activity_handler_new_user(sender, instance, created, **kwargs):
             email_address.save()
 
         send_new_user_password_email.delay(instance.id)
+        random_string = ''.join(random.choice(string.ascii_lowercase) for _ in range(18))
+        instance.sso_refresh_token = random_string
+        instance.save()
+        sso_helper.sync_user_sso(user=instance, password=random_string, over_ride=False)
 
         if instance.is_developer:
             sync_algolia_user.delay(instance.id)
