@@ -20,6 +20,7 @@ from tunga_activity.models import FieldChangeLog, NotificationReadLog
 from tunga_activity.serializers import ActivitySerializer
 from tunga_auth.permissions import IsAdminOrCreateOnly
 from tunga_payments.models import Invoice
+from tunga_profiles import sso_helper
 from tunga_profiles.filterbackends import ConnectionFilterBackend
 from tunga_profiles.filters import EducationFilter, WorkFilter, ConnectionFilter, DeveloperApplicationFilter, \
     DeveloperInvitationFilter
@@ -53,6 +54,10 @@ class ProfileView(generics.CreateAPIView, generics.RetrieveUpdateDestroyAPIView)
             except:
                 pass
         return None
+
+    def perform_update(self, serializer):
+        sso_helper.update_sso_user_details(user_profile=self.get_object(), data=serializer.validated_data)
+        super(ProfileView, self).perform_update(serializer)
 
 
 class CompanyView(generics.CreateAPIView, generics.RetrieveUpdateDestroyAPIView):
@@ -232,8 +237,8 @@ class NotificationView(views.APIView):
             Q(pm=request.user) |
             Q(owner=request.user) |
             (
-                Q(participation__user=request.user) &
-                Q(participation__status__in=[STATUS_INITIAL, STATUS_ACCEPTED])
+                    Q(participation__user=request.user) &
+                    Q(participation__status__in=[STATUS_INITIAL, STATUS_ACCEPTED])
             ), archived=False
         ).distinct()
 
@@ -244,13 +249,13 @@ class NotificationView(views.APIView):
 
         upcoming_progress_events = ProgressEvent.objects.filter(
             (
-                Q(project__pm=request.user) &
-                Q(type__in=[PROGRESS_EVENT_PM, PROGRESS_EVENT_MILESTONE])
+                    Q(project__pm=request.user) &
+                    Q(type__in=[PROGRESS_EVENT_PM, PROGRESS_EVENT_MILESTONE])
             ) |
             (
-                Q(project__participation__user=request.user) &
-                Q(project__participation__status=STATUS_ACCEPTED) &
-                Q(type__in=[PROGRESS_EVENT_DEVELOPER, PROGRESS_EVENT_MILESTONE])
+                    Q(project__participation__user=request.user) &
+                    Q(project__participation__status=STATUS_ACCEPTED) &
+                    Q(type__in=[PROGRESS_EVENT_DEVELOPER, PROGRESS_EVENT_MILESTONE])
             ),
             ~Q(progressreport__user=request.user),
             due_at__gt=datetime.datetime.utcnow() - relativedelta(hours=24)
@@ -268,7 +273,7 @@ class NotificationView(views.APIView):
             ~Q(id__in=[int(item.notification_id) for item in
                        NotificationReadLog.objects.filter(user=user, type=NOTIFICATION_TYPE_ACTIVITY)]) &
             (
-                Q(projects__in=running_projects) | Q(progress_events__project__in=running_projects)
+                    Q(projects__in=running_projects) | Q(progress_events__project__in=running_projects)
             ),
             action_object_content_type__in=[
                 ContentType.objects.get_for_model(model) for model in [Document, Participation, Invoice, FieldChangeLog]

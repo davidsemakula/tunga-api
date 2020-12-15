@@ -44,7 +44,7 @@ class Command(BaseCommand):
 
         users = TungaUser.objects.filter(is_active=True)
         row = ['Date', 'Last Login', 'First Name', ' Last Name', 'Email',
-               'Username', 'Role', 'Type', 'Active', 'Password', 'Country', 'Zip Code', 'City', 'Street',
+               'Username', 'Role', 'Type', 'Active', 'Source','Password', 'Country', 'Zip Code', 'City', 'Street',
                'Phone_number', 'Image']
         with open('tunga_users_active.csv', 'w') as csvFile:
             writer = csv.writer(csvFile)
@@ -58,11 +58,12 @@ class Command(BaseCommand):
                      user.username,
                      get_user_role(user),
                      get_user_type(user),
-                     user.is_active, user.password,
+                     user.is_active, user.source, user.password,
                      user.profile.country if user.profile else "",
                      user.profile.postal_code if user.profile else "",
                      user.profile.city if user.profile else "",
-                     user.profile.street if user.profile else "",
+                     (user.profile.street.encode(
+                         'utf-8').strip() if user.profile.street else "") if user.profile else "",
                      user.profile.phone_number if user.profile else "",
                      "%s%s" % (TUNGA_URL, user.image.url) if user.image else "", ])
 

@@ -180,6 +180,8 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'tunga/static'),
 )
 
+SSO_TOKEN_URL = 'https://id-staging.tunga.io/api/'
+
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_URL = '/media/'
@@ -190,11 +192,15 @@ AUTHENTICATION_BACKENDS = (
     # Third Party
     'oauth2_provider.backends.OAuth2Backend',
 
+    # Tunga SSO
+    'tunga_auth.middleware.TungaSSORemoteUserBackend',
+
     # Default
-    'django.contrib.auth.backends.ModelBackend',
+    # 'django.contrib.auth.backends.ModelBackend',
 
     # Third Party
-    'allauth.account.auth_backends.AuthenticationBackend',
+    # 'allauth.account.auth_backends.AuthenticationBackend',
+
 )
 
 SITE_ID = 1
@@ -325,8 +331,10 @@ REST_AUTH_SERIALIZERS = {
     'USER_DETAILS_SERIALIZER': 'tunga_auth.serializers.UserSerializer',
     'PASSWORD_RESET_SERIALIZER': 'tunga_auth.serializers.TungaPasswordResetSerializer',
     'PASSWORD_RESET_CONFIRM_SERIALIZER': 'tunga_auth.serializers.TungaPasswordResetConfirmSerializer',
+    'PASSWORD_CHANGE_SERIALIZER': 'tunga_auth.serializers.TungaDefaultPasswordChangeSerializer',
 }
 
+OLD_PASSWORD_FIELD_ENABLED = True
 REST_AUTH_REGISTER_SERIALIZERS = {
     'REGISTER_SERIALIZER': 'tunga_auth.serializers.TungaRegisterSerializer',
 }
@@ -348,7 +356,7 @@ COUNTRIES_FIRST_BREAK = ' ---- '
 TUNGA_CONTACT_REQUEST_EMAIL_RECIPIENTS = []
 TUNGA_STAFF_LOW_LEVEL_UPDATE_EMAIL_RECIPIENTS = []
 TUNGA_STAFF_UPDATE_EMAIL_RECIPIENTS = TUNGA_STAFF_LOW_LEVEL_UPDATE_EMAIL_RECIPIENTS
-TUNGA_URL = 'http://sandbox.tunga.io'
+TUNGA_URL = 'https://staging.tunga.io'
 
 TUNGA_FEE_DEV = 19
 TUNGA_FEE_PM = 39
@@ -522,4 +530,3 @@ if 'test' in sys.argv[1:]:
     TEMPLATE_DEBUG = False
     TESTS_IN_PROGRESS = True
     MIGRATION_MODULES = DisableMigrations()
-

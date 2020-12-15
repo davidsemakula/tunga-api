@@ -77,6 +77,8 @@ class TungaUser(AbstractUser):
     )
     invoice_email = models.EmailField(blank=True, null=True)
     can_pay = models.BooleanField(default=False)
+    sso_uuid = models.UUIDField(null=True, blank=True)
+    sso_refresh_token = models.TextField(null=True, blank=True)
 
     class Meta(AbstractUser.Meta):
         unique_together = ('email',)
