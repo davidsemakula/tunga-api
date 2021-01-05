@@ -5,7 +5,7 @@ from rest_framework.exceptions import ValidationError
 from tunga_profiles import sso_helper
 from tunga_profiles.models import UserProfile, Education, Work, Connection, \
     DeveloperApplication, DeveloperInvitation, \
-    Skill, Company, WhitePaperUser
+    Skill, Company, WhitePaperUser, ProfileProject
 from tunga_profiles.notifications import send_developer_invited_email
 from tunga_profiles.signals import user_profile_updated
 from tunga_utils.constants import SKILL_TYPE_OTHER
@@ -127,6 +127,11 @@ class EducationSerializer(AbstractExperienceSerializer):
 class WorkSerializer(AbstractExperienceSerializer):
     class Meta(AbstractExperienceSerializer.Meta):
         model = Work
+
+
+class ProfileProjectSerializer(AbstractExperienceSerializer):
+    class Meta(AbstractExperienceSerializer.Meta):
+        model = ProfileProject
 
 
 class ConnectionSerializer(NestedModelSerializer,

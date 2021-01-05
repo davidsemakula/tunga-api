@@ -8,7 +8,8 @@ from django_countries.serializer_fields import CountryField
 from rest_framework import serializers
 from rest_framework.fields import SkipField
 
-from tunga_profiles.models import Skill, City, UserProfile, Education, Work, Connection, BTCWallet, Company
+from tunga_profiles.models import Skill, City, UserProfile, Education, Work, \
+    Connection, BTCWallet, Company, ProfileProject
 from tunga_profiles.utils import profile_check
 from tunga_tasks.models import TaskInvoice
 from tunga_utils.mixins import GetCurrentUserAnnotatedSerializerMixin
@@ -417,6 +418,12 @@ class SimpleEducationSerializer(SimpleAbstractExperienceSerializer):
 
     class Meta(SimpleAbstractExperienceSerializer.Meta):
         model = Education
+
+
+class SimpleProfileProjectSerializer(SimpleAbstractExperienceSerializer):
+
+    class Meta(SimpleAbstractExperienceSerializer.Meta):
+        model = ProfileProject
 
 
 class SimpleConnectionSerializer(serializers.ModelSerializer):

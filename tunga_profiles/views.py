@@ -22,12 +22,16 @@ from tunga_auth.permissions import IsAdminOrCreateOnly
 from tunga_payments.models import Invoice
 from tunga_profiles import sso_helper
 from tunga_profiles.filterbackends import ConnectionFilterBackend
-from tunga_profiles.filters import EducationFilter, WorkFilter, ConnectionFilter, DeveloperApplicationFilter, \
-    DeveloperInvitationFilter
-from tunga_profiles.models import UserProfile, Education, Work, Connection, DeveloperApplication, DeveloperInvitation, \
-    Company
-from tunga_profiles.serializers import ProfileSerializer, EducationSerializer, WorkSerializer, ConnectionSerializer, \
-    DeveloperApplicationSerializer, DeveloperInvitationSerializer, CompanySerializer, WhitePaperVisitorsSerializer
+from tunga_profiles.filters import EducationFilter, WorkFilter, \
+    ConnectionFilter, DeveloperApplicationFilter, \
+    DeveloperInvitationFilter, ProfileProjectFilter
+from tunga_profiles.models import UserProfile, Education, Work, Connection, \
+    DeveloperApplication, DeveloperInvitation, \
+    Company, ProfileProject
+from tunga_profiles.serializers import ProfileSerializer, EducationSerializer, \
+    WorkSerializer, ProfileProjectSerializer, ConnectionSerializer, \
+    DeveloperApplicationSerializer, DeveloperInvitationSerializer, \
+    CompanySerializer, WhitePaperVisitorsSerializer
 from tunga_projects.models import Project, ProgressReport, ProgressEvent, Participation, Document
 from tunga_tasks.utils import get_integration_token
 from tunga_utils import github, slack_utils
@@ -98,6 +102,17 @@ class WorkViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, DRYPermissions]
     filter_class = WorkFilter
     search_fields = ('company', 'position')
+
+
+class ProfileProjectViewSet(viewsets.ModelViewSet):
+    """
+    Project View Resource
+    """
+    queryset = ProfileProject.objects.all()
+    serializer_class = ProfileProjectSerializer
+    permission_classes = [IsAuthenticated, DRYPermissions]
+    filter_class = ProfileProjectFilter
+    search_fields = ('title', 'category')
 
 
 class ConnectionViewSet(viewsets.ModelViewSet):

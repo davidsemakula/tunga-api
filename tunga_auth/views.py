@@ -189,7 +189,8 @@ class UserViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Lis
             'user': user,
             'profile': user.profile,
             'work': user.work_set.all(),
-            'education': user.education_set.all()
+            'education': user.education_set.all(),
+            'project': user.profileproject_set.all()
         }
 
         rendered_html = render_to_string("tunga/pdf/profile.html", context=ctx).encode(encoding="UTF-8")
