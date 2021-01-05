@@ -23,7 +23,8 @@ from tunga_utils.constants import REQUEST_STATUS_INITIAL, \
     STATUS_INITIAL, STATUS_ACCEPTED, STATUS_REJECTED, SKILL_TYPE_LANGUAGE, \
     SKILL_TYPE_FRAMEWORK, \
     SKILL_TYPE_PLATFORM, SKILL_TYPE_LIBRARY, SKILL_TYPE_STORAGE, SKILL_TYPE_API, \
-    SKILL_TYPE_OTHER, USER_CATEGORY_DEVELOPER, USER_CATEGORY_DESIGNER
+    SKILL_TYPE_OTHER, USER_CATEGORY_DEVELOPER, USER_CATEGORY_DESIGNER, \
+    PROFILE_PROJECT_CATEGORY_CHOICES
 from tunga_utils.helpers import get_serialized_id
 from tunga_utils.models import AbstractExperience
 from tunga_utils.validators import validate_btc_address
@@ -343,6 +344,21 @@ class Work(AbstractExperience):
 
     class Meta:
         verbose_name_plural = 'work'
+
+
+@python_2_unicode_compatible
+class ProfileProject(AbstractExperience):
+    title = models.CharField(max_length=500)
+    category = models.CharField(
+        max_length=50, choices=PROFILE_PROJECT_CATEGORY_CHOICES)
+    project_link = models.CharField(max_length=255, null=True, blank=True)
+    repository_link = models.CharField(max_length=255, null=True, blank=True)
+
+    def __str__(self):
+        return '%s - %s' % (self.user.get_short_name, self.title)
+
+    class Meta:
+        verbose_name_plural = 'project'
 
 
 CONNECTION_STATUS_CHOICES = (

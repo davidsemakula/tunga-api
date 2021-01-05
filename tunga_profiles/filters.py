@@ -1,4 +1,5 @@
-from tunga_profiles.models import Education, Work, Connection, DeveloperApplication, DeveloperInvitation
+from tunga_profiles.models import Education, Work, Connection, ProfileProject,\
+    DeveloperApplication, DeveloperInvitation
 from tunga_utils.filters import GenericDateFilterSet
 
 
@@ -12,6 +13,12 @@ class WorkFilter(GenericDateFilterSet):
     class Meta:
         model = Work
         fields = ('company', 'position')
+
+
+class ProfileProjectFilter(GenericDateFilterSet):
+    class Meta:
+        model = ProfileProject
+        fields = ('title', 'category')
 
 
 class ConnectionFilter(GenericDateFilterSet):

@@ -34,7 +34,7 @@ from tunga_utils.serializers import SimpleProfileSerializer, \
     SimpleUserSerializer, SimpleWorkSerializer, \
     SimpleEducationSerializer, SimpleConnectionSerializer, \
     SimpleCompanySerializer, SimplestCompanySerializer, \
-    NestedModelSerializer
+    NestedModelSerializer, SimpleProfileProjectSerializer
 from tunga_utils.validators import validate_email, validate_username
 
 
@@ -55,6 +55,10 @@ class UserSerializer(NestedModelSerializer, SimpleUserSerializer,
                                 required=False)
     education = SimpleEducationSerializer(many=True, source='education_set',
                                           read_only=True, required=False)
+
+    project = SimpleProfileProjectSerializer(many=True,
+                                             source='profileproject_set',
+                                             read_only=True, required=False)
     can_connect = serializers.SerializerMethodField(read_only=True,
                                                     required=False)
     request = serializers.SerializerMethodField(read_only=True, required=False)

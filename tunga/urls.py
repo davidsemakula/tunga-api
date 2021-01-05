@@ -42,7 +42,8 @@ from tunga_profiles.views import ProfileView, EducationViewSet, WorkViewSet, \
     NotificationView, CountryListView, \
     DeveloperApplicationViewSet, RepoListView, IssueListView, \
     SlackIntegrationView, \
-    DeveloperInvitationViewSet, CompanyView, WhitePaperVisitorsView
+    DeveloperInvitationViewSet, CompanyView, WhitePaperVisitorsView, \
+    ProfileProjectViewSet
 from tunga_projects.views import ProjectViewSet, DocumentViewSet, \
     ParticipationViewSet, ProgressEventViewSet, \
     ProgressReportViewSet, InterestPollViewSet, DeveloperRatingViewSet, \
@@ -67,6 +68,7 @@ router.register(r'invite', DeveloperInvitationViewSet)
 router.register(r'me/account', AccountInfoView)
 router.register(r'me/education', EducationViewSet)
 router.register(r'me/work', WorkViewSet)
+router.register(r'me/project', ProfileProjectViewSet)
 router.register(r'projects', ProjectViewSet)
 router.register(r'documents', DocumentViewSet)
 router.register(r'participation', ParticipationViewSet)
