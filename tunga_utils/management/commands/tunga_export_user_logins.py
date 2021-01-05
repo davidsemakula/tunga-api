@@ -21,14 +21,17 @@ class Command(BaseCommand):
         }
 
         users = TungaUser.objects.all().order_by('last_login')
-        row = ['First Name', ' Last Name', 'Email', 'Last Login', 'User Role']
+        row = ['Email', 'Username', 'User Role',
+               'Last Login', 'isActive', 'First Name', 'Last Name'
+               ]
         with open('TungaUser.csv', 'a') as csvFile:
             writer = csv.writer(csvFile)
             writer.writerow(row)
 
             for user in users:
-                writer.writerow([user.first_name, user.last_name, user.email,
-                                 user.last_login,
-                                 user_type.get(user.type, None)])
-
+                writer.writerow([user.email, user.username,
+                                 user_type.get(user.type, None),
+                                 user.last_login, user.is_active,
+                                 user.first_name, user.last_name
+                                 ])
         csvFile.close()
