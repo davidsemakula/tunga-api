@@ -38,5 +38,5 @@ class Command(BaseCommand):
                      user.profile.street if user.profile else "",
                      user.profile.city if user.profile else "",
                      user.profile.country.name if user.profile else "",
-                     "https://tunga.io/dev-profile/%d" % user.id])
+                     "https://work.tunga.io/dev-profile/%d" % user.id])
         csvFile.close()
