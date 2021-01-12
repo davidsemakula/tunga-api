@@ -87,7 +87,7 @@ requests-oauthlib==0.8.0  # via django-allauth
 requests[security]==2.22.0
 rest-framework-generic-relations==1.1.0
 rq==0.6.0                 # via django-rq
-rsa==4.0                  # via oauth2client
+rsa==4.7                  # via oauth2client
 sentry-sdk==0.13.4
 simplejson==3.10.0        # via django-rest-swagger
 six==1.10.0
