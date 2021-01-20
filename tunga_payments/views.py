@@ -8,6 +8,7 @@ import json
 import uuid
 from decimal import Decimal
 
+from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from dry_rest_permissions.generics import DRYPermissions
@@ -344,6 +345,27 @@ class InvoiceViewSet(ModelViewSet):
             return self.get_paginated_response(serializer.data)
         serializer = self.get_serializer(results, many=True)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @list_route(
+        methods=['get'], url_path='summary',
+        permission_classes=[IsAuthenticated, DRYPermissions],
+        filter_backends=DEFAULT_FILTER_BACKENDS + (InvoiceFilterBackend,),
+        filter_class=InvoiceFilter,
+        queryset=Invoice.objects.filter(archived=False)
+    )
+    def payment_payout_summary(self, request):
+        # After filtering invoices by type purchase/sale from request params
+        results = self.filter_queryset(queryset=self.queryset)
+        paid = results.filter(paid=True).aggregate(
+            Sum('amount')).get('amount__sum') or 0
+        unpaid = results.filter(paid=False).aggregate(
+            Sum('amount')).get('amount__sum') or 0
+
+        return Response({
+            'total': paid + unpaid,
+            'paid': paid,
+            'unpaid': unpaid
+        })
 
 
 class PaymentViewSet(ModelViewSet):
