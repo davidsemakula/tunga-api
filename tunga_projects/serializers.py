@@ -262,6 +262,7 @@ class ProgressEventSerializer(NestedModelSerializer,
         required=False, read_only=True, many=True, source='developerrating_set'
     )
     change_log = serializers.JSONField(required=False, write_only=True)
+    user = SimplestUserSerializer(required=False)
 
     class Meta:
         model = ProgressEvent

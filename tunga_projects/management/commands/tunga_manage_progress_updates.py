@@ -39,14 +39,15 @@ class Command(BaseCommand):
                 day_selection_for_updates=False)
             if weekday < 5 and participants:
                 # Only developer updates btn Monday (0) and Friday (4)
-                dev_defaults = dict(title='Developer Update')
-                dev_event, created = ProgressEvent.objects.update_or_create(
-                    project=project, type=PROGRESS_EVENT_DEVELOPER,
-                    due_at=today_noon, defaults=dev_defaults
-                )
+                for participant in participants:
+                    dev_defaults = dict(title='Developer Update')
+                    dev_event, created = ProgressEvent.objects.update_or_create(
+                        project=project, type=PROGRESS_EVENT_DEVELOPER,
+                        due_at=today_noon, defaults=dev_defaults, user=participant.user
+                    )
 
-                if not dev_event.last_reminder_at:
-                    remind_progress_event.delay(dev_event.id)
+                    if not dev_event.last_reminder_at:
+                        remind_progress_event.delay(dev_event.id)
 
             # now get participants with update on specific days
             select_update_participants = project.participation_set.filter(
@@ -58,7 +59,7 @@ class Command(BaseCommand):
                     if str(weekday) in participant.update_days.split(','):
                         dev_defaults = dict(title='Developer Update')
                         dev_event, created = ProgressEvent.objects.update_or_create(
-                            project=project, type=PROGRESS_EVENT_DEVELOPER,
+                            project=project, type=PROGRESS_EVENT_DEVELOPER, user=participant.user,
                             due_at=today_noon, defaults=dev_defaults
                         )
 
@@ -70,7 +71,7 @@ class Command(BaseCommand):
                 pm_defaults = dict(title='PM Report')
                 pm_event, created = ProgressEvent.objects.update_or_create(
                     project=project, type=PROGRESS_EVENT_PM,
-                    due_at=today_noon, defaults=pm_defaults
+                    due_at=today_noon, defaults=pm_defaults, user=project.pm
                 )
                 if not pm_event.last_reminder_at:
                     remind_progress_event.delay(pm_event.id)
@@ -81,7 +82,7 @@ class Command(BaseCommand):
                 client_defaults = dict(title='Client Survey')
                 client_event, created = ProgressEvent.objects.update_or_create(
                     project=project, type=PROGRESS_EVENT_DEVELOPER_RATING,
-                    due_at=today_noon, defaults=client_defaults
+                    due_at=today_noon, defaults=client_defaults, user=owner
                 )
                 if not client_event.last_reminder_at:
                     remind_progress_event.delay(client_event.id)

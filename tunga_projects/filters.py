@@ -1,4 +1,7 @@
+import datetime
+
 import django_filters
+from dateutil.relativedelta import relativedelta
 from django.db.models import Q
 
 from tunga_projects.models import Project, Document, Participation, \
@@ -23,7 +26,6 @@ class ProjectFilter(GenericDateFilterSet):
 
 
 class ParticipationFilter(GenericDateFilterSet):
-
     class Meta:
         model = Participation
         fields = (
@@ -32,7 +34,6 @@ class ParticipationFilter(GenericDateFilterSet):
 
 
 class InterestPollFilter(GenericDateFilterSet):
-
     class Meta:
         model = InterestPoll
         fields = (
@@ -41,7 +42,6 @@ class InterestPollFilter(GenericDateFilterSet):
 
 
 class DocumentFilter(GenericDateFilterSet):
-
     class Meta:
         model = Document
         fields = (
@@ -50,12 +50,31 @@ class DocumentFilter(GenericDateFilterSet):
 
 
 class ProgressEventFilter(GenericDateFilterSet):
+    types = django_filters.CharFilter(method='filter_multi_types')
+    users = django_filters.CharFilter(method='filter_multi_users')
+    overdue = django_filters.BooleanFilter(method='filter_overdue')
 
     class Meta:
         model = ProgressEvent
         fields = (
-            'project', 'created_by', 'type'
+            'project', 'created_by', 'type', 'types', 'users', 'created_at', 'overdue'
         )
+
+    def filter_multi_types(self, queryset, name, value):
+        value = value.split(",")
+        return queryset.filter(Q(type__in=value))
+
+    def filter_multi_users(self, queryset, name, value):
+        value = value.split(",")
+        return queryset.filter(user_id__in=value)
+
+    def filter_overdue(self, queryset, name, value):
+        if value:
+            right_now = datetime.datetime.utcnow()
+            past_by_18_hours = right_now - relativedelta(hours=18)
+            past_by_48_hours = right_now - relativedelta(hours=48)
+            return queryset.filter(due_at__range=[past_by_48_hours, past_by_18_hours])
+        return queryset
 
 
 class ProgressReportFilter(GenericDateFilterSet):

@@ -369,6 +369,10 @@ class ProgressEvent(models.Model):
 
     legacy_id = models.PositiveIntegerField(blank=True, null=True)
     migrated_at = models.DateTimeField(blank=True, null=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, related_name='progress_events_user',
+        blank=True, null=True
+    )
 
     activity_objects = GenericRelation(
         Action,
