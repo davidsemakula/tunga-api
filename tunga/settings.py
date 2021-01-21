@@ -21,7 +21,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '!8g-9plb-5pa795jxv4@f18fu-+j^h2cyk_-?p%4s31eudmmr+'
 
-ALLOWED_HOSTS = ["*", 'tunga.io', 'web.tunga.io', 'www.tunga.io']
+ALLOWED_HOSTS = ["*", 'tunga.io', 'web.tunga.io', 'www.tunga.io', 'work.tunga.io']
 
 DEBUG = True
 
@@ -356,7 +356,7 @@ COUNTRIES_FIRST_BREAK = ' ---- '
 TUNGA_CONTACT_REQUEST_EMAIL_RECIPIENTS = []
 TUNGA_STAFF_LOW_LEVEL_UPDATE_EMAIL_RECIPIENTS = []
 TUNGA_STAFF_UPDATE_EMAIL_RECIPIENTS = TUNGA_STAFF_LOW_LEVEL_UPDATE_EMAIL_RECIPIENTS
-TUNGA_URL = 'https://staging.tunga.io'
+TUNGA_URL = 'https://work.tunga.io'
 
 TUNGA_FEE_DEV = 19
 TUNGA_FEE_PM = 39
