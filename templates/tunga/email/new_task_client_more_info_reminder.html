@@ -1,6 +1,6 @@
 {% extends "tunga/email/content.html" %}
 {% load i18n %}
-{% block email_header_bg %}https://tunga.io/static/tunga/img/email/header3.jpg{% endblock %}
+{% block email_header_bg %}https://work.tunga.io/static/tunga/img/email/header3.jpg{% endblock %}
 {% block email_header %}
     Don't forget to finalise your {% if task.is_task %}task{% else %}project{% endif %}.
 {% endblock %}
@@ -16,6 +16,6 @@
     <a href="{{ task_edit_url | safe }}">{{ task_edit_url }}</a><br>
     <br>
     If you have any question regarding the task submit process, let us know. Email us at hello@tunga.io or schedule
-    a call <a href="https://tunga.io/call">here</a><br>
+    a call <a href="https://work.tunga.io/call">here</a><br>
 
 {% endblock %}

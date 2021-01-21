@@ -244,7 +244,7 @@ class Message(models.Model):
             user = GenericObject(**json.loads(self.alt_user))
             if self.source == APP_INTEGRATION_PROVIDER_SLACK:
                 user.name = '%s from Tunga' % user.name.title()
-                user.avatar_url = 'https://tunga.io/icons/Tunga_squarex150.png'
+                user.avatar_url = 'https://work.tunga.io/icons/Tunga_squarex150.png'
             user.display_name = user.name
             user.short_name = user.name
             return user
@@ -267,7 +267,7 @@ class Message(models.Model):
                     display_name=support_name,
                     short_name=support_name,
                     email=self.user.email,
-                    avatar_url=self.user.avatar_url or 'https://tunga.io/icons/Tunga_squarex150.png'
+                    avatar_url=self.user.avatar_url or 'https://work.tunga.io/icons/Tunga_squarex150.png'
                 ))
                 return user
             return self.user

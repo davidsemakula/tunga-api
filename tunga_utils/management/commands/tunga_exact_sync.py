@@ -12,7 +12,7 @@ from tunga_tasks.tasks import sync_exact_invoices
 from tunga_utils.constants import USER_TYPE_PROJECT_OWNER, STATUS_ACCEPTED, \
     PAYMENT_METHOD_PAYONEER, PAYMENT_METHOD_BANK
 
-TUNGA_API_BASE_URL = 'https://tunga.io/api'
+TUNGA_API_BASE_URL = 'https://work.tunga.io/api'
 
 
 def format_money(amount):
@@ -20,13 +20,13 @@ def format_money(amount):
 
 
 def get_invoice_url(task_id, invoice_type, developer=None):
-    return 'https://tunga.io/api/task/{}/download/invoice/?format=pdf&type={}{}'.format(
+    return 'https://work.tunga.io/api/task/{}/download/invoice/?format=pdf&type={}{}'.format(
         task_id, invoice_type, developer and '&developer={}'.format(developer) or ''
     )
 
 
 def get_task_url(task_id):
-    return 'https://tunga.io/work/{}/'.format(task_id)
+    return 'https://work.tunga.io/work/{}/'.format(task_id)
 
 
 class Command(BaseCommand):
