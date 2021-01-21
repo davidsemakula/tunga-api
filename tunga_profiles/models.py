@@ -474,7 +474,7 @@ class DeveloperInvitation(models.Model):
                                       unique=True)
     invitation_sent_at = models.DateTimeField(blank=True, null=True,
                                               editable=False)
-    used = models.BooleanField(default=False)
+    used = models.BooleanField(default=False)  # pending invitation
     used_at = models.DateTimeField(blank=True, null=True, editable=False)
     resent = models.BooleanField(default=False)
     resent_at = models.DateTimeField(blank=True, null=True, editable=False)
