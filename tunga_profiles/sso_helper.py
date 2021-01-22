@@ -174,7 +174,9 @@ def check_if_users_exists_in_sso(current_user, email):
         'Authorization': "Bearer %s" % get_sso_access_token(current_user)
     }
     response = requests.get(sso_filter_user_by_email_endpoint, headers=headers)
-    if response.status_code == HTTP_200_OK:
+    # since filter returns a list of results
+    data = response.json()
+    if response.status_code == HTTP_200_OK and data.get('count'):
         return True
     return False
 
