@@ -18,7 +18,7 @@ from slacker import Slacker
 
 from tunga_activity.models import FieldChangeLog, NotificationReadLog
 from tunga_activity.serializers import ActivitySerializer
-from tunga_auth.permissions import IsAdminOrCreateOnly
+from tunga_auth.permissions import IsAdminOrCreateOnly, IsPmOrIsAdmin
 from tunga_payments.models import Invoice
 from tunga_profiles import sso_helper
 from tunga_profiles.filterbackends import ConnectionFilterBackend
@@ -163,7 +163,7 @@ class DeveloperInvitationViewSet(viewsets.ModelViewSet):
     """
     queryset = DeveloperInvitation.objects.all()
     serializer_class = DeveloperInvitationSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated, IsPmOrIsAdmin]
     filter_class = DeveloperInvitationFilter
     filter_backends = DEFAULT_FILTER_BACKENDS
     search_fields = ('first_name', 'last_name')
