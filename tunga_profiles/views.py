@@ -319,7 +319,8 @@ class NotificationView(views.APIView):
                 ),
                 'projects': [dict(
                     id=project.id,
-                    title=project.title
+                    title=project.title,
+                    team=self.get_participants(project)
                 ) for project in running_projects],
                 'invoices': [dict(
                     id=invoice.id,
@@ -369,6 +370,21 @@ class NotificationView(views.APIView):
             },
             status=status.HTTP_200_OK
         )
+
+    def get_participants(self, project):
+        participations = Participation.objects.filter(
+            project=project, status__in=[STATUS_ACCEPTED, STATUS_INITIAL]
+        )
+        users = []
+        for participation in participations:
+            user = {
+                'display_name': participation.user.display_name,
+                'image': participation.user.image or ''
+            }
+            users.append(user)
+        return users
+
+
 
 
 class RepoListView(views.APIView):
