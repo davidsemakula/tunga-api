@@ -216,6 +216,30 @@ class NotificationView(views.APIView):
         else:
             return None
 
+    def get_participants(self, project):
+        participations = Participation.objects.filter(
+            project=project, status__in=[STATUS_ACCEPTED, STATUS_INITIAL]
+        )
+        users = []
+        for participation in participations:
+            user = {
+                'display_name': participation.user.display_name,
+                'image': participation.user.image or ''
+            }
+            users.append(user)
+        return users
+
+    def get_latest_milestone(self, project):
+        milestone = ProgressEvent.objects.filter(
+            project=project, type=PROGRESS_EVENT_MILESTONE
+        ).order_by('created_at').last()
+        if milestone:
+            return {
+                'title': milestone.title,
+                'due_at': milestone.due_at
+            }
+        return
+
     def get(self, request):
         user = self.get_object(request)
         if user is None:
@@ -317,9 +341,12 @@ class NotificationView(views.APIView):
                     optional=missing_optional,
                     cleared=cleared_notifications
                 ),
+
                 'projects': [dict(
                     id=project.id,
-                    title=project.title
+                    title=project.title,
+                    milestone=self.get_latest_milestone(project),
+                    team=self.get_participants(project)
                 ) for project in running_projects],
                 'invoices': [dict(
                     id=invoice.id,
