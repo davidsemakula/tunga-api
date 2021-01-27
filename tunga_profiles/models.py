@@ -46,6 +46,7 @@ class Skill(tagulous.models.TagModel):
         help_text=','.join(
             ['%s - %s' % (item[0], item[1]) for item in SKILL_TYPE_CHOICES])
     )
+    primary = models.BooleanField(default=False)
 
     class TagMeta:
         initial = "PHP, JavaScript, Python, Ruby, Java, C#, C++, Ruby, Swift, Objective C, .NET, ASP.NET, Node.js," \

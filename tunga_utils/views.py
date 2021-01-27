@@ -22,6 +22,7 @@ from rest_framework.response import Response
 
 from tunga.settings import MEDIA_ROOT, MEDIA_URL
 from tunga_auth.utils import get_session_visitor_email
+from tunga_profiles.filters import SkillFilter
 from tunga_profiles.models import Skill
 from tunga_projects.models import Project, ProgressEvent
 from tunga_projects.serializers import SimpleProjectSerializer, SimpleProgressEventSerializer
@@ -41,6 +42,7 @@ class SkillViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Skill.objects.all()
     serializer_class = SkillSerializer
     permission_classes = [AllowAny]
+    filter_class = SkillFilter
     search_fields = ('name', )
 
 

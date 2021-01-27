@@ -202,7 +202,7 @@ class SimpleSkillSerializer(SimpleModelSerializer):
 
     class Meta:
         model = Skill
-        fields = ('id', 'name', 'slug', 'type')
+        fields = ('id', 'name', 'slug', 'type', 'primary')
         read_only_fields = ('slug',)
 
     def to_internal_value(self, data):
@@ -212,7 +212,7 @@ class SimpleSkillSerializer(SimpleModelSerializer):
 class SkillSerializer(serializers.ModelSerializer):
     class Meta:
         model = Skill
-        fields = ('id', 'name', 'slug', 'type')
+        fields = ('id', 'name', 'slug', 'type', 'primary')
 
 
 class CitySerializer(serializers.ModelSerializer):
