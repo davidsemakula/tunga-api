@@ -222,9 +222,10 @@ class NotificationView(views.APIView):
         )
         users = []
         for participation in participations:
+            image = participation.user.image
             user = {
                 'display_name': participation.user.display_name,
-                'image': participation.user.image or ''
+                'image': image.url if image else ''
             }
             users.append(user)
         return users
