@@ -1,5 +1,5 @@
-from tunga_profiles.models import Education, Work, Connection, ProfileProject,\
-    DeveloperApplication, DeveloperInvitation
+from tunga_profiles.models import Education, Work, Connection, ProfileProject, \
+    DeveloperApplication, DeveloperInvitation, Skill
 from tunga_utils.filters import GenericDateFilterSet
 
 
@@ -37,3 +37,9 @@ class DeveloperInvitationFilter(GenericDateFilterSet):
     class Meta:
         model = DeveloperInvitation
         fields = ('used',)
+
+
+class SkillFilter(GenericDateFilterSet):
+    class Meta:
+        model = Skill
+        fields = ('type',)

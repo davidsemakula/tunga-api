@@ -75,6 +75,11 @@ class ProfileSerializer(NestedModelSerializer,
                         Skill.objects.filter(name=skill.get('name', ''),
                                              type=SKILL_TYPE_OTHER).update(
                             type=category)
+
+                    if 'primary' in skill:
+                        Skill.objects.filter(
+                            name=skill.get('name'), type=skill.get('type')
+                        ).update(primary=skill.get('primary'))
                 except:
                     pass
 
