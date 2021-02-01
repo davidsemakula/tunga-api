@@ -361,6 +361,13 @@ class InvoiceViewSet(ModelViewSet):
         unpaid = results.filter(paid=False).aggregate(
             Sum('amount')).get('amount__sum') or 0
 
+        # Subtract credit notes from paid value if filter is of type sales
+        if request.query_params.get('type') == 'sale':
+            # Get credit notes amount
+            credit_amount = self.queryset.filter(type='credit_nota').aggregate(
+                Sum('amount')).get('amount__sum') or 0
+            paid = paid - credit_amount
+
         return Response({
             'total': paid + unpaid,
             'paid': paid,
